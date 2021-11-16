@@ -1,0 +1,1 @@
+include 'server', 'headless', 'core', 'lwjgl3'
