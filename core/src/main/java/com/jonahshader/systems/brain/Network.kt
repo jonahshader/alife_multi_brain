@@ -2,6 +2,7 @@ package com.jonahshader.systems.brain
 
 import com.jonahshader.systems.brain.neurons.*
 import java.util.*
+import kotlin.math.roundToInt
 
 class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, private val rand: Random) {
     private val inputNeurons = mutableListOf<InputNeuron>()
@@ -25,22 +26,61 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
             addNeuron(LeakyReLUNeuron(rand, networkParams.weightInitSd))
         }
 
+        connect(networkParams.connectivityInit)
+    }
+
+    fun update(dt: Float) {
+        weights.forEach {
+            it.update(dt)
+        }
     }
 
     fun addNeuron(neuron: Neuron) {
         weights += NeuronWeights(neuron)
     }
 
+    fun removeRandomNeuron() : Boolean {
+        if (weights.size > (inputNeurons.size + outputNeurons.size)) {
+            while (true) {
+                val neuronToRemove = weights.random()
+                if (neuronToRemove.receivingNeuron.removable()) {
+                    weights.remove(neuronToRemove)
+                    return true
+                }
+            }
+        } else {
+            return false
+        }
+    }
+
     fun setInput(index: Int, value: Float) {
         inputNeurons[index].value = value
     }
 
-    fun getOutput() {
+    fun getOutput(index: Int) = outputNeurons[index].getOutput()
 
-    }
+    fun mutate() {
+        var addRemoveNeuronCount = (rand.nextGaussian() * networkParams.addRemoveNeuronSd).roundToInt()
+        var addRemoveWeightCount = (rand.nextGaussian() * networkParams.addRemoveWeightSd).roundToInt()
 
-    fun mutate(rand: Random) {
+        while (addRemoveNeuronCount > 0) {
+            removeRandomNeuron()
+            addRemoveNeuronCount--
+        }
 
+        while (addRemoveNeuronCount < 0) {
+            addNeuron(LeakyReLUNeuron(rand, networkParams.weightInitSd))
+            addRemoveNeuronCount++
+        }
+
+        while (addRemoveWeightCount > 0) {
+            removeRandomWeight()
+            addRemoveWeightCount--
+        }
+
+        while (addRemoveWeightCount < 0) {
+            if (addRandomWeight()) addRemoveWeightCount++
+        }
     }
 
     fun addRandomWeight() : Boolean {
@@ -52,7 +92,13 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
     }
 
     fun removeRandomWeight() : Boolean {
-        return weights.random().removeRandomWeight(rand)
+        val toRemove = weights.randomOrNull()
+        return if (toRemove != null) {
+            toRemove.removeRandomWeight(rand)
+            true
+        } else {
+            false
+        }
     }
 
     fun totalWeights() : Int = weights.fold(0) { acc, neuronWeights ->  acc + neuronWeights.weightCount() }

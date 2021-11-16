@@ -67,4 +67,10 @@ class NeuronWeights(val receivingNeuron: Neuron) {
             false
         }
     }
+
+    fun update(dt: Float) {
+        receivingNeuron.update(calculateSum(), dt)
+    }
+
+    fun containsNeuron(neuronToRemove: Neuron) = neuronToRemove.toString() == receivingNeuron.toString()
 }
