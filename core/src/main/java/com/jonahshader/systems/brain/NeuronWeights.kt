@@ -8,7 +8,7 @@ class Weight(val sourceNeuron: Neuron, private var weight: Float) {
         return sourceNeuron.toString()
     }
 
-    fun calculateWeightedValue() : Float = sourceNeuron.getOutput() * weight
+    fun calculateWeightedValue() : Float = sourceNeuron.out * weight
 
     fun mutate(rand: Random, magnitude: Float) {
         weight += rand.nextGaussian().toFloat() * magnitude

@@ -1,33 +1,10 @@
 package com.jonahshader.systems.brain.neurons
 
-import java.util.*
-
-class OutputNeuron : Neuron{
-    private var outputBuffer = 0.0f
-    private var output = 0.0f
-    private var bias = 0.0f
-
-    constructor()
-
-    constructor(rand: Random, magnitude: Float) {
-        bias += rand.nextGaussian().toFloat() * magnitude
+class OutputNeuron : Neuron() {
+    init {
+        removable = false
     }
-
     override fun update(inputSum: Float, dt: Float) {
         outputBuffer = inputSum + bias
     }
-
-    override fun getOutput(): Float {
-        return output
-    }
-
-    override fun updateOutput() {
-        output = outputBuffer
-    }
-
-    override fun mutate(rand: Random, magnitude: Float) {
-        bias += rand.nextGaussian().toFloat() * magnitude
-    }
-
-    override fun removable() = false
 }

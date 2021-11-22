@@ -2,10 +2,47 @@ package com.jonahshader.systems.brain.neurons
 
 import java.util.*
 
-interface Neuron {
-    fun update(inputSum: Float, dt: Float) // computes output, stores it somewhere to be swapped by updateOutput
-    fun getOutput() : Float // gets output
-    fun updateOutput() // makes the output the most recent computed value
-    fun mutate(rand: Random, magnitude: Float) // mutates internal variables (i can only think of bias)
-    fun removable() : Boolean
+abstract class Neuron {
+    protected var outputBuffer = 0.0f
+    var out = 0.0f
+        private set
+    protected var bias = 0.0f
+
+    // indicates if this can be removed by random mutations
+    // this should be false for IO related neurons
+    var removable = true
+
+    /**
+     * computes output, stores it in outputBuffer
+     */
+    open fun update(inputSum: Float, dt: Float){}
+
+    /**
+     * resets accumulative values (besides out, outputBuffer)
+     */
+    open fun resetStateInternals(){}
+
+    /**
+     * makes the output the most recent computed value
+     */
+    fun updateOutput() {
+        out = outputBuffer
+    }
+
+    /**
+     * mutates internal variables (i can only think of bias)
+     */
+    open fun mutate(rand: Random, magnitude: Float) {
+        bias += rand.nextGaussian().toFloat() * magnitude
+    }
+
+    /**
+     * resetState() reset any integrator variables or anything representing state
+     * from a previous time step. when duplicating
+     */
+    fun resetState() {
+        outputBuffer = 0.0f
+        out = 0.0f
+        resetStateInternals()
+    }
 }
