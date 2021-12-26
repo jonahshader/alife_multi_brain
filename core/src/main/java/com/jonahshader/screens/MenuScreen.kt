@@ -25,7 +25,7 @@ class MenuScreen : KtxScreen {
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(), Vector2(500f, 90f))
 
     init {
-        menu.addMenuItem("Test") { ScreenManager.push(ActorTestScreen()) }
+        menu.addMenuItem("Test") { ScreenManager.push(SimScreen()) }
         menu.addMenuItem("Singleplayer") { }
         menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
         menu.addMenuItem("Exit") { Gdx.app.exit()}

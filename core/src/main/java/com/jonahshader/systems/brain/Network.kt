@@ -5,9 +5,9 @@ import java.util.*
 import kotlin.math.roundToInt
 
 class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, private val rand: Random) {
-    private val inputNeurons = mutableListOf<InputNeuron>()
-    private val outputNeurons = mutableListOf<OutputNeuron>()
-    private val weights = mutableListOf<NeuronWeights>()
+    val inputNeurons = mutableListOf<InputNeuron>()
+    val outputNeurons = mutableListOf<OutputNeuron>()
+    val weights = mutableListOf<NeuronWeights>()
 
     init {
         for (i in 0 until inputs) {
@@ -23,7 +23,9 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
 
         // for now just add leaky relu. needs to be configurable in the future
         for (i in 0 until networkParams.hiddenNeuronCountInit) {
-            addNeuron(LeakyReLUNeuron())
+            val neuron = LeakyReLUNeuron()
+            neuron.mutate(rand, 1.25f)
+            addNeuron(neuron)
         }
 
         connect(networkParams.connectivityInit)
@@ -32,6 +34,9 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
     fun update(dt: Float) {
         weights.forEach {
             it.update(dt)
+        }
+        weights.forEach {
+            it.updateOutput()
         }
     }
 
@@ -104,7 +109,8 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
     fun totalWeights() : Int = weights.fold(0) { acc, neuronWeights ->  acc + neuronWeights.weightCount() }
 
     fun connect(connectivity: Float) {
-        var toAddOrRemove = (weights.size * weights.size * connectivity) - totalWeights()
+        var toAddOrRemove = ((weights.size * weights.size * connectivity) - totalWeights()).roundToInt()
+        println("to add or remove: $toAddOrRemove")
 
         while (toAddOrRemove > 0) {
             if (addRandomWeight()) toAddOrRemove--

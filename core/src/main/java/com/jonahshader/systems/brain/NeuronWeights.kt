@@ -3,7 +3,7 @@ package com.jonahshader.systems.brain
 import com.jonahshader.systems.brain.neurons.Neuron
 import java.util.*
 
-class Weight(val sourceNeuron: Neuron, private var weight: Float) {
+class Weight(val sourceNeuron: Neuron, var weight: Float) {
     override fun toString(): String {
         return sourceNeuron.toString()
     }
@@ -16,7 +16,7 @@ class Weight(val sourceNeuron: Neuron, private var weight: Float) {
 }
 
 class NeuronWeights(val receivingNeuron: Neuron) {
-    private val weights = mutableListOf<Weight>()
+    val weights = mutableListOf<Weight>()
 
     fun addWeight(weight: Weight): Boolean {
         return if (containsWeight(weight)) {
@@ -70,6 +70,10 @@ class NeuronWeights(val receivingNeuron: Neuron) {
 
     fun update(dt: Float) {
         receivingNeuron.update(calculateSum(), dt)
+    }
+
+    fun updateOutput() {
+        receivingNeuron.updateOutput()
     }
 
     fun containsNeuron(neuronToRemove: Neuron) = neuronToRemove.toString() == receivingNeuron.toString()
