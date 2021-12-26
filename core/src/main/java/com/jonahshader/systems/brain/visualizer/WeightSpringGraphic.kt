@@ -26,8 +26,8 @@ class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val 
 
     fun render() {
 //        weight.calculateWeightedValue()
-        MultiBrain.shapeDrawer.setColor(1.0f, 1.0f, 1.0f, 1.0f)
-        MultiBrain.shapeDrawer.line(start.globalPosition, end.globalPosition, 1.0f)
+        MultiBrain.shapeDrawer.setColor(0.8f, .8f, 1.0f, 1.0f)
+        MultiBrain.shapeDrawer.line(start.globalPosition, end.globalPosition, .3f)
     }
 
 }

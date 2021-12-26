@@ -12,7 +12,7 @@ class InputNeuron : Neuron() {
     var value = 0.0f
     init {
         // input neurons should not be removed by default
-        removable = false
+        neuronType = NeuronType.INPUT
     }
     // don't have anything to mutate
     override fun mutate(rand: Random, magnitude: Float) {}

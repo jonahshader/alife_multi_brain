@@ -1,16 +1,19 @@
 package com.jonahshader.systems.brain.visualizer
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
+import ktx.math.minus
 import ktx.math.plusAssign
 
-class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2, private val static: Boolean) : Node2D() {
+class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
     companion object {
-        const val DEFAULT_RADIUS = 8.0f
+        const val DEFAULT_RADIUS = 2.0f
+        var MOUSE_POS = Vector2()
     }
 
     val color = Color(1f, 1f, 1f, 1f)
@@ -22,10 +25,13 @@ class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2, priv
 
     init {
         localPosition.set(initLocalPosition)
+        velocity.x += Math.random().toFloat() - .5f
+        velocity.y += Math.random().toFloat() - .5f
     }
 
     override fun customUpdate(dt: Float) {
-        if (!static) {
+        if (neuron.neuronType == Neuron.NeuronType.HIDDEN) {
+//        if (true) {
             force.scl(1/mass)
             acceleration.set(force)
             acceleration.scl(dt)
@@ -34,12 +40,25 @@ class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2, priv
 
             force.setZero()
         }
+
+        if (Gdx.input.isTouched) {
+            if ((MOUSE_POS - globalPosition).len2() < radius * radius) {
+                // find delta
+                val mouseDelta = MOUSE_POS - globalPosition
+                localPosition += mouseDelta
+            }
+        }
     }
 
     override fun customRender(batch: Batch) {
         // TODO: color by post-activation or something
         // or maybe change the size by magnitude
-        MultiBrain.shapeDrawer.setColor(color)
+        when (neuron.neuronType) {
+            Neuron.NeuronType.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f, 1.0f, 1.0f, 1.0f)
+            Neuron.NeuronType.OUTPUT -> MultiBrain.shapeDrawer.setColor(1.0f, 1.0f, 0.25f, 1.0f)
+            Neuron.NeuronType.HIDDEN -> MultiBrain.shapeDrawer.setColor(color)
+        }
+
         MultiBrain.shapeDrawer.filledCircle(globalPosition, radius)
     }
 }

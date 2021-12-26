@@ -8,10 +8,25 @@ class Weight(val sourceNeuron: Neuron, var weight: Float) {
         return sourceNeuron.toString()
     }
 
+    override fun hashCode(): Int {
+        return sourceNeuron.hashCode()
+    }
+
     fun calculateWeightedValue() : Float = sourceNeuron.out * weight
 
     fun mutate(rand: Random, magnitude: Float) {
         weight += rand.nextGaussian().toFloat() * magnitude
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Weight
+
+        if (sourceNeuron != other.sourceNeuron) return false
+
+        return true
     }
 }
 
@@ -23,6 +38,7 @@ class NeuronWeights(val receivingNeuron: Neuron) {
             false
         } else {
             weights += weight
+            println("added weight, now has ${weights.size} weights.")
             true
         }
     }

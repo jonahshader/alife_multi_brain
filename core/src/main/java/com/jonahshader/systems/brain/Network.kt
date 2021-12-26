@@ -48,7 +48,7 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
         if (weights.size > (inputNeurons.size + outputNeurons.size)) {
             while (true) {
                 val neuronToRemove = weights.random()
-                if (neuronToRemove.receivingNeuron.removable) {
+                if (neuronToRemove.receivingNeuron.neuronType == Neuron.NeuronType.HIDDEN) {
                     weights.remove(neuronToRemove)
                     return true
                 }

@@ -9,6 +9,7 @@ import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.Network
 import com.jonahshader.systems.brain.neurons.NetworkParams
 import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
+import com.jonahshader.systems.brain.visualizer.NeuronGraphic
 import ktx.app.KtxScreen
 import ktx.graphics.use
 import java.util.*
@@ -32,6 +33,7 @@ class SimScreen : KtxScreen {
         netVisualizer.update(Vector2.Zero, 0.0f, 1/60.0f)
 
         MultiBrain.batch.use(camera) {
+            NeuronGraphic.MOUSE_POS = viewport.unproject(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
             netVisualizer.render(MultiBrain.batch)
         }
     }

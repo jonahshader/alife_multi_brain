@@ -3,6 +3,11 @@ package com.jonahshader.systems.brain.neurons
 import java.util.*
 
 abstract class Neuron {
+    enum class NeuronType {
+        INPUT,
+        OUTPUT,
+        HIDDEN
+    }
     protected var outputBuffer = 0.0f
     var out = 0.0f
         private set
@@ -10,7 +15,7 @@ abstract class Neuron {
 
     // indicates if this can be removed by random mutations
     // this should be false for IO related neurons
-    var removable = true
+    var neuronType = NeuronType.HIDDEN
 
     /**
      * computes output, stores it in outputBuffer

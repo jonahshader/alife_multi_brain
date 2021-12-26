@@ -7,23 +7,36 @@ import com.jonahshader.systems.brain.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
 
 class NetworkVisualizer(var network: Network) : Node2D() {
-    private val neurons = mutableListOf<NeuronGraphic>()
+    private val neurons = mutableSetOf<NeuronGraphic>()
     private val weights = mutableListOf<WeightSpringGraphic>()
     private val sc = SpringConstants(1.0f, 0.5f)
 
+    private val ioNeuronPadding = 48.0f
+    private val ioNeuronHorizontalSpacing = 180.0f
+
     init {
+        val connectedNeurons = HashMap<Neuron, NeuronGraphic>()
+
         network.inputNeurons.forEachIndexed { i, it ->
-            neurons += NeuronGraphic(it, Vector2(0.0f, NeuronGraphic.DEFAULT_RADIUS * i), true)
+            neurons += NeuronGraphic(it, Vector2(0.0f, ioNeuronPadding * i))
+            connectedNeurons[it] = neurons.last()
         }
         network.outputNeurons.forEachIndexed { i, it ->
-            neurons += NeuronGraphic(it, Vector2(NeuronGraphic.DEFAULT_RADIUS * 6.0f, NeuronGraphic.DEFAULT_RADIUS * i), true)
+            neurons += NeuronGraphic(it, Vector2(ioNeuronHorizontalSpacing, ioNeuronPadding * i))
+            connectedNeurons[it] = neurons.last()
         }
+
         network.weights.forEach {
             it.weights.forEach { w ->
 //                if (neurons.contains
                 // need to make these reference the already existing input and output graphic neurons somehow
-                val sourceNeuron = NeuronGraphic(w.sourceNeuron, Vector2(NeuronGraphic.DEFAULT_RADIUS * 4.0f + Math.random().toFloat() * 8, Math.random().toFloat() * 8), !it.receivingNeuron.removable)
-                val destNeuron = NeuronGraphic(it.receivingNeuron, Vector2(NeuronGraphic.DEFAULT_RADIUS * 4.0f + Math.random().toFloat() * 8, Math.random().toFloat() * 8), !it.receivingNeuron.removable)
+                val sourceNeuron = if (connectedNeurons.containsKey(w.sourceNeuron)) connectedNeurons[w.sourceNeuron]!! else
+                    NeuronGraphic(w.sourceNeuron, Vector2(NeuronGraphic.DEFAULT_RADIUS * 8.0f + Math.random().toFloat() * 64, Math.random().toFloat() * 64))
+                val destNeuron = if (connectedNeurons.containsKey(it.receivingNeuron)) connectedNeurons[it.receivingNeuron]!! else
+                    NeuronGraphic(it.receivingNeuron, Vector2(NeuronGraphic.DEFAULT_RADIUS * 8.0f + Math.random().toFloat() * 64, Math.random().toFloat() * 64))
+
+                connectedNeurons[w.sourceNeuron] = sourceNeuron
+                connectedNeurons[it.receivingNeuron] = destNeuron
                 neurons += sourceNeuron
                 neurons += destNeuron
                 weights += WeightSpringGraphic(sourceNeuron, destNeuron, w, sc = sc)
