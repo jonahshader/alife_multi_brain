@@ -1,11 +1,12 @@
 package com.jonahshader.systems.brain.visualizer
 
+import com.badlogic.gdx.math.MathUtils.randomTriangular
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.Weight
 
 class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val weight: Weight,
-                          val targetLength: Float = 64.0f, val sc: SpringConstants) {
+                          val targetLength: Float = 110.0f + randomTriangular(48.0f), val sc: SpringConstants) {
     private var startToEnd = Vector2(end.localPosition).sub(start.localPosition)
     private var pLength = targetLength
     private val direction = Vector2(startToEnd).nor()

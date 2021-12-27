@@ -9,20 +9,22 @@ import com.jonahshader.systems.scenegraph.Node2D
 class NetworkVisualizer(var network: Network) : Node2D() {
     private val neurons = mutableSetOf<NeuronGraphic>()
     private val weights = mutableListOf<WeightSpringGraphic>()
-    private val sc = SpringConstants(1.0f, 0.5f)
+    private val sc = SpringConstants(10.0f, 2.0f)
 
-    private val ioNeuronPadding = 48.0f
-    private val ioNeuronHorizontalSpacing = 180.0f
+    private val ioNeuronPadding = 96.0f
+    private val ioNeuronHorizontalSpacing = 400.0f
 
     init {
         val connectedNeurons = HashMap<Neuron, NeuronGraphic>()
 
         network.inputNeurons.forEachIndexed { i, it ->
-            neurons += NeuronGraphic(it, Vector2(0.0f, ioNeuronPadding * i))
+            val iMid = (i - network.inputNeurons.size / 2f) + .5f
+            neurons += NeuronGraphic(it, Vector2(-ioNeuronHorizontalSpacing/2, ioNeuronPadding * iMid))
             connectedNeurons[it] = neurons.last()
         }
         network.outputNeurons.forEachIndexed { i, it ->
-            neurons += NeuronGraphic(it, Vector2(ioNeuronHorizontalSpacing, ioNeuronPadding * i))
+            val iMid = (i - network.outputNeurons.size / 2f) + .5f
+            neurons += NeuronGraphic(it, Vector2(ioNeuronHorizontalSpacing/2, ioNeuronPadding * iMid))
             connectedNeurons[it] = neurons.last()
         }
 

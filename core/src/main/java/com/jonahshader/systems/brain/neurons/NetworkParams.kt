@@ -5,7 +5,7 @@ class NetworkParams {
     var addRemoveNeuronSd = 0.29f
     var addRemoveWeightSd = 0.4f
 
-    var hiddenNeuronCountInit = 15
-    var connectivityInit = .5f // .1f
+    var hiddenNeuronCountInit = 45
+    var connectivityInit = .1f // .1f
 
 }

@@ -11,7 +11,7 @@ abstract class Node2D {
     val children = mutableListOf<Node2D>()
     var remove = false
 
-    fun update(parentPos: Vector2, parentRot: Float, dt: Float) {
+    open fun update(parentPos: Vector2, parentRot: Float, dt: Float) {
         globalPosition.set(localPosition)
         globalPosition.add(parentPos)
         globalRotation = parentRot + localRotation

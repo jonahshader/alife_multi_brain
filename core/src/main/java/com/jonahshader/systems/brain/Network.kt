@@ -1,10 +1,11 @@
 package com.jonahshader.systems.brain
 
 import com.jonahshader.systems.brain.neurons.*
+import com.jonahshader.systems.utils.Rand
 import java.util.*
 import kotlin.math.roundToInt
 
-class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, private val rand: Random) {
+class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, private val rand: Random = Rand.randx) {
     val inputNeurons = mutableListOf<InputNeuron>()
     val outputNeurons = mutableListOf<OutputNeuron>()
     val weights = mutableListOf<NeuronWeights>()
