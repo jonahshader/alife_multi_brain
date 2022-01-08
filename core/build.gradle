@@ -23,4 +23,6 @@ dependencies {
 	api "io.github.libktx:ktx-assets:$ktxAssetsVersion"
 	api "io.github.libktx:ktx-app:$ktxAppVersion"
 	api "io.github.libktx:ktx-collections:$ktxCollectionsVersion"
+
+	api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 }

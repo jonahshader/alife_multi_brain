@@ -1,15 +1,16 @@
 package com.jonahshader.systems.scenegraph
 
 import com.badlogic.gdx.math.Vector2
+import com.jonahshader.systems.collision.Bounded
 import ktx.math.plusAssign
 import ktx.math.times
 
-abstract class Physics2D : Node2D() {
+abstract class Physics2D : Bounded() {
     val velocity = Vector2()
     val acceleration = Vector2()
     var mass = 1.0f
     val force = Vector2()
-    private val temp = Vector2()
+    val temp = Vector2()
 
     override fun update(parentPos: Vector2, parentRot: Float, dt: Float) {
         // add force to acceleration

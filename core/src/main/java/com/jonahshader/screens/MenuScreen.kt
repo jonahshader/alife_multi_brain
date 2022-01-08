@@ -25,6 +25,7 @@ class MenuScreen : KtxScreen {
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(), Vector2(500f, 90f))
 
     init {
+        menu.addMenuItem("Box2D") { ScreenManager.push(Box2DTestScreen()) }
         menu.addMenuItem("Test") { ScreenManager.push(SimScreen()) }
         menu.addMenuItem("Singleplayer") { }
         menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
