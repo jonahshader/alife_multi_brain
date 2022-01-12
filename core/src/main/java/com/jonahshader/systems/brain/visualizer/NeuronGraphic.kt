@@ -29,8 +29,8 @@ class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2) : No
         velocity.y += Math.random().toFloat() - .5f
     }
 
-    override fun customUpdate(dt: Float) {
-        if (neuron.neuronType == Neuron.NeuronType.HIDDEN) {
+    override fun preUpdate(dt: Float) {
+        if (neuron.neuronCategory == Neuron.NeuronCategory.HIDDEN) {
 //        if (true) {
             force.scl(1/mass)
             acceleration.set(force)
@@ -53,10 +53,10 @@ class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2) : No
     override fun customRender(batch: Batch) {
         // TODO: color by post-activation or something
         // or maybe change the size by magnitude
-        when (neuron.neuronType) {
-            Neuron.NeuronType.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f, 1.0f, 1.0f, 1.0f)
-            Neuron.NeuronType.OUTPUT -> MultiBrain.shapeDrawer.setColor(1.0f, 1.0f, 0.25f, 1.0f)
-            Neuron.NeuronType.HIDDEN -> MultiBrain.shapeDrawer.setColor(color)
+        when (neuron.neuronCategory) {
+            Neuron.NeuronCategory.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f, 1.0f, 1.0f, 1.0f)
+            Neuron.NeuronCategory.OUTPUT -> MultiBrain.shapeDrawer.setColor(1.0f, 1.0f, 0.25f, 1.0f)
+            Neuron.NeuronCategory.HIDDEN -> MultiBrain.shapeDrawer.setColor(color)
         }
 
         MultiBrain.shapeDrawer.filledCircle(globalPosition, radius)

@@ -12,12 +12,15 @@ abstract class Node2D {
     var remove = false
 
     open fun update(parentPos: Vector2, parentRot: Float, dt: Float) {
+        // custom update yields an updated localPosition,
+        // so we call it before updating globalPosition
+        preUpdate(dt)
         globalPosition.set(localPosition)
         globalPosition.add(parentPos)
         globalRotation = parentRot + localRotation
-        customUpdate(dt)
         children.forEach { it.update(globalPosition, globalRotation, dt) }
         children.removeIf { it.remove }
+        postUpdate(dt)
     }
 
     fun render(batch: Batch) {
@@ -29,6 +32,7 @@ abstract class Node2D {
         children += child
     }
 
-    protected abstract fun customUpdate(dt: Float)
+    open fun preUpdate(dt: Float) {}
+    open fun postUpdate(dt: Float) {}
     protected abstract fun customRender(batch: Batch)
 }

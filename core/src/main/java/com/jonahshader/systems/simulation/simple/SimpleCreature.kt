@@ -26,7 +26,7 @@ class SimpleCreature : Bounded() {
         return bounds
     }
 
-    override fun customUpdate(dt: Float) {
+    override fun preUpdate(dt: Float) {
 
 
         age += dt

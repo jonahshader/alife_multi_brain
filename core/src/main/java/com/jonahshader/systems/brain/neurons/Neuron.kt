@@ -3,7 +3,7 @@ package com.jonahshader.systems.brain.neurons
 import java.util.*
 
 abstract class Neuron {
-    enum class NeuronType {
+    enum class NeuronCategory {
         INPUT,
         OUTPUT,
         HIDDEN
@@ -15,7 +15,7 @@ abstract class Neuron {
 
     // indicates if this can be removed by random mutations
     // this should be false for IO related neurons
-    var neuronType = NeuronType.HIDDEN
+    var neuronCategory = NeuronCategory.HIDDEN
 
     /**
      * computes output, stores it in outputBuffer
@@ -37,8 +37,8 @@ abstract class Neuron {
     /**
      * mutates internal variables (i can only think of bias)
      */
-    open fun mutate(rand: Random, magnitude: Float) {
-        bias += rand.nextGaussian().toFloat() * magnitude
+    open fun mutateScalars(rand: Random, amount: Float) {
+        bias += rand.nextGaussian().toFloat() * amount
     }
 
     /**

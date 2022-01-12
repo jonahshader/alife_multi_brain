@@ -2,7 +2,7 @@ package com.jonahshader.systems.brain.neurons
 
 class OutputNeuron : Neuron() {
     init {
-        neuronType = NeuronType.OUTPUT
+        neuronCategory = NeuronCategory.OUTPUT
     }
     override fun update(inputSum: Float, dt: Float) {
         outputBuffer = inputSum + bias

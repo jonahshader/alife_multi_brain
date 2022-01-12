@@ -25,7 +25,7 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
         // for now just add leaky relu. needs to be configurable in the future
         for (i in 0 until networkParams.hiddenNeuronCountInit) {
             val neuron = LeakyReLUNeuron()
-            neuron.mutate(rand, 1.25f)
+            neuron.mutateScalars(rand, 1.25f)
             addNeuron(neuron)
         }
 
@@ -49,7 +49,7 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
         if (weights.size > (inputNeurons.size + outputNeurons.size)) {
             while (true) {
                 val neuronToRemove = weights.random()
-                if (neuronToRemove.receivingNeuron.neuronType == Neuron.NeuronType.HIDDEN) {
+                if (neuronToRemove.receivingNeuron.neuronCategory == Neuron.NeuronCategory.HIDDEN) {
                     weights.remove(neuronToRemove)
                     return true
                 }
