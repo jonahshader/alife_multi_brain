@@ -1,16 +1,21 @@
 package com.jonahshader.systems.brain
 
 import com.jonahshader.systems.brain.neurons.*
+import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.utils.Rand
 import java.util.*
 import kotlin.math.roundToInt
 
-class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, private val rand: Random = Rand.randx) {
+class Network {
+    var networkParams: NetworkParams = NetworkParams()
+    private val rand: Random
     val inputNeurons = mutableListOf<InputNeuron>()
     val outputNeurons = mutableListOf<OutputNeuron>()
     val weights = mutableListOf<NeuronWeights>()
 
-    init {
+    constructor(inputs: Int, outputs: Int, networkParams: NetworkParams, rand: Random = Rand.randx) {
+        this.networkParams = networkParams
+        this.rand = rand
         for (i in 0 until inputs) {
             val newNeuron = InputNeuron()
             inputNeurons += newNeuron
@@ -21,16 +26,32 @@ class Network(inputs: Int, outputs: Int, var networkParams: NetworkParams, priva
             outputNeurons += newNeuron
             addNeuron(newNeuron)
         }
-
-        // for now just add leaky relu. needs to be configurable in the future
         for (i in 0 until networkParams.hiddenNeuronCountInit) {
             val neuron = LeakyReLUNeuron()
             neuron.mutateScalars(rand, 1.25f)
             addNeuron(neuron)
         }
-
         connect(networkParams.connectivityInit)
     }
+
+    constructor(genes: NNGenes, inputs: Int, outputs: Int, rand: Random = Rand.randx) {
+        this.rand = rand
+        for (i in 0 until inputs) {
+            val newNeuron = InputNeuron()
+            inputNeurons += newNeuron
+            addNeuron(newNeuron)
+        }
+        for (i in 0 until outputs) {
+            val newNeuron = OutputNeuron()
+            outputNeurons += newNeuron
+            addNeuron(newNeuron)
+        }
+        for (n in genes.neuronGenes) {
+
+        }
+    }
+
+
 
     fun update(dt: Float) {
         weights.forEach {

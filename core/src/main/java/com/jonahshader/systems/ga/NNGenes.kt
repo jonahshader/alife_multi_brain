@@ -28,8 +28,8 @@ class NeuronGene(var neuron: HiddenType, var bias: Float){
     }
 }
 
-class NNGenetics(var neuronGenes: MutableList<NeuronGene> = mutableListOf(),
-                 var weightGenes: MutableList<WeightGene> = mutableListOf()
+class NNGenes(var neuronGenes: MutableList<NeuronGene> = mutableListOf(),
+              var weightGenes: MutableList<WeightGene> = mutableListOf()
                  ) {
     fun mutateScalars(rand: Random, amount: Float) {
         neuronGenes.forEach { it.mutateScalars(rand, amount) }

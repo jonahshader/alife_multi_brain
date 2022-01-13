@@ -3,9 +3,12 @@ package com.jonahshader.systems.creatureparts.softbody
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.systems.creatureparts.Controllable
+import com.jonahshader.systems.ga.GripperGene
 import ktx.math.plusAssign
 
 class Gripper(initLocalPosition: Vector2) : BodyPart(initLocalPosition), Controllable {
+    constructor(gripperGene: GripperGene) : this(Vector2(gripperGene.xInit, gripperGene.yInit))
+
     private var grip = 0f
     private val counterForce = Vector2()
 

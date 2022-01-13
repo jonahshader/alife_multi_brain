@@ -4,10 +4,15 @@ import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.visualizer.SpringConstants
 import com.jonahshader.systems.creatureparts.Controllable
+import com.jonahshader.systems.ga.MuscleGene
 import ktx.math.minusAssign
 
 class Muscle(private val bodyPartA: BodyPart, private val bodyPartB: BodyPart,
 private val minLength: Float, private val maxLength: Float) : Controllable {
+    constructor(muscleGene: MuscleGene, bodyGrippers: MutableList<Gripper>) :
+            this(bodyGrippers[muscleGene.bodyPartA], bodyGrippers[muscleGene.bodyPartB],
+                muscleGene.minLength, muscleGene.maxLength)
+
     companion object {
         val sc = SpringConstants(10f, 1f)
     }
