@@ -50,6 +50,7 @@ class NetworkVisualizer(var network: Network) : Node2D() {
             addChild(it)
         }
     }
+
     override fun preUpdate(dt: Float) {
         weights.forEach {
             it.update(dt)

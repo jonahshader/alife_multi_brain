@@ -8,7 +8,7 @@ import com.jonahshader.MultiBrain
 import com.jonahshader.systems.collision.Bounded
 import ktx.math.plusAssign
 
-class BodyPart(initLocalPosition: Vector2) : Bounded() {
+open class BodyPart(initLocalPosition: Vector2) : Bounded() {
     companion object {
         const val DEFAULT_RADIUS = 2.0f
     }
