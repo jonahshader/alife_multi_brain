@@ -36,6 +36,8 @@ class Network {
             hiddenNeurons += neuron
         }
         connect(networkParams.connectivityInit)
+
+        prune()
     }
 
     constructor(otherNetwork: Network) : this(otherNetwork.makeGenes(), otherNetwork.inputNeurons.size, otherNetwork.outputNeurons.size)
@@ -169,6 +171,77 @@ class Network {
         while (toAddOrRemove < 0) {
             if (removeRandomWeight()) toAddOrRemove++
         }
+    }
+
+    fun prune() {
+        val neurons = getAllNeurons()
+        // build directed graph
+        val edges = mutableListOf<Pair<Int, Int>>()
+        for (w in weights) {
+            edges += Pair(neurons.indexOf(w.sourceNeuron), neurons.indexOf(w.destNeuron))
+        }
+        // trace back from output neurons
+        val connectedToOutput = BooleanArray(neurons.size) { neurons[it].neuronCategory == Neuron.NeuronCategory.OUTPUT }
+        val connectedToInput = BooleanArray(neurons.size) { neurons[it].neuronCategory == Neuron.NeuronCategory.INPUT }
+        for (j in neurons.indices) {
+            for (i in edges.indices) {
+                if (connectedToOutput[edges[i].second]) {
+                    connectedToOutput[edges[i].first] = true
+                }
+                if (connectedToInput[edges[i].first]) {
+                    connectedToInput[edges[i].second] = true
+                }
+            }
+        }
+
+
+        val toRemove = mutableListOf<Neuron>()
+        connectedToOutput.indices
+            .asSequence()
+            .filterNot { connectedToInput[it] && connectedToOutput[it] }
+            .forEach { toRemove += neurons[it] }
+        hiddenNeurons -= toRemove.toSet()
+        toRemove.forEach { n ->
+            weights.removeIf {
+                it.isConnectedToNeuron(n)
+            }
+        }
+
+//        for (i in neurons.indices) {
+//            if (!keep[i]) {
+////                keep[i] = true // assume fine until proven otherwise
+//                val touched = mutableSetOf<Int>()
+//                var fronteer = mutableSetOf<Int>()
+//                var next = mutableSetOf<Int>()
+//                fronteer += i
+//                touched += i
+//                var good = false
+//                while (fronteer.isNotEmpty() && !good) {
+//                    // loop through edges. add neurons
+//                    loop@for (f in fronteer) {
+//                        for (e in edges) {
+//                            if (f == e.first) {
+//                                if (!touched.contains(e.second)) {
+//                                    if (neurons[e.second].neuronCategory == Neuron.NeuronCategory.OUTPUT || keep[e.second]) {
+//                                        good = true
+//                                        break@loop
+//                                    }
+//                                    touched += e.second
+//                                    next += e.second
+//                                }
+//                            }
+//                        }
+//                    }
+//                    fronteer = next
+//                    next = mutableSetOf()
+//                }
+//            }
+//
+//
+//        }
+
+
+
     }
 
     fun weightExists(sourceNeuron: Neuron, destNeuron: Neuron) : Boolean {

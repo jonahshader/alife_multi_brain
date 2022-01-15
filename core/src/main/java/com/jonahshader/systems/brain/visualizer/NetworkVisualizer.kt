@@ -10,8 +10,12 @@ class NetworkVisualizer(var network: Network) : Node2D() {
     private val weights = mutableListOf<WeightSpringGraphic>()
     private val sc = SpringConstants(10.0f, 2.0f)
 
-    private val ioNeuronPadding = 96.0f
-    private val ioNeuronHorizontalSpacing = 400.0f
+    companion object {
+        const val ioNeuronPadding = 96.0f
+        const val ioNeuronHorizontalSpacing = 400.0f
+    }
+
+
 
     init {
         network.inputNeurons.forEachIndexed { i, it ->
