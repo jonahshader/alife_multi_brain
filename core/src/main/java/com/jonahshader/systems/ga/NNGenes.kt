@@ -1,6 +1,6 @@
 package com.jonahshader.systems.ga
 
-import com.jonahshader.systems.brain.neurons.HiddenType
+import com.jonahshader.systems.brain.neurons.NeuronType
 import java.util.*
 
 class WeightGene(var sourceNeuronIndex: Int, var destinationNeuronIndex: Int, var weight: Float) {
@@ -17,10 +17,10 @@ class WeightGene(var sourceNeuronIndex: Int, var destinationNeuronIndex: Int, va
 }
 
 // only hidden neurons are represented. input and output neurons are always derived from body genetics
-class NeuronGene(var neuron: HiddenType, var bias: Float){
+class NeuronGene(var neuron: NeuronType, var bias: Float){
     fun mutateIndices(rand: Random, probability: Float) {
         if (rand.nextFloat() < probability)
-            neuron = HiddenType.getRandom(rand)
+            neuron = NeuronType.getRandomHidden(rand)
     }
 
     fun mutateScalars(rand: Random, amount: Float) {
@@ -29,11 +29,15 @@ class NeuronGene(var neuron: HiddenType, var bias: Float){
 }
 
 class NNGenes(var neuronGenes: MutableList<NeuronGene> = mutableListOf(),
-              var weightGenes: MutableList<WeightGene> = mutableListOf()
+              var weightGenes: MutableList<WeightGene> = mutableListOf(),
+              var outputBiasGenes: MutableList<Float> = mutableListOf()
                  ) {
     fun mutateScalars(rand: Random, amount: Float) {
         neuronGenes.forEach { it.mutateScalars(rand, amount) }
         weightGenes.forEach { it.mutateScalars(rand, amount) }
+        for (i in outputBiasGenes.indices) {
+            outputBiasGenes[i] += rand.nextGaussian().toFloat() * amount
+        }
     }
 
     // totalNeurons includes input output and hidden neurons

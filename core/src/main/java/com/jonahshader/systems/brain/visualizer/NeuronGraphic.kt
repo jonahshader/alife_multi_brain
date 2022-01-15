@@ -9,8 +9,10 @@ import com.jonahshader.systems.brain.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
 import ktx.math.minus
 import ktx.math.plusAssign
+import java.util.*
 
 class NeuronGraphic(private val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
+    constructor(neuron: Neuron, rand: Random) : this(neuron, Vector2(DEFAULT_RADIUS * rand.nextFloat(), DEFAULT_RADIUS * rand.nextFloat()))
     companion object {
         const val DEFAULT_RADIUS = 2.0f
         var MOUSE_POS = Vector2()

@@ -11,16 +11,20 @@ abstract class Neuron {
     protected var outputBuffer = 0.0f
     var out = 0.0f
         private set
-    protected var bias = 0.0f
+    var bias = 0.0f
+    protected var inputSum = 0f
 
     // indicates if this can be removed by random mutations
     // this should be false for IO related neurons
     var neuronCategory = NeuronCategory.HIDDEN
+    protected set
+    var neuronType = NeuronType.Input
+        protected set
 
     /**
      * computes output, stores it in outputBuffer
      */
-    open fun update(inputSum: Float, dt: Float){}
+    open fun update(dt: Float){}
 
     /**
      * resets accumulative values (besides out, outputBuffer)
@@ -29,9 +33,18 @@ abstract class Neuron {
 
     /**
      * makes the output the most recent computed value
+     * also resets accumulation
      */
     fun updateOutput() {
         out = outputBuffer
+        inputSum = 0f
+    }
+
+    /**
+     * accumulate weighted output from another neuron
+     */
+    fun accumulate(acc: Float) {
+        inputSum += acc
     }
 
     /**

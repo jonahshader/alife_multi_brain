@@ -17,7 +17,7 @@ class InputNeuron : Neuron() {
     // don't have anything to mutate
     override fun mutateScalars(rand: Random, amount: Float) {}
 
-    override fun update(inputSum: Float, dt: Float) {
+    override fun update(dt: Float) {
         outputBuffer = value
     }
 }

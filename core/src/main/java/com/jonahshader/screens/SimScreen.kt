@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.brain.neurons.NetworkParams
+import com.jonahshader.systems.brain.NetworkParams
 import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
 import com.jonahshader.systems.brain.visualizer.NeuronGraphic
 import com.jonahshader.systems.simulation.simple.SimpleSim
