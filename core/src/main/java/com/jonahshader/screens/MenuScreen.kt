@@ -1,22 +1,17 @@
 package com.jonahshader.screens
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
-import com.badlogic.gdx.utils.viewport.FillViewport
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.settings.Settings
-import com.jonahshader.systems.sound.SoundSystem
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
 import ktx.app.KtxScreen
-import ktx.graphics.begin
 import ktx.graphics.use
 
 class MenuScreen : KtxScreen {
@@ -26,7 +21,7 @@ class MenuScreen : KtxScreen {
 
     init {
         menu.addMenuItem("Box2D") { ScreenManager.push(Box2DTestScreen()) }
-        menu.addMenuItem("Test") { ScreenManager.push(SimScreen()) }
+        menu.addMenuItem("Test") { ScreenManager.push(NetworkVisualTestScreen()) }
         menu.addMenuItem("Singleplayer") { }
         menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
         menu.addMenuItem("Exit") { Gdx.app.exit()}
@@ -36,9 +31,6 @@ class MenuScreen : KtxScreen {
 
     override fun show() {
         viewport.update(Gdx.graphics.width, Gdx.graphics.height)
-
-        SoundSystem.playMenuMusic()
-        println(viewport.toString())
     }
 
     override fun render(delta: Float) {

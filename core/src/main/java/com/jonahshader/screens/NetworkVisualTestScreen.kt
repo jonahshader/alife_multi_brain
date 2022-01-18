@@ -11,28 +11,32 @@ import com.jonahshader.systems.brain.Network
 import com.jonahshader.systems.brain.NetworkParams
 import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
 import com.jonahshader.systems.brain.visualizer.NeuronGraphic
-import com.jonahshader.systems.simulation.simple.SimpleSim
+import com.jonahshader.systems.screen.ScreenManager
 import ktx.app.KtxScreen
 import ktx.graphics.use
 import java.util.*
 
-class SimScreen : KtxScreen {
+class NetworkVisualTestScreen : KtxScreen {
     private val camera = OrthographicCamera()
-    private val viewport = FitViewport(640.0f, 360.0f, camera)
+    private val viewport = FitViewport(1920.0f, 1080.0f, camera)
 
     private val rand = Random()
     private val netParams = NetworkParams()
-    private val testNetwork = Network(3, 3, netParams, rand)
+    private val testNetwork = Network(6, 6, netParams, rand)
 
     private val netVisualizer = NetworkVisualizer(testNetwork)
 
-    private val simpleSim = SimpleSim()
+//    private val simpleSim = SimpleSim()
 
     override fun render(delta: Float) {
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) camera.translate(0f, 1f)
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) camera.translate(0f, -1f)
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) camera.translate(-1f, 0f)
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) camera.translate(1f, 0f)
+        val speed = camera.zoom * 500 * delta
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) camera.translate(0f, speed)
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) camera.translate(0f, -speed)
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) camera.translate(-speed, 0f)
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) camera.translate(speed, 0f)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) ScreenManager.switchTo(NetworkVisualTestScreen())
+        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) camera.zoom /= 1.5f
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) camera.zoom *= 1.5f
 
         camera.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
@@ -40,11 +44,11 @@ class SimScreen : KtxScreen {
 
         testNetwork.update(1/60.0f)
         netVisualizer.update(Vector2.Zero, 0.0f, 1/60.0f)
-        simpleSim.update(delta)
+//        simpleSim.update(delta)
 
         MultiBrain.batch.use(camera) {
             NeuronGraphic.MOUSE_POS = viewport.unproject(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
-            simpleSim.render(MultiBrain.batch)
+//            simpleSim.render(MultiBrain.batch)
             netVisualizer.render(MultiBrain.batch)
         }
     }

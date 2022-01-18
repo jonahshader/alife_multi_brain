@@ -18,8 +18,9 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
         (rand.nextFloat()-.5f) * (ioNeuronHorizontalSpacing - ioNeuronPadding),
         (rand.nextFloat()-.5f) * ioNeuronHorizontalSpacing * .75f))
     companion object {
-        const val DEFAULT_RADIUS = 2.0f
+        const val DEFAULT_RADIUS = 4.0f
         var MOUSE_POS = Vector2()
+        private const val DRAG_METERS_PER_SECOND = 15f
     }
 
     val color = Color(1f, 1f, 1f, 1f)
@@ -31,8 +32,8 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
 
     init {
         localPosition.set(initLocalPosition)
-        velocity.x += Math.random().toFloat() - .5f
-        velocity.y += Math.random().toFloat() - .5f
+//        velocity.x += Math.random().toFloat() - .5f
+//        velocity.y += Math.random().toFloat() - .5f
     }
 
     override fun preUpdate(dt: Float) {
@@ -49,6 +50,12 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
             acceleration.set(force)
             acceleration.scl(dt)
             velocity += acceleration
+            val dragAmount = DRAG_METERS_PER_SECOND * dt
+            if (velocity.len2() > dragAmount * dragAmount) {
+                velocity.setLength(velocity.len() - dragAmount)
+            } else {
+                velocity.setZero()
+            }
             localPosition.add(velocity.x * dt, velocity.y * dt)
 
             force.setZero()

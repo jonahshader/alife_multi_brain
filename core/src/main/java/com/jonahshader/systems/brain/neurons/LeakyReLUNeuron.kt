@@ -8,6 +8,6 @@ class LeakyReLUNeuron : Neuron() {
         outputBuffer = inputSum + bias
         if (outputBuffer < 0) outputBuffer *= 0.025f
         // since this neuron has no upper bound, limit it
-        outputBuffer = outputBuffer.coerceIn(-8192.0f, 8192.0f)
+        outputBuffer = outputBuffer.coerceIn(-4.0f, 4.0f)
     }
 }

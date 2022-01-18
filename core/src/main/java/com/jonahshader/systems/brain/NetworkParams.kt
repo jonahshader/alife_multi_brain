@@ -5,8 +5,8 @@ class NetworkParams {
     var addRemoveNeuronSd = 0.8f
     var addRemoveWeightSd = 0.4f
 
-    var hiddenNeuronCountInit = 1500
-    var connectivityInit = .001f // .1f
+    var hiddenNeuronCountInit = 150
+    var connectivityInit = .1f // .1f
 
     val mutateWeightSd = .1f
 }
