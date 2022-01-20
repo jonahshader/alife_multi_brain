@@ -139,7 +139,7 @@ class Network {
         }
     }
 
-    fun addRandomWeight() : Boolean {
+    private fun addRandomWeight() : Boolean {
         // pick two neurons at random
         val sourceNeuron = sourceNeurons.random()
         val destNeuron = destNeurons.random()
@@ -163,7 +163,6 @@ class Network {
 
     fun connect(connectivity: Float) {
         var toAddOrRemove = ((sourceNeurons.size * destNeurons.size * connectivity) - weights.size).roundToInt()
-        println("to add or remove: $toAddOrRemove")
 
         while (toAddOrRemove > 0) {
             if (addRandomWeight()) toAddOrRemove--
@@ -236,12 +235,7 @@ class Network {
 //                    next = mutableSetOf()
 //                }
 //            }
-//
-//
 //        }
-
-
-
     }
 
     fun weightExists(sourceNeuron: Neuron, destNeuron: Neuron) : Boolean {

@@ -21,8 +21,6 @@ class NetworkVisualizer(var network: Network) : Node2D() {
         const val PUSH_FORCE = 80f
     }
 
-
-
     init {
         network.inputNeurons.forEachIndexed { i, it ->
             val iMid = (i - network.inputNeurons.size / 2f) + .5f

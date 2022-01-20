@@ -35,6 +35,9 @@ class BodyGenes(var gripperGenes: MutableList<GripperGene> = mutableListOf(),
         muscleGenes.forEach { it.mutateIndices(rand, probability, gripperGenes.size) }
     }
 
+    fun getInputs() = 0
+    fun getOutputs() = gripperGenes.size + muscleGenes.size
+
 //    fun makeBody() : Sof
 }
 

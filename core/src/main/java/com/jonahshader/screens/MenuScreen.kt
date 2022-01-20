@@ -20,9 +20,9 @@ class MenuScreen : KtxScreen {
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(), Vector2(500f, 90f))
 
     init {
-        menu.addMenuItem("Box2D") { ScreenManager.push(Box2DTestScreen()) }
-        menu.addMenuItem("Test") { ScreenManager.push(NetworkVisualTestScreen()) }
-        menu.addMenuItem("Singleplayer") { }
+        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
+        menu.addMenuItem("Visualizer") { ScreenManager.push(NetworkVisualTestScreen()) }
+        menu.addMenuItem("Creature Test") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
         menu.addMenuItem("Exit") { Gdx.app.exit()}
 

@@ -10,7 +10,7 @@ import ktx.math.plusAssign
 
 open class BodyPart(initLocalPosition: Vector2) : Bounded() {
     companion object {
-        const val DEFAULT_RADIUS = 2.0f
+        const val DEFAULT_RADIUS = 6.0f
     }
 
     private val bounds = Rectangle()

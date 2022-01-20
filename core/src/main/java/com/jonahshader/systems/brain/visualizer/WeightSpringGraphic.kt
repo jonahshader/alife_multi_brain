@@ -57,13 +57,14 @@ class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val 
 
         val x1 = temp.x
         val y1 = temp.y
-        temp.set(direction).scl(3f).rotateDeg(140f).add(x1, y1)
+        temp.set(direction).scl(6f).rotateDeg(140f).add(x1, y1)
         val x2 = temp.x
         val y2 = temp.y
-        temp.set(direction).scl(3f).rotateDeg(-140f).add(x1, y1)
+        temp.set(direction).scl(6f).rotateDeg(-140f).add(x1, y1)
         val x3 = temp.x
         val y3 = temp.y
 
+//        MultiBrain.shapeDrawer.set
         MultiBrain.shapeDrawer.filledTriangle(x1, y1, x2, y2, x3, y3)
     }
 

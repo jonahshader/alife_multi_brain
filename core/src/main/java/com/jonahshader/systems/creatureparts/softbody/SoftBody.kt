@@ -2,22 +2,47 @@ package com.jonahshader.systems.creatureparts.softbody
 
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.jonahshader.systems.brain.Network
 import com.jonahshader.systems.collision.Bounded
+import com.jonahshader.systems.creatureparts.Controllable
+import com.jonahshader.systems.creatureparts.Sensor
 import com.jonahshader.systems.ga.BodyGenes
+import com.jonahshader.systems.ga.GripperGene
 import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.scenegraph.Node2D
+import com.jonahshader.systems.utils.Rand
+import ktx.math.plusAssign
+import java.util.*
+import kotlin.math.roundToInt
+import kotlin.random.asKotlinRandom
 
-class SoftBody : Node2D {
-    private val grippers = mutableListOf<Gripper>()
-    private val muscles = mutableListOf<Muscle>()
-    private val brain: Network
+open class SoftBody : Node2D, Controllable, Sensor {
+    protected val grippers = mutableListOf<Gripper>()
+    protected val muscles = mutableListOf<Muscle>()
+    private val kRand: kotlin.random.Random
+    private val center = Vector2()
 
     // brain inputs and outputs
     private var inputs = 0
     private var outputs = 0
 
-    constructor(bodyGenes: BodyGenes, nnGenes: NNGenes) {
+    constructor(rand: Random = Rand.randx, params: SoftBodyParams) {
+        kRand = rand.asKotlinRandom()
+        for (i in 0 until params.gripperCountInit) {
+            grippers += Gripper(rand, params.gripperInitPositionMaxRadius)
+        }
+
+        connect(params.connectivityInit, params.minMuscleLength, params.maxMuscleExtention)
+//        prune
+
+        grippers.forEach {
+            addChild(it)
+        }
+    }
+
+    constructor(rand: Random = Rand.randx, bodyGenes: BodyGenes) {
+        kRand = rand.asKotlinRandom()
         for (g in bodyGenes.gripperGenes)
             grippers += Gripper(g)
         for (m in bodyGenes.muscleGenes)
@@ -26,15 +51,91 @@ class SoftBody : Node2D {
         inputs = 0
         outputs = muscles.size + grippers.size
 
-        brain = Network(nnGenes, inputs, outputs)
-
         // add children
         grippers.forEach {
             addChild(it)
         }
     }
 
-    override fun customRender(batch: Batch) {
-        TODO("Not yet implemented")
+    override fun preUpdate(dt: Float) {
+        muscles.forEach { it.update(dt) }
     }
+
+    override fun customRender(batch: Batch) {
+        muscles.forEach { it.render() }
+    }
+
+    override fun setControllableValue(index: Int, value: Float) {
+        if (index < grippers.size) grippers[index].setControllableValue(index, value)
+        else muscles[index - grippers.size].setControllableValue(index - grippers.size, value)
+    }
+
+    override fun getSensorCount(): Int {
+        return inputs
+    }
+
+    override fun getSensorValue(index: Int): Float {
+        return 0f
+    }
+
+    fun makeGenes() : BodyGenes {
+        val genes = BodyGenes()
+        grippers.forEach { genes.gripperGenes += it.makeGene() }
+        muscles.forEach { genes.muscleGenes += it.makeGene(grippers) }
+        return genes
+    }
+
+    fun connect(connectivity: Float, minLength: Float, maxExtension: Float) {
+        val maxConnections = (grippers.size * (grippers.size - 1))/2
+        var toAddOrRemove = (maxConnections * connectivity - muscles.size).roundToInt()
+
+        while (toAddOrRemove > 0) {
+            if (addRandomMuscle(minLength, maxExtension)) toAddOrRemove--
+        }
+        while (toAddOrRemove < 0) {
+            if (removeRandomMuscle()) toAddOrRemove++
+        }
+    }
+
+    private fun removeRandomMuscle(): Boolean {
+        return if (muscles.isNotEmpty()) {
+            muscles.removeAt(kRand.nextInt(muscles.size))
+            true
+        } else {
+            false
+        }
+    }
+
+    private fun addRandomMuscle(minLength: Float, maxExtension: Float): Boolean {
+        // pick two grippers at random
+        val gripper1 = grippers.random()
+        val gripper2 = (grippers - gripper1).random()
+
+        return if (!muscleExists(gripper1, gripper2)) {
+            muscles += Muscle(gripper1, gripper2, minLength, minLength + kRand.nextFloat() * maxExtension)
+            true
+        } else {
+            false
+        }
+    }
+
+    private fun muscleExists(gripper1: Gripper, gripper2: Gripper): Boolean {
+        for (m in muscles) {
+            if (m.isSameMuscle(gripper1, gripper2)) return true
+        }
+        return false
+    }
+
+    fun computeCenter() : Vector2 {
+        center.setZero()
+        if (grippers.isNotEmpty()) {
+            for (g in grippers) {
+                center += g.localPosition
+            }
+            center.scl(1f/grippers.size)
+        }
+
+        return center
+    }
+
 }

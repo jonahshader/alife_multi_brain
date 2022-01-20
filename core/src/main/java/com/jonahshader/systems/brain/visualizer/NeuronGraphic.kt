@@ -65,8 +65,6 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
     }
 
     override fun customRender(batch: Batch) {
-        // TODO: color by post-activation or something
-        // or maybe change the size by magnitude
         var brightness = (neuron.out / 2f).coerceIn(0f, 1f)
         when (neuron.neuronCategory) {
             Neuron.NeuronCategory.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f * brightness, 1.0f * brightness, 1.0f * brightness, 1.0f)
