@@ -11,7 +11,7 @@ enum class NeuronType {
     companion object {
         // excludes input, output
         fun getRandomHidden(rand: Random) : NeuronType {
-            var selection = rand.nextInt(values().size) - 2
+            var selection = rand.nextInt(values().size - 2) // TODO: is this correct?
             if (selection >= Input.ordinal) selection++
             if (selection >= Output.ordinal) selection++
             return values()[selection]

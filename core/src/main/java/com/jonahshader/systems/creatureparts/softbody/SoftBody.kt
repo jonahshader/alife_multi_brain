@@ -1,15 +1,10 @@
 package com.jonahshader.systems.creatureparts.softbody
 
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.collision.Bounded
 import com.jonahshader.systems.creatureparts.Controllable
 import com.jonahshader.systems.creatureparts.Sensor
 import com.jonahshader.systems.ga.BodyGenes
-import com.jonahshader.systems.ga.GripperGene
-import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.scenegraph.Node2D
 import com.jonahshader.systems.utils.Rand
 import ktx.math.plusAssign
@@ -18,16 +13,20 @@ import kotlin.math.roundToInt
 import kotlin.random.asKotlinRandom
 
 open class SoftBody : Node2D, Controllable, Sensor {
-    protected val grippers = mutableListOf<Gripper>()
+    val grippers = mutableListOf<Gripper>()
     protected val muscles = mutableListOf<Muscle>()
+    private val rand: Random
     private val kRand: kotlin.random.Random
     private val center = Vector2()
+    private var params = SoftBodyParams()
 
     // brain inputs and outputs
     private var inputs = 0
-    private var outputs = 0
+    protected var outputs = 0
 
     constructor(rand: Random = Rand.randx, params: SoftBodyParams) {
+        this.rand = rand
+        this.params = params
         kRand = rand.asKotlinRandom()
         for (i in 0 until params.gripperCountInit) {
             grippers += Gripper(rand, params.gripperInitPositionMaxRadius)
@@ -35,13 +34,14 @@ open class SoftBody : Node2D, Controllable, Sensor {
 
         connect(params.connectivityInit, params.minMuscleLength, params.maxMuscleExtention)
 //        prune
-
+        outputs = muscles.size + grippers.size
         grippers.forEach {
             addChild(it)
         }
     }
 
     constructor(rand: Random = Rand.randx, bodyGenes: BodyGenes) {
+        this.rand = rand
         kRand = rand.asKotlinRandom()
         for (g in bodyGenes.gripperGenes)
             grippers += Gripper(g)
@@ -100,6 +100,7 @@ open class SoftBody : Node2D, Controllable, Sensor {
     private fun removeRandomMuscle(): Boolean {
         return if (muscles.isNotEmpty()) {
             muscles.removeAt(kRand.nextInt(muscles.size))
+            outputs--
             true
         } else {
             false
@@ -108,11 +109,12 @@ open class SoftBody : Node2D, Controllable, Sensor {
 
     private fun addRandomMuscle(minLength: Float, maxExtension: Float): Boolean {
         // pick two grippers at random
-        val gripper1 = grippers.random()
-        val gripper2 = (grippers - gripper1).random()
+        val gripper1 = grippers.randomOrNull() ?: return false
+        val gripper2 = (grippers - gripper1).randomOrNull() ?: return false
 
         return if (!muscleExists(gripper1, gripper2)) {
             muscles += Muscle(gripper1, gripper2, minLength, minLength + kRand.nextFloat() * maxExtension)
+            outputs++
             true
         } else {
             false
@@ -136,6 +138,65 @@ open class SoftBody : Node2D, Controllable, Sensor {
         }
 
         return center
+    }
+
+    private fun removeRandomGripper() : Boolean = if (grippers.isNotEmpty()) {
+        val toRemove = grippers.random(kRand)
+        val before = muscles.size
+        muscles.removeIf { it.isConnectedToGripper(toRemove) }
+        outputs -= before - muscles.size
+        grippers.remove(toRemove)
+        outputs--
+        true
+    } else { false }
+
+    open fun mutate(amount: Float) {
+        val maxConnections = (grippers.size * (grippers.size - 1))/2
+        var addRemoveGripperCount = (rand.nextGaussian() * params.addRemoveGripperSd * amount).roundToInt()
+        var addRemoveMuscleCount = (rand.nextGaussian() * params.addRemoveMuscleSd * amount).roundToInt()
+
+        addRemoveGripperCount = addRemoveGripperCount.coerceAtLeast(-grippers.size + 2)
+        addRemoveMuscleCount = addRemoveMuscleCount.coerceIn(-muscles.size + 1, maxConnections - muscles.size)
+
+        while (addRemoveGripperCount < 0) {
+            removeRandomGripper()
+            addRemoveGripperCount++
+        }
+
+        while (addRemoveGripperCount > 0) {
+            grippers += generateRandomGripper()
+            addRemoveGripperCount--
+        }
+
+        while (addRemoveMuscleCount < 0) {
+            removeRandomMuscle()
+            addRemoveMuscleCount++
+        }
+
+        var fails = 0
+        while (addRemoveMuscleCount > 0) {
+            if (addRandomMuscle(params.minMuscleLength, params.maxMuscleExtention)) addRemoveMuscleCount--
+            else {
+                fails++
+                if (fails > 100) {
+                    println("failed a lot")
+                    addRemoveMuscleCount = 0
+                }
+            }
+        }
+
+//        grippers.forEach {
+//            it.mutate(amount)
+//        }
+//
+//        muscles.forEach {
+//            it.mutate(amount)
+//        }
+    }
+
+    private fun generateRandomGripper(): Gripper {
+        outputs++
+        return Gripper(rand, params.gripperInitPositionMaxRadius)
     }
 
 }

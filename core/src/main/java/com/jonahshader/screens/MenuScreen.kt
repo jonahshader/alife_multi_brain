@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.settings.Settings
+import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
 import ktx.app.KtxScreen

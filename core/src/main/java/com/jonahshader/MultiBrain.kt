@@ -27,6 +27,8 @@ class MultiBrain : Game() {
         shapeRenderer = ShapeRenderer()
         shapeDrawer = ShapeDrawer(batch, Assets.getSprites().findRegion("white_pixel"))
         ScreenManager.game = this
+
+
         ScreenManager.push(MenuScreen())
     }
 }

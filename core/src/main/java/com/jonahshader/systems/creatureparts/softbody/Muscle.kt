@@ -42,11 +42,11 @@ private val minLength: Float, private val maxLength: Float) : Controllable {
     }
 
     fun render() {
-        println("rendering muscle at ${bodyPartA.globalPosition}")
         MultiBrain.shapeDrawer.setColor(1-lengthProgress, .25f, lengthProgress, 1.0f)
         MultiBrain.shapeDrawer.line(bodyPartA.globalPosition, bodyPartB.globalPosition, 2.5f - lengthProgress)
     }
 
     fun makeGene(grippers: MutableList<Gripper>) = MuscleGene(grippers.indexOf(bodyPartA), grippers.indexOf(bodyPartB), minLength, maxLength)
     fun isSameMuscle(bpA: BodyPart, bpB: BodyPart) = bodyPartA == bpA && bodyPartB == bpB
+    fun isConnectedToGripper(gripper: Gripper) : Boolean = bodyPartA == gripper || bodyPartB == gripper
 }

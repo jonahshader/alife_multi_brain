@@ -102,9 +102,9 @@ class Network {
         return n
     }
 
-    fun mutate() {
-        var addRemoveNeuronCount = (rand.nextGaussian() * networkParams.addRemoveNeuronSd).roundToInt()
-        var addRemoveWeightCount = (rand.nextGaussian() * networkParams.addRemoveWeightSd).roundToInt()
+    fun mutate(overallScale: Float) {
+        var addRemoveNeuronCount = (rand.nextGaussian() * networkParams.addRemoveNeuronSd * overallScale).roundToInt()
+        var addRemoveWeightCount = (rand.nextGaussian() * networkParams.addRemoveWeightSd * overallScale).roundToInt()
 
         addRemoveNeuronCount = addRemoveNeuronCount.coerceAtLeast(-hiddenNeurons.size)
         addRemoveWeightCount = addRemoveWeightCount.coerceAtLeast(-weights.size)
@@ -129,13 +129,13 @@ class Network {
         }
 
         weights.forEach {
-            it.mutate(rand, networkParams.mutateWeightSd)
+            it.mutate(rand, networkParams.mutateWeightSd * overallScale)
         }
         hiddenNeurons.forEach {
-            it.mutateScalars(rand, networkParams.mutateWeightSd) // bias is a weight basically
+            it.mutateScalars(rand, networkParams.mutateWeightSd * overallScale) // bias is a weight basically
         }
         outputNeurons.forEach {
-            it.mutateScalars(rand, networkParams.mutateWeightSd)
+            it.mutateScalars(rand, networkParams.mutateWeightSd * overallScale)
         }
     }
 
@@ -205,37 +205,6 @@ class Network {
                 it.isConnectedToNeuron(n)
             }
         }
-
-//        for (i in neurons.indices) {
-//            if (!keep[i]) {
-////                keep[i] = true // assume fine until proven otherwise
-//                val touched = mutableSetOf<Int>()
-//                var fronteer = mutableSetOf<Int>()
-//                var next = mutableSetOf<Int>()
-//                fronteer += i
-//                touched += i
-//                var good = false
-//                while (fronteer.isNotEmpty() && !good) {
-//                    // loop through edges. add neurons
-//                    loop@for (f in fronteer) {
-//                        for (e in edges) {
-//                            if (f == e.first) {
-//                                if (!touched.contains(e.second)) {
-//                                    if (neurons[e.second].neuronCategory == Neuron.NeuronCategory.OUTPUT || keep[e.second]) {
-//                                        good = true
-//                                        break@loop
-//                                    }
-//                                    touched += e.second
-//                                    next += e.second
-//                                }
-//                            }
-//                        }
-//                    }
-//                    fronteer = next
-//                    next = mutableSetOf()
-//                }
-//            }
-//        }
     }
 
     fun weightExists(sourceNeuron: Neuron, destNeuron: Neuron) : Boolean {
@@ -263,4 +232,33 @@ class Network {
     }
 
     internal fun getAllNeurons() : List<Neuron> = inputNeurons + hiddenNeurons + outputNeurons
+
+    fun resizeOutputs(outputs: Int) {
+        var addRemove = outputs - outputNeurons.size
+
+        if (addRemove < 0) {
+            while (addRemove < 0) {
+                removeOutputNeuronNoPrune()
+                addRemove++
+            }
+//            prune()
+        }
+
+
+        while (addRemove > 0) {
+            outputNeurons += OutputNeuron()
+            addRemove--
+        }
+    }
+
+    fun removeOutputNeuronNoPrune() : Boolean {
+        return if (outputNeurons.isNotEmpty()) {
+            val toRemove = outputNeurons.last()
+            weights.removeIf { it.isConnectedToNeuron(toRemove) }
+            outputNeurons.remove(toRemove)
+            true
+        } else {
+            false
+        }
+    }
 }

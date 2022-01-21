@@ -2,7 +2,7 @@ package com.jonahshader.systems.brain
 
 class NetworkParams {
     var weightInitSd = 1f
-    var addRemoveNeuronSd = 0.8f
+    var addRemoveNeuronSd = 1f
     var addRemoveWeightSd = 0.4f
 
     var hiddenNeuronCountInit = 50

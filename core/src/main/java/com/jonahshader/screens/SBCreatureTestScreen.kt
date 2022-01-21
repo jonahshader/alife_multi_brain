@@ -12,23 +12,38 @@ import com.jonahshader.systems.brain.visualizer.NeuronGraphic
 import com.jonahshader.systems.creatureparts.softbody.BrainSoftBody
 import com.jonahshader.systems.creatureparts.softbody.SoftBodyParams
 import com.jonahshader.systems.screen.ScreenManager
+import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
 import com.jonahshader.systems.ui.TextRenderer
 import ktx.app.KtxScreen
 import ktx.graphics.use
 import java.util.*
+import kotlin.concurrent.thread
 
 class SBCreatureTestScreen : KtxScreen {
+    companion object {
+        private const val SIM_DELTA_TIME = 1/20f
+    }
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(1920.0f, 1080.0f, camera)
 
     private val rand = Random()
-    private val creature: BrainSoftBody
+    private var creature: BrainSoftBody? = null
 
-    private val netParams = NetworkParams()
-    private val bodyParams = SoftBodyParams()
+    private val maxSteps = 500
+    private var stepsRemaining = maxSteps
+    private val sim = SoftBodyTravelSim(500, maxSteps, SIM_DELTA_TIME)
 
     init {
-        creature = BrainSoftBody(rand, bodyParams, netParams)
+        sim.netParams.hiddenNeuronCountInit = 100
+        sim.bodyParams.gripperCountInit = 4
+        sim.bodyParams.connectivityInit = 1f
+        sim.setup()
+        thread {
+            while (true) {
+                sim.runGeneration()
+            }
+
+        }
     }
 
     override fun render(delta: Float) {
@@ -45,15 +60,28 @@ class SBCreatureTestScreen : KtxScreen {
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
         viewport.apply()
 
-        creature.update(Vector2.Zero, 0f, 1/100f)
+        if (creature == null) {
+            val genes = sim.getCopyOfBest()
+            if (genes != null) {
+                creature = BrainSoftBody(rand, genes)
+            }
+        } else {
+            stepsRemaining--
+            if (stepsRemaining <= 0) {
+                stepsRemaining = maxSteps
+                creature = BrainSoftBody(rand, sim.getCopyOfBest()!!)
+            }
+        }
+
+        creature?.update(Vector2.Zero, 0f, SIM_DELTA_TIME)
 
         MultiBrain.batch.use(camera) {
             NeuronGraphic.MOUSE_POS = viewport.unproject(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
-            creature.render(MultiBrain.batch)
+            creature?.render(MultiBrain.batch)
 
-            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.NORMAL, 32f, 0f)
-            TextRenderer.drawText(0f, 0f, "FPS: " + (1/delta))
-            TextRenderer.end()
+//            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.NORMAL, 32f, 0f)
+//            TextRenderer.drawText(0f, 0f, "FPS: " + (1/delta))
+//            TextRenderer.end()
         }
     }
 

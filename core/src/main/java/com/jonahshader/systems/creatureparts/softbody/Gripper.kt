@@ -16,7 +16,8 @@ class Gripper(val initLocalPosition: Vector2) : BodyPart(initLocalPosition), Con
     private val counterForce = Vector2()
 
     companion object {
-        const val GRIP_SCALE = 25f
+        const val MAX_GRIP = 25f
+        const val MIN_GRIP = 5f
     }
 
     override fun setControllableValue(index: Int, value: Float) {
@@ -28,7 +29,7 @@ class Gripper(val initLocalPosition: Vector2) : BodyPart(initLocalPosition), Con
         acceleration.set(force)
         acceleration.scl(dt)
         velocity += acceleration
-        val dragAmount = GRIP_SCALE * grip * dt
+        val dragAmount = ((MAX_GRIP - MIN_GRIP) * grip + MIN_GRIP) * dt
         if (velocity.len2() > dragAmount * dragAmount) {
             velocity.setLength(velocity.len() - dragAmount)
         } else {
