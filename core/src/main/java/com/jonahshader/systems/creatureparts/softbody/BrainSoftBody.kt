@@ -12,7 +12,7 @@ class BrainSoftBody : SoftBody {
     companion object {
         private const val CUSTOM_INPUTS = 2
     }
-    private val network: Network
+    val network: Network
     private var age = 0f
 
     constructor(rand: Random = Rand.randx, combinedGenes: CombinedGenes) : super(rand, combinedGenes.sbGenes) {

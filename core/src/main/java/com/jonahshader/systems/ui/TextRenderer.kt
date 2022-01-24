@@ -45,7 +45,7 @@ object TextRenderer {
         }
     }
 
-    fun begin(batch: Batch, viewport: ScalingViewport, font: Font, size: Float, boldness: Float) {
+    fun begin(batch: Batch, viewport: ScalingViewport, font: Font, size: Float, boldness: Float, cameraZoom: Float = 1f) {
         TextRenderer.batch = batch
         TextRenderer.viewport = viewport
         TextRenderer.font = fontToBitmapFont(font)
@@ -58,7 +58,7 @@ object TextRenderer {
         batch.shader = Assets.dffShader
         Assets.dffShader.setUniformf("p_distOffset", boldness)
         Assets.dffShader.setUniformf("p_spread", fontToSpread(font))
-        Assets.dffShader.setUniformf("p_renderScale", scale * screenScale)
+        Assets.dffShader.setUniformf("p_renderScale", scale * screenScale / cameraZoom)
     }
 
     fun end() {

@@ -41,14 +41,14 @@ class MenuScreen : KtxScreen {
         viewport.apply()
 
         MultiBrain.batch.use(camera) {
-            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.HEAVY, 125f, 0.05f)
-            TextRenderer.color = Color.WHITE
-            TextRenderer.drawTextCentered(0f, viewport.worldHeight*.5f - 130f, "PVP:", 10f, 0.75f)
-            TextRenderer.end()
-            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.HEAVY, 75f, 0.05f)
-            TextRenderer.color = Color.WHITE
-            TextRenderer.drawTextCentered(0f, viewport.worldHeight*.5f-225f, "Plant Vs Plant", 4f, 0.75f)
-            TextRenderer.end()
+//            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.HEAVY, 125f, 0.05f)
+//            TextRenderer.color = Color.WHITE
+//            TextRenderer.drawTextCentered(0f, viewport.worldHeight*.5f - 130f, "PVP:", 10f, 0.75f)
+//            TextRenderer.end()
+//            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.HEAVY, 75f, 0.05f)
+//            TextRenderer.color = Color.WHITE
+//            TextRenderer.drawTextCentered(0f, viewport.worldHeight*.5f-225f, "Plant Vs Plant", 4f, 0.75f)
+//            TextRenderer.end()
             menu.run(delta, viewport)
             menu.draw(MultiBrain.batch, MultiBrain.shapeDrawer, viewport)
 
