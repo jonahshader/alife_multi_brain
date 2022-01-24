@@ -12,12 +12,13 @@ import kotlin.math.pow
 
 class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val weight: Weight,
 //                          var targetLength: Float = neuronGDist(start, end) + randomTriangular(15.0f),
-                          var targetLength: Float = 50f,
+                          var targetLength: Float = 130f,
                           val sc: SpringConstants) {
     private var startToEnd = Vector2(end.localPosition).sub(start.localPosition)
     private var pLength = targetLength
     private val direction = Vector2(startToEnd).nor()
     private val temp = Vector2()
+    private var arrowPos = 0f
 
     companion object {
         private const val THICKNESS_SCALE = 2f
@@ -41,30 +42,48 @@ class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val 
         val lengthVelocity = (length - pLength) / dt
         pLength = length
         val error = length - targetLength
-        val force = (((error * -sc.newtonsPerMeter) + (lengthVelocity * -sc.newtonsPerMeterPerSecond))) * weight.weight.absoluteValue.pow(1/2f)
-
+        var force = (((error * -sc.newtonsPerMeter) + (lengthVelocity * -sc.newtonsPerMeterPerSecond)))
+//        force *= weight.weight.absoluteValue.pow(1/2f)
+        force *= weight.weight.absoluteValue
 
         end.force.add(direction.x * force, direction.y * force)
         start.force.add(-direction.x * force, -direction.y * force)
+
+        arrowPos += (dt / length) * 40
     }
 
     fun render() {
 //        weight.calculateWeightedValue()
         val colorOffset = (weight.weight * .3f).coerceIn(-.5f, .5f)
-        MultiBrain.shapeDrawer.setColor(.5f + colorOffset, .25f, .5f - colorOffset, 1.0f)
+        MultiBrain.shapeDrawer.setColor(.5f + colorOffset, .25f, .5f - colorOffset, 1f)
         MultiBrain.shapeDrawer.line(start.globalPosition, end.globalPosition, (weight.weight.absoluteValue * THICKNESS_SCALE).coerceIn(MIN_THICKNESS, 10f))
-        temp.set(start.globalPosition).add(end.globalPosition).scl(.5f)
 
+
+        var arrowProgress = ((arrowPos) % 1f)
+        arrowProgress *= arrowProgress * (3f - 2f * arrowProgress)
+
+        val arrowProgressInv = 1-arrowProgress
+
+        val arrowProgressDerivative = 6 * (arrowProgress - arrowProgress * arrowProgress)
+
+        temp.setZero()
+        temp.add(start.globalPosition.x * arrowProgressInv, start.globalPosition.y * arrowProgressInv)
+        temp.add(end.globalPosition.x * arrowProgress, end.globalPosition.y * arrowProgress)
+
+//        temp.set(start.globalPosition).add(end.globalPosition).scl(.5f)
+
+        val wa = weight.weight.absoluteValue.coerceAtLeast(1f) * arrowProgressDerivative.pow(1/2f)
         val x1 = temp.x
         val y1 = temp.y
-        temp.set(direction).scl(6f).rotateDeg(140f).add(x1, y1)
+        temp.set(direction).scl(8f * wa).rotateDeg(140f).add(x1, y1)
         val x2 = temp.x
         val y2 = temp.y
-        temp.set(direction).scl(6f).rotateDeg(-140f).add(x1, y1)
+        temp.set(direction).scl(8f * wa).rotateDeg(-140f).add(x1, y1)
         val x3 = temp.x
         val y3 = temp.y
 
 //        MultiBrain.shapeDrawer.set
+//        MultiBrain.shapeDrawer.setColor(.5f + colorOffset, .25f, .5f - colorOffset, 0.5f)
         MultiBrain.shapeDrawer.filledTriangle(x1, y1, x2, y2, x3, y3)
     }
 

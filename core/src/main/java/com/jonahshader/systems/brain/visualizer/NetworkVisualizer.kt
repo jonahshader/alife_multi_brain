@@ -11,14 +11,14 @@ class NetworkVisualizer(var network: Network) : Node2D() {
     private val neurons = mutableListOf<NeuronGraphic>()
     private val mobileNeuronsSorted = mutableListOf<NeuronGraphic>()
     private val weights = mutableListOf<WeightSpringGraphic>()
-    private val sc = SpringConstants(1.0f, 1.0f)
+    private val sc = SpringConstants(6.0f, 1.0f)
 
     companion object {
         const val ioNeuronPadding = 200.0f
         const val ioNeuronHorizontalSpacing = 800.0f
         const val PUSH_RADIUS = 100f
         const val PUSH_EXPONENT = 1.5f
-        const val PUSH_FORCE = 80f
+        const val PUSH_FORCE = 120f
     }
 
     init {

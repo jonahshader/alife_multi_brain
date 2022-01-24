@@ -6,7 +6,8 @@ enum class NeuronType {
     Input,
     LeakyReLU,
     Output,
-    Tanh;
+    Tanh,
+    Sin;
 
     companion object {
         // excludes input, output
@@ -22,6 +23,7 @@ enum class NeuronType {
             return when (type) {
                 LeakyReLU -> LeakyReLUNeuron()
                 Tanh -> TanhNeuron()
+                Sin -> SinNeuron()
                 Input -> InputNeuron()
                 Output -> OutputNeuron()
             }

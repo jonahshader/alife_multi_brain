@@ -23,7 +23,8 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
         private const val DRAG_METERS_PER_SECOND = 15f
     }
 
-    val color = Color(1f, 1f, 1f, 1f)
+    private val color = Color(1f, 1f, 1f, 1f)
+    val colorModifier = Color(1f, 1f, 1f, 1f)
     var radius = DEFAULT_RADIUS
     var velocity = Vector2()
     var acceleration = Vector2()
@@ -65,6 +66,9 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
     }
 
     override fun customRender(batch: Batch) {
+        var r = color.r
+        var g = color.g
+        var b = color.b
         var brightness = (neuron.out / 2f).coerceIn(0f, 1f)
         when (neuron.neuronCategory) {
             Neuron.NeuronCategory.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f * brightness, 1.0f * brightness, 1.0f * brightness, 1.0f)
