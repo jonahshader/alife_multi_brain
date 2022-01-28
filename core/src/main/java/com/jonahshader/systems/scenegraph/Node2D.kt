@@ -1,5 +1,6 @@
 package com.jonahshader.systems.scenegraph
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 
@@ -23,16 +24,19 @@ abstract class Node2D {
         postUpdate(dt)
     }
 
-    fun render(batch: Batch) {
-        customRender(batch)
-        children.forEach { it.render(batch) }
+    fun render(batch: Batch, cam: Camera) {
+        if (isVisible(cam))
+            customRender(batch, cam)
+        children.forEach { it.render(batch, cam) }
     }
 
     fun addChild(child: Node2D) {
         children += child
     }
 
+    open fun isVisible(cam: Camera) : Boolean = true
+
     open fun preUpdate(dt: Float) {}
     open fun postUpdate(dt: Float) {}
-    protected abstract fun customRender(batch: Batch)
+    protected abstract fun customRender(batch: Batch, cam: Camera)
 }

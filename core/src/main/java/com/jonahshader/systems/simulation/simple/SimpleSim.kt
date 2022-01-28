@@ -20,7 +20,7 @@ class SimpleSim {
 
     fun render(batch: Batch) {
         creatures.forEach {
-            it.render(batch)
+//            it.render(batch)
         }
     }
 }

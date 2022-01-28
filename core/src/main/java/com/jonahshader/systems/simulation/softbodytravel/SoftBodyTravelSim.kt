@@ -54,7 +54,6 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
             }
         }
 
-
         for (i in population.indices) {
             population[i] = InstFitnessPair(BrainSoftBody(rand, localBest.getCombinedGenes()))
         }

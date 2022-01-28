@@ -1,5 +1,6 @@
 package com.jonahshader.systems.simulation.simple
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -33,7 +34,7 @@ class SimpleCreature : Bounded() {
         colliders.clear()
     }
 
-    override fun customRender(batch: Batch) {
+    override fun customRender(batch: Batch, cam: Camera) {
         MultiBrain.shapeDrawer.setColor(1.0f, 1.0f, 1.0f, 1.0f)
         MultiBrain.shapeDrawer.filledCircle(globalPosition, RADIUS)
     }

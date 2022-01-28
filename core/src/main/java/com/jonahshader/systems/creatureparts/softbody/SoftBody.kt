@@ -1,5 +1,6 @@
 package com.jonahshader.systems.creatureparts.softbody
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.systems.creatureparts.Controllable
@@ -61,7 +62,7 @@ open class SoftBody : Node2D, Controllable, Sensor {
         muscles.forEach { it.update(dt) }
     }
 
-    override fun customRender(batch: Batch) {
+    override fun customRender(batch: Batch, cam: Camera) {
         muscles.forEach { it.render() }
     }
 

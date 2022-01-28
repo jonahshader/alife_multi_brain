@@ -37,6 +37,7 @@ class NetworkVisualTestScreen : KtxScreen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) ScreenManager.switchTo(NetworkVisualTestScreen())
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) camera.zoom /= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) camera.zoom *= 1.5f
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) ScreenManager.pop()
 
         camera.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
@@ -46,10 +47,11 @@ class NetworkVisualTestScreen : KtxScreen {
         netVisualizer.update(Vector2.Zero, 0.0f, 1/60.0f)
 //        simpleSim.update(delta)
 
+        MultiBrain.shapeDrawer.update()
         MultiBrain.batch.use(camera) {
             NeuronGraphic.MOUSE_POS = viewport.unproject(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
 //            simpleSim.render(MultiBrain.batch)
-            netVisualizer.render(MultiBrain.batch)
+            netVisualizer.render(MultiBrain.batch, camera)
         }
     }
 

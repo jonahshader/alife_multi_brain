@@ -1,5 +1,6 @@
 package com.jonahshader.systems.creatureparts.softbody
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Rectangle
@@ -43,7 +44,7 @@ open class BodyPart(initLocalPosition: Vector2) : Bounded() {
         bounds.y = globalPosition.y - radius
     }
 
-    override fun customRender(batch: Batch) {
+    override fun customRender(batch: Batch, cam: Camera) {
         MultiBrain.shapeDrawer.setColor(color)
         MultiBrain.shapeDrawer.filledCircle(globalPosition, radius)
     }

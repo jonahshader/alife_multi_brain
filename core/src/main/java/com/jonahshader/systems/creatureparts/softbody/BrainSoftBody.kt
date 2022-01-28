@@ -54,6 +54,4 @@ class BrainSoftBody : SoftBody {
         }
         // TODO: make this more parametric
     }
-
-
 }

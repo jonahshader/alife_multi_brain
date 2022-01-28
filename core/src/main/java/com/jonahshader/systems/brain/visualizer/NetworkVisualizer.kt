@@ -1,10 +1,14 @@
 package com.jonahshader.systems.brain.visualizer
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.systems.brain.Network
+import com.jonahshader.systems.brain.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.pow
 
 class NetworkVisualizer(var network: Network) : Node2D() {
@@ -14,11 +18,11 @@ class NetworkVisualizer(var network: Network) : Node2D() {
     private val sc = SpringConstants(6.0f, 1.0f)
 
     companion object {
-        const val ioNeuronPadding = 200.0f
+        const val ioNeuronPadding = 120.0f
         const val ioNeuronHorizontalSpacing = 800.0f
-        const val PUSH_RADIUS = 100f
-        const val PUSH_EXPONENT = 1.5f
-        const val PUSH_FORCE = 120f
+        const val PUSH_RADIUS = 110f
+        const val PUSH_EXPONENT = 2f
+        const val PUSH_FORCE = 150f
     }
 
     init {
@@ -40,7 +44,14 @@ class NetworkVisualizer(var network: Network) : Node2D() {
         network.weights.forEach {
             val srcNeuronGraphic = neurons[allN.indexOf(it.sourceNeuron)]
             val destNeuronGraphic = neurons[allN.indexOf(it.destNeuron)]
-            weights += WeightSpringGraphic(srcNeuronGraphic, destNeuronGraphic, it, sc = sc)
+            var forceScalar = min(network.inputNeurons.size, network.outputNeurons.size).toFloat()
+            if (srcNeuronGraphic.neuron.neuronCategory == Neuron.NeuronCategory.INPUT) {
+                forceScalar /= network.inputNeurons.size.coerceAtLeast(1)
+            }
+            if (destNeuronGraphic.neuron.neuronCategory == Neuron.NeuronCategory.OUTPUT) {
+                forceScalar /= network.outputNeurons.size.coerceAtLeast(1)
+            }
+            weights += WeightSpringGraphic(srcNeuronGraphic, destNeuronGraphic, it, sc = sc, forceScalar = forceScalar)
         }
 
         // add as child of network visualizer
@@ -89,9 +100,9 @@ class NetworkVisualizer(var network: Network) : Node2D() {
         }
     }
 
-    override fun customRender(batch: Batch) {
+    override fun customRender(batch: Batch, cam: Camera) {
         weights.forEach {
-            it.render()
+            it.render(cam)
         }
     }
 }

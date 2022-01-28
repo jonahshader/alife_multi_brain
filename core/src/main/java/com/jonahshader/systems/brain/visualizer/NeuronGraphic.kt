@@ -1,11 +1,13 @@
 package com.jonahshader.systems.brain.visualizer
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.neurons.Neuron
+import com.jonahshader.systems.brain.neurons.NeuronType
 import com.jonahshader.systems.brain.visualizer.NetworkVisualizer.Companion.ioNeuronHorizontalSpacing
 import com.jonahshader.systems.brain.visualizer.NetworkVisualizer.Companion.ioNeuronPadding
 import com.jonahshader.systems.scenegraph.Node2D
@@ -20,7 +22,8 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
     companion object {
         const val DEFAULT_RADIUS = 4.0f
         var MOUSE_POS = Vector2()
-        private const val DRAG_METERS_PER_SECOND = 15f
+        private const val DRAG_METERS_PER_SECOND = 10f // 15f
+        private const val SPEED_LIMIT = 120f
     }
 
     private val color = Color(1f, 1f, 1f, 1f)
@@ -35,6 +38,15 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
         localPosition.set(initLocalPosition)
 //        velocity.x += Math.random().toFloat() - .5f
 //        velocity.y += Math.random().toFloat() - .5f
+
+        when (neuron.neuronType) {
+            NeuronType.Input -> color.set(.125f, 1f, 1f, 1f)
+            NeuronType.LeakyReLU -> color.set(.25f, 1f, .5f, 1f)
+            NeuronType.Output -> color.set(1f, 1f, .125f, 1f)
+            NeuronType.Tanh -> color.set(.8f, .2f, .8f, 1f)
+            NeuronType.Sin -> color.set(.8f, .2f, .2f, 1f)
+            NeuronType.LeakyIntegrateAndFire -> color.set(.2f, .8f, .2f, 1f)
+        }
     }
 
     override fun preUpdate(dt: Float) {
@@ -57,6 +69,9 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
             } else {
                 velocity.setZero()
             }
+            if (velocity.len2() > SPEED_LIMIT * SPEED_LIMIT) {
+                velocity.setLength(SPEED_LIMIT)
+            }
             localPosition.add(velocity.x * dt, velocity.y * dt)
 
             force.setZero()
@@ -65,25 +80,16 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
 
     }
 
-    override fun customRender(batch: Batch) {
-        var r = color.r
-        var g = color.g
-        var b = color.b
-        var brightness = (neuron.out / 2f).coerceIn(0f, 1f)
-        when (neuron.neuronCategory) {
-            Neuron.NeuronCategory.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f * brightness, 1.0f * brightness, 1.0f * brightness, 1.0f)
-            Neuron.NeuronCategory.OUTPUT -> MultiBrain.shapeDrawer.setColor(1.0f * brightness, 1.0f * brightness, 0.25f * brightness, 1.0f)
-            Neuron.NeuronCategory.HIDDEN -> MultiBrain.shapeDrawer.setColor(color.r * brightness, color.g * brightness, color.b * brightness, 1.0f)
-        }
+    override fun isVisible(cam: Camera) = cam.frustum.sphereInFrustum(globalPosition.x, globalPosition.y, 0f, radius)
 
+    override fun customRender(batch: Batch, cam: Camera) {
+        // activation color
+        val brightness = (neuron.out / 2f).coerceIn(0f, 1f)
+        MultiBrain.shapeDrawer.setColor(brightness, brightness, brightness, 1f)
         MultiBrain.shapeDrawer.filledCircle(globalPosition, radius)
 
-        brightness = 1f
-        when (neuron.neuronCategory) {
-            Neuron.NeuronCategory.INPUT -> MultiBrain.shapeDrawer.setColor(0.25f * brightness, 1.0f * brightness, 1.0f * brightness, 1.0f)
-            Neuron.NeuronCategory.OUTPUT -> MultiBrain.shapeDrawer.setColor(1.0f * brightness, 1.0f * brightness, 0.25f * brightness, 1.0f)
-            Neuron.NeuronCategory.HIDDEN -> MultiBrain.shapeDrawer.setColor(color.r * brightness, color.g * brightness, color.b * brightness, 1.0f)
-        }
+        // shell color
+        MultiBrain.shapeDrawer.setColor(color)
         MultiBrain.shapeDrawer.circle(globalPosition.x, globalPosition.y, radius)
     }
 }

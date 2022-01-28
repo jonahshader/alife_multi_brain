@@ -31,7 +31,9 @@ class Network {
             outputNeurons += OutputNeuron()
         }
         for (i in 0 until networkParams.hiddenNeuronCountInit) {
-            val neuron = LeakyReLUNeuron()
+//            val neuron = LeakyReLUNeuron()
+//            val neuron = NeuronType.makeRandomHidden(rand)
+            val neuron = LeakyIntegrateAndFireNeuron()
             neuron.mutateScalars(rand, 1.25f)
             hiddenNeurons += neuron
         }
@@ -55,8 +57,7 @@ class Network {
             outputNeurons += newNeuron
         }
         for (n in genes.neuronGenes) {
-            val newNeuron = NeuronType.make(n.neuron)
-            newNeuron.bias = n.bias
+            val newNeuron = n.makeNeuron()
             hiddenNeurons += newNeuron
         }
 
@@ -217,7 +218,7 @@ class Network {
     fun makeGenes() : NNGenes {
         val genes = NNGenes()
         hiddenNeurons.forEach {
-            genes.neuronGenes += NeuronGene(it.neuronType, it.bias)
+            genes.neuronGenes += it.makeGenetics()
         }
         outputNeurons.forEach {
             genes.outputBiasGenes += it.bias

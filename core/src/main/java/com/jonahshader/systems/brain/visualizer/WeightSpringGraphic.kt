@@ -1,5 +1,6 @@
 package com.jonahshader.systems.brain.visualizer
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.MathUtils.randomTriangular
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
@@ -12,7 +13,7 @@ import kotlin.math.pow
 
 class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val weight: Weight,
 //                          var targetLength: Float = neuronGDist(start, end) + randomTriangular(15.0f),
-                          var targetLength: Float = 130f,
+                          var targetLength: Float = 130f, private val forceScalar: Float = 1f,
                           val sc: SpringConstants) {
     private var startToEnd = Vector2(end.localPosition).sub(start.localPosition)
     private var pLength = targetLength
@@ -45,6 +46,7 @@ class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val 
         var force = (((error * -sc.newtonsPerMeter) + (lengthVelocity * -sc.newtonsPerMeterPerSecond)))
 //        force *= weight.weight.absoluteValue.pow(1/2f)
         force *= weight.weight.absoluteValue
+        force *= forceScalar
 
         end.force.add(direction.x * force, direction.y * force)
         start.force.add(-direction.x * force, -direction.y * force)
@@ -52,9 +54,19 @@ class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val 
         arrowPos += (dt / length) * 40
     }
 
-    fun render() {
+    private fun isVisible(cam: Camera) : Boolean {
+        temp.set(start.globalPosition).add(end.globalPosition).scl(.5f)
+        return cam.frustum.boundsInFrustum(temp.x, temp.y, 0f,
+            (start.globalPosition.x - end.globalPosition.x).absoluteValue * .5f,
+            (start.globalPosition.y - end.globalPosition.y).absoluteValue * .5f,
+            0f)
+    }
+
+    fun render(cam: Camera) {
+        if (!isVisible(cam)) return
 //        weight.calculateWeightedValue()
         val colorOffset = (weight.weight * .3f).coerceIn(-.5f, .5f)
+//        val colorOffset = if (weight.weight > 0) .3f else -.3f
         MultiBrain.shapeDrawer.setColor(.5f + colorOffset, .25f, .5f - colorOffset, 1f)
         MultiBrain.shapeDrawer.line(start.globalPosition, end.globalPosition, (weight.weight.absoluteValue * THICKNESS_SCALE).coerceIn(MIN_THICKNESS, 10f))
 

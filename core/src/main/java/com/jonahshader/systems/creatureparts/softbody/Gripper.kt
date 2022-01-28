@@ -1,5 +1,6 @@
 package com.jonahshader.systems.creatureparts.softbody
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.systems.creatureparts.Controllable
@@ -39,9 +40,9 @@ class Gripper(val initLocalPosition: Vector2) : BodyPart(initLocalPosition), Con
         force.setZero()
     }
 
-    override fun customRender(batch: Batch) {
+    override fun customRender(batch: Batch, cam: Camera) {
         color.set(1-grip, 1-grip, .5f, 1f)
-        super.customRender(batch)
+        super.customRender(batch, cam)
     }
 
     fun makeGene() = GripperGene(initLocalPosition.x, initLocalPosition.y)

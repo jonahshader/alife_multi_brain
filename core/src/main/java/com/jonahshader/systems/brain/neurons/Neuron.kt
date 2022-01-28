@@ -1,5 +1,6 @@
 package com.jonahshader.systems.brain.neurons
 
+import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
 
 abstract class Neuron {
@@ -52,6 +53,15 @@ abstract class Neuron {
      */
     open fun mutateScalars(rand: Random, amount: Float) {
         bias += rand.nextGaussian().toFloat() * amount
+    }
+
+    /**
+     * make genetic representation
+     */
+    open fun makeGenetics() = NeuronGene(neuronType, floatArrayOf(bias))
+
+    open fun setState(state: FloatArray) {
+        bias = state[0]
     }
 
     /**

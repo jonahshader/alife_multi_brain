@@ -36,19 +36,22 @@ class SBCreatureTestScreen : KtxScreen {
     private val sim = SoftBodyTravelSim(500, maxSteps, SIM_DELTA_TIME)
 
     private var visEnabled = false
+    private var running = true
 
     init {
-        visCam.translate(540f, 0f)
+        visCam.translate(640f, 0f)
+        visCam.zoom = 1.2f
 
-        sim.netParams.hiddenNeuronCountInit = 100
+        sim.netParams.hiddenNeuronCountInit = 25
+        sim.netParams.connectivityInit = .3f
         sim.bodyParams.gripperCountInit = 4
         sim.bodyParams.connectivityInit = 1f
         sim.setup()
         thread {
-            while (true) {
+            while (running) {
                 sim.runGeneration()
             }
-
+            println("training thread stopped")
         }
     }
 
@@ -58,10 +61,17 @@ class SBCreatureTestScreen : KtxScreen {
         if (Gdx.input.isKeyPressed(Input.Keys.S)) simCam.translate(0f, -speed)
         if (Gdx.input.isKeyPressed(Input.Keys.A)) simCam.translate(-speed, 0f)
         if (Gdx.input.isKeyPressed(Input.Keys.D)) simCam.translate(speed, 0f)
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) ScreenManager.switchTo(SBCreatureTestScreen())
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            running = false
+            ScreenManager.switchTo(SBCreatureTestScreen())
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) simCam.zoom /= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) simCam.zoom *= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.V)) visEnabled = !visEnabled
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            running = false
+            ScreenManager.pop()
+        }
 
         simCam.update()
         visCam.update()
@@ -89,22 +99,28 @@ class SBCreatureTestScreen : KtxScreen {
         if (visEnabled) {
             visViewport.apply()
             MultiBrain.batch.use(visCam) {
-                visualizer?.render(it)
+
+                // draw visualizer
+                visualizer?.render(it, visCam)
             }
         }
 
 
         simViewport.apply()
         MultiBrain.batch.use(simCam) {
+            // draw origin
+            MultiBrain.shapeDrawer.setColor(1f, 1f, 1f, 1f)
+            MultiBrain.shapeDrawer.filledCircle(0f, 0f, 8f)
+
+            // set mouse pos for some reason
             NeuronGraphic.MOUSE_POS = simViewport.unproject(Vector2(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
-            creature?.render(it)
+            // draw creature
+            creature?.render(it, simCam)
 
 //            TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.NORMAL, 32f, 0f, camera.zoom)
 //            TextRenderer.drawText(0f, 0f, "FPS: " + (1/delta))
 //            TextRenderer.end()
         }
-
-
     }
 
     override fun show() {

@@ -1,5 +1,6 @@
 package com.jonahshader.systems.brain.neurons
 
+import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
 
 enum class NeuronType {
@@ -7,7 +8,8 @@ enum class NeuronType {
     LeakyReLU,
     Output,
     Tanh,
-    Sin;
+    Sin,
+    LeakyIntegrateAndFire;
 
     companion object {
         // excludes input, output
@@ -26,8 +28,16 @@ enum class NeuronType {
                 Sin -> SinNeuron()
                 Input -> InputNeuron()
                 Output -> OutputNeuron()
+                LeakyIntegrateAndFire -> LeakyIntegrateAndFireNeuron()
             }
         }
+
+        fun make(gene: NeuronGene) : Neuron {
+            val neuron = make(gene.neuron)
+            neuron.setState(gene.state)
+            return neuron
+        }
+
         fun makeRandomHidden(rand: Random) = make(getRandomHidden(rand))
         fun makeRandom(rand: Random) = make(getRandom(rand))
     }
