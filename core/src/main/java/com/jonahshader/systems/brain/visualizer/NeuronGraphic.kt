@@ -22,8 +22,8 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
     companion object {
         const val DEFAULT_RADIUS = 4.0f
         var MOUSE_POS = Vector2()
-        private const val DRAG_METERS_PER_SECOND = 10f // 15f
-        private const val SPEED_LIMIT = 120f
+        private const val DRAG_METERS_PER_SECOND = 15f // 15f
+        private const val SPEED_LIMIT = 280f
     }
 
     private val color = Color(1f, 1f, 1f, 1f)
@@ -76,8 +76,6 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
 
             force.setZero()
         }
-
-
     }
 
     override fun isVisible(cam: Camera) = cam.frustum.sphereInFrustum(globalPosition.x, globalPosition.y, 0f, radius)

@@ -13,7 +13,7 @@ import kotlin.math.pow
 
 class WeightSpringGraphic(val start: NeuronGraphic, val end: NeuronGraphic, val weight: Weight,
 //                          var targetLength: Float = neuronGDist(start, end) + randomTriangular(15.0f),
-                          var targetLength: Float = 130f, private val forceScalar: Float = 1f,
+                          var targetLength: Float = 30f, private val forceScalar: Float = 1f,
                           val sc: SpringConstants) {
     private var startToEnd = Vector2(end.localPosition).sub(start.localPosition)
     private var pLength = targetLength

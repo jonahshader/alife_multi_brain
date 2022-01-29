@@ -152,12 +152,10 @@ open class SoftBody : Node2D, Controllable, Sensor {
     } else { false }
 
     open fun mutate(amount: Float) {
-        val maxConnections = (grippers.size * (grippers.size - 1))/2
         var addRemoveGripperCount = (rand.nextGaussian() * params.addRemoveGripperSd * amount).roundToInt()
         var addRemoveMuscleCount = (rand.nextGaussian() * params.addRemoveMuscleSd * amount).roundToInt()
 
         addRemoveGripperCount = addRemoveGripperCount.coerceAtLeast(-grippers.size + 2)
-        addRemoveMuscleCount = addRemoveMuscleCount.coerceIn(-muscles.size + 1, maxConnections - muscles.size)
 
         while (addRemoveGripperCount < 0) {
             removeRandomGripper()
@@ -168,6 +166,9 @@ open class SoftBody : Node2D, Controllable, Sensor {
             grippers += generateRandomGripper()
             addRemoveGripperCount--
         }
+
+        val maxConnections = (grippers.size * (grippers.size - 1))/2
+        addRemoveMuscleCount = addRemoveMuscleCount.coerceIn(-muscles.size + 1, maxConnections - muscles.size)
 
         while (addRemoveMuscleCount < 0) {
             removeRandomMuscle()

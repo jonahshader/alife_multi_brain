@@ -26,6 +26,6 @@ dependencies {
 
 	api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 
-	// my libraries
-	implementation 'org.jfree:jfreechart:1.5.3'
+	// custom libraries
+	implementation 'org.jetbrains.bio:viktor:1.2.0'
 }

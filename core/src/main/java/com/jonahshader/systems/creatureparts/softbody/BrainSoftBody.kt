@@ -1,26 +1,24 @@
 package com.jonahshader.systems.creatureparts.softbody
 
-import com.jonahshader.systems.brain.Network
+import com.jonahshader.systems.brain.CyclicNetwork
 import com.jonahshader.systems.brain.NetworkParams
 import com.jonahshader.systems.ga.CombinedGenes
 import com.jonahshader.systems.utils.Rand
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
 
 class BrainSoftBody : SoftBody {
     companion object {
         private const val CUSTOM_INPUTS = 2
     }
-    val network: Network
+    val network: CyclicNetwork
     private var age = 0f
 
     constructor(rand: Random = Rand.randx, combinedGenes: CombinedGenes) : super(rand, combinedGenes.sbGenes) {
-        network = Network(combinedGenes.nnGenes,
+        network = CyclicNetwork(combinedGenes.nnGenes,
             combinedGenes.sbGenes.getInputs() + CUSTOM_INPUTS, combinedGenes.sbGenes.getOutputs(), rand)
     }
     constructor(rand: Random = Rand.randx, bodyParams: SoftBodyParams, nnParams: NetworkParams) : super(rand, bodyParams) {
-        network = Network(CUSTOM_INPUTS, muscles.size + grippers.size, nnParams, rand)
+        network = CyclicNetwork(CUSTOM_INPUTS, muscles.size + grippers.size, nnParams, rand)
     }
 
 
@@ -41,17 +39,14 @@ class BrainSoftBody : SoftBody {
         network.mutate(amount)
         super.mutate(amount)
         // check output size matches
-        if (network.outputNeurons.size != outputs) {
+        if (outputs > network.outputNeurons.size) {
+            network.resizeOutputs(outputs)
+            // connect up new outputs
+            network.connectNewOutputs(network.networkParams.connectivityInit)
+        } else if (outputs < network.outputNeurons.size) {
+            // don't bother outputs because we only removed outputs instead of adding
             network.resizeOutputs(outputs)
         }
 
-
-        network.mutate(amount)
-        super.mutate(amount)
-        // check output size matches
-        if (network.outputNeurons.size != outputs) {
-            network.resizeOutputs(outputs)
-        }
-        // TODO: make this more parametric
     }
 }

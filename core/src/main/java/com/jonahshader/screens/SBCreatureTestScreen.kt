@@ -44,8 +44,8 @@ class SBCreatureTestScreen : KtxScreen {
 
         sim.netParams.hiddenNeuronCountInit = 25
         sim.netParams.connectivityInit = .3f
-        sim.bodyParams.gripperCountInit = 4
-        sim.bodyParams.connectivityInit = 1f
+        sim.bodyParams.gripperCountInit = 14
+        sim.bodyParams.connectivityInit = .3f
         sim.setup()
         thread {
             while (running) {

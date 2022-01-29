@@ -3,15 +3,14 @@ package com.jonahshader.systems.brain.visualizer
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
-import com.jonahshader.systems.brain.Network
+import com.jonahshader.systems.brain.CyclicNetwork
 import com.jonahshader.systems.brain.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
 import kotlin.math.absoluteValue
-import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-class NetworkVisualizer(var network: Network) : Node2D() {
+class NetworkVisualizer(var network: CyclicNetwork) : Node2D() {
     private val neurons = mutableListOf<NeuronGraphic>()
     private val mobileNeuronsSorted = mutableListOf<NeuronGraphic>()
     private val weights = mutableListOf<WeightSpringGraphic>()
@@ -22,7 +21,7 @@ class NetworkVisualizer(var network: Network) : Node2D() {
         const val ioNeuronHorizontalSpacing = 800.0f
         const val PUSH_RADIUS = 110f
         const val PUSH_EXPONENT = 2f
-        const val PUSH_FORCE = 150f
+        const val PUSH_FORCE = 16000f
     }
 
     init {

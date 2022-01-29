@@ -58,7 +58,7 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
             population[i] = InstFitnessPair(BrainSoftBody(rand, localBest.getCombinedGenes()))
         }
         for (i in 1 until population.size) {
-            population[i].sb.mutate(i * 2 / population.size.toFloat())
+            population[i].sb.mutate((i / population.size.toFloat()).pow(2f) * 2)
         }
         println("best fitness: $bestFitness")
         bestLock.lock()
