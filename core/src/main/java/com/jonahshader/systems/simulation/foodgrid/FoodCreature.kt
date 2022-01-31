@@ -7,7 +7,7 @@ import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.simulation.foodgrid.FoodGrid.Companion.CELL_SIZE
 import ktx.math.plusAssign
 
-class FoodCreature(networkBuilder: (Int, Int) -> Network = {input, output -> DenseCyclicNetwork(input, 32, output) }) {
+class FoodCreature(networkBuilder: (Int, Int) -> Network) {
     companion object {
         private const val FOOD_SENSOR_GRID_WIDTH = 5
         private const val FOOD_SENSOR_GRID_HEIGHT = 5
@@ -15,6 +15,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network = {input, output -> Den
 
         private const val GRAPHIC_SENSOR_RADIUS = 2f
         private const val GRAPHIC_BODY_RADIUS = 3f
+
     }
 
     private val foodSensorPos = mutableListOf<Vector2>()
