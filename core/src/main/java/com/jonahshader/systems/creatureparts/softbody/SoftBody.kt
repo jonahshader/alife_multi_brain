@@ -151,7 +151,7 @@ open class SoftBody : Node2D, Controllable, Sensor {
         true
     } else { false }
 
-    open fun mutate(amount: Float) {
+    open fun mutateBody(amount: Float) {
         var addRemoveGripperCount = (rand.nextGaussian() * params.addRemoveGripperSd * amount).roundToInt()
         var addRemoveMuscleCount = (rand.nextGaussian() * params.addRemoveMuscleSd * amount).roundToInt()
 

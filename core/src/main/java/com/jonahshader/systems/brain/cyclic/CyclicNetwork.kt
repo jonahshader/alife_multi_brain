@@ -1,5 +1,6 @@
-package com.jonahshader.systems.brain
+package com.jonahshader.systems.brain.cyclic
 
+import com.jonahshader.systems.brain.Network
 import com.jonahshader.systems.brain.neurons.*
 import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.ga.WeightGene
@@ -9,7 +10,7 @@ import kotlin.math.roundToInt
 import kotlin.random.asKotlinRandom
 
 class CyclicNetwork : Network {
-    var networkParams: NetworkParams = NetworkParams()
+    var networkParams: CyclicNetworkParams = CyclicNetworkParams()
     internal val rand: Random
     private val kRand: kotlin.random.Random
     val inputNeurons = mutableListOf<InputNeuron>()
@@ -19,7 +20,7 @@ class CyclicNetwork : Network {
     val sourceNeurons: List<Neuron> get() = inputNeurons + hiddenNeurons
     val destNeurons: List<Neuron> get() = hiddenNeurons + outputNeurons
 
-    constructor(inputs: Int, outputs: Int, networkParams: NetworkParams, rand: Random = Rand.randx) {
+    constructor(inputs: Int, outputs: Int, networkParams: CyclicNetworkParams, rand: Random = Rand.randx) {
         this.networkParams = networkParams
         this.rand = rand
         kRand = rand.asKotlinRandom()
@@ -81,6 +82,16 @@ class CyclicNetwork : Network {
         outputNeurons.forEach { it.updateOutput() }
     }
 
+    override fun clone() = CyclicNetwork(this)
+    override fun reset() {
+        inputNeurons.forEach {
+            it.value = 0f
+        }
+        destNeurons.forEach {
+            it.resetState()
+        }
+    }
+
     private fun removeRandomNeuron() : Boolean =
         if (hiddenNeurons.isNotEmpty()) {
             val toRemove = hiddenNeurons.random(kRand)
@@ -109,12 +120,37 @@ class CyclicNetwork : Network {
         return n
     }
 
-    fun mutate(overallScale: Float) {
-        var addRemoveNeuronCount = (rand.nextGaussian() * networkParams.addRemoveNeuronSd * overallScale).roundToInt()
-        var addRemoveWeightCount = (rand.nextGaussian() * networkParams.addRemoveWeightSd * overallScale).roundToInt()
+    override fun mutateParameters(amount: Float) {
+        weights.forEach {
+            it.mutate(rand, networkParams.mutateWeightSd * amount)
+        }
+        hiddenNeurons.forEach {
+            it.mutateScalars(rand, networkParams.mutateWeightSd * amount) // bias is a weight basically
+        }
+        outputNeurons.forEach {
+            it.mutateScalars(rand, networkParams.mutateWeightSd * amount)
+        }
+    }
 
+    override fun getParameters(): List<Float> = getAllNeurons().flatMap { neuron -> neuron.getParameters() } + weights.map { weight -> weight.weight }
+
+    override fun setParameters(params: List<Float>) {
+        var index = 0
+        for(n in getAllNeurons()) {
+            val size = n.getParameters().size
+            n.setParameters(params.subList(index, index + size))
+            index += size
+        }
+
+        for (w in weights) {
+            w.weight = params[index]
+            index++
+        }
+    }
+
+    fun mutateTopology(amount: Float) {
+        var addRemoveNeuronCount = (rand.nextGaussian() * networkParams.addRemoveNeuronSd * amount).roundToInt()
         addRemoveNeuronCount = addRemoveNeuronCount.coerceAtLeast(-hiddenNeurons.size)
-        addRemoveWeightCount = addRemoveWeightCount.coerceAtLeast(-weights.size)
 
         while (addRemoveNeuronCount < 0) {
             removeRandomNeuron()
@@ -126,6 +162,9 @@ class CyclicNetwork : Network {
             addRemoveNeuronCount--
         }
 
+        var addRemoveWeightCount = (rand.nextGaussian() * networkParams.addRemoveWeightSd * amount).roundToInt()
+        addRemoveWeightCount = addRemoveWeightCount.coerceAtLeast(-weights.size)
+
         while (addRemoveWeightCount < 0) {
             removeRandomWeight()
             addRemoveWeightCount++
@@ -133,16 +172,6 @@ class CyclicNetwork : Network {
 
         while (addRemoveWeightCount > 0) {
             if (addRandomWeight()) addRemoveWeightCount--
-        }
-
-        weights.forEach {
-            it.mutate(rand, networkParams.mutateWeightSd * overallScale)
-        }
-        hiddenNeurons.forEach {
-            it.mutateScalars(rand, networkParams.mutateWeightSd * overallScale) // bias is a weight basically
-        }
-        outputNeurons.forEach {
-            it.mutateScalars(rand, networkParams.mutateWeightSd * overallScale)
         }
     }
 
@@ -161,7 +190,7 @@ class CyclicNetwork : Network {
         }
     }
 
-    fun removeRandomWeight() : Boolean {
+    private fun removeRandomWeight() : Boolean {
         return if (weights.isNotEmpty()) {
             weights.removeAt(rand.nextInt(weights.size))
             true
@@ -170,7 +199,7 @@ class CyclicNetwork : Network {
         }
     }
 
-    fun connect(connectivity: Float) {
+    private fun connect(connectivity: Float) {
         var toAddOrRemove = ((sourceNeurons.size * destNeurons.size * connectivity) - weights.size).roundToInt()
 
         while (toAddOrRemove > 0) {
@@ -216,7 +245,7 @@ class CyclicNetwork : Network {
         }
     }
 
-    fun weightExists(sourceNeuron: Neuron, destNeuron: Neuron) : Boolean {
+    private fun weightExists(sourceNeuron: Neuron, destNeuron: Neuron) : Boolean {
         for (w in weights) {
             if (w.isSameEdge(sourceNeuron, destNeuron)) return true
         }
@@ -273,7 +302,7 @@ class CyclicNetwork : Network {
 //        }
     }
 
-    fun removeOutputNeuronNoPrune() : Boolean {
+    private fun removeOutputNeuronNoPrune() : Boolean {
         return if (outputNeurons.isNotEmpty()) {
             val toRemove = outputNeurons.last()
             weights.removeIf { it.isConnectedToNeuron(toRemove) }

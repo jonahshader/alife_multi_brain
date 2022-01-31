@@ -2,12 +2,11 @@ package com.jonahshader.systems.simulation.softbodytravel
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.IntSet
-import com.jonahshader.systems.brain.NetworkParams
+import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
 import com.jonahshader.systems.creatureparts.softbody.BrainSoftBody
 import com.jonahshader.systems.creatureparts.softbody.SoftBodyParams
 import com.jonahshader.systems.ga.CombinedGenes
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.math.pow
 
@@ -17,7 +16,7 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
     private val rand = Random()
     private val population = mutableListOf<InstFitnessPair>()
 
-    val netParams = NetworkParams()
+    val netParams = CyclicNetworkParams()
     val bodyParams = SoftBodyParams()
     private val bestLock = ReentrantLock()
     private var best: BrainSoftBody? = null
@@ -58,7 +57,7 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
             population[i] = InstFitnessPair(BrainSoftBody(rand, localBest.getCombinedGenes()))
         }
         for (i in 1 until population.size) {
-            population[i].sb.mutate((i / population.size.toFloat()).pow(2f) * 2)
+            population[i].sb.network.mutateParameters((i / population.size.toFloat()).pow(2f) * 2)
         }
         println("best fitness: $bestFitness")
         bestLock.lock()

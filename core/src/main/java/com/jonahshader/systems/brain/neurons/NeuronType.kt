@@ -34,7 +34,7 @@ enum class NeuronType {
 
         fun make(gene: NeuronGene) : Neuron {
             val neuron = make(gene.neuron)
-            neuron.setState(gene.state)
+            neuron.setParameters(gene.state)
             return neuron
         }
 

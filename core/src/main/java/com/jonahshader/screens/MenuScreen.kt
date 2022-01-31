@@ -1,6 +1,7 @@
 package com.jonahshader.screens
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
@@ -21,9 +22,10 @@ class MenuScreen : KtxScreen {
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(), Vector2(500f, 90f))
 
     init {
-        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
+//        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
+        menu.addMenuItem("Food Creature") { ScreenManager.push(FoodCreatureTestScreen()) }
         menu.addMenuItem("Visualizer") { ScreenManager.push(NetworkVisualTestScreen()) }
-        menu.addMenuItem("Creature Test") { ScreenManager.push(SBCreatureTestScreen()) }
+        menu.addMenuItem("SB Creature") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
         menu.addMenuItem("Exit") { Gdx.app.exit()}
 

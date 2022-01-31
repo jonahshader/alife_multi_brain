@@ -1,5 +1,6 @@
 package com.jonahshader.systems.brain.neurons
 
+import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
 
 /**
@@ -13,6 +14,7 @@ class InputNeuron : Neuron() {
     init {
         // input neurons should not be removed by default
         neuronCategory = NeuronCategory.INPUT
+        neuronType = NeuronType.Input
     }
     // don't have anything to mutate
     override fun mutateScalars(rand: Random, amount: Float) {}
@@ -20,4 +22,8 @@ class InputNeuron : Neuron() {
     override fun update(dt: Float) {
         outputBuffer = value
     }
+
+    override fun getParameters() = listOf<Float>()
+    override fun setParameters(params: List<Float>) {}
+    override fun makeGenetics() = NeuronGene(neuronType, floatArrayOf())
 }

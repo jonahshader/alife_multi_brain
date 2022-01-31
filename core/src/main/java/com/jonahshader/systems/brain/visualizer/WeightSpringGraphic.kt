@@ -1,12 +1,9 @@
 package com.jonahshader.systems.brain.visualizer
 
 import com.badlogic.gdx.graphics.Camera
-import com.badlogic.gdx.math.MathUtils.randomTriangular
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.Weight
-import com.jonahshader.systems.brain.neurons.Neuron
-import com.jonahshader.systems.brain.visualizer.NeuronGraphic.Companion.DEFAULT_RADIUS
+import com.jonahshader.systems.brain.cyclic.Weight
 import ktx.math.minus
 import kotlin.math.absoluteValue
 import kotlin.math.pow

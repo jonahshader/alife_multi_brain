@@ -18,7 +18,7 @@ abstract class Neuron {
     // indicates if this can be removed by random mutations
     // this should be false for IO related neurons
     var neuronCategory = NeuronCategory.HIDDEN
-    protected set
+        protected set
     var neuronType = NeuronType.Input
         protected set
 
@@ -30,7 +30,7 @@ abstract class Neuron {
     /**
      * resets accumulative values (besides out, outputBuffer)
      */
-    open fun resetStateInternals(){}
+    protected open fun resetStateInternals(){}
 
     /**
      * makes the output the most recent computed value
@@ -60,9 +60,20 @@ abstract class Neuron {
      */
     open fun makeGenetics() = NeuronGene(neuronType, floatArrayOf(bias))
 
-    open fun setState(state: FloatArray) {
+    /**
+     * set trainable parameters
+     */
+    open fun setParameters(state: FloatArray) {
         bias = state[0]
     }
+    open fun setParameters(params: List<Float>) {
+        bias = params[0]
+    }
+
+    /**
+     * get trainable parameters
+     */
+    open fun getParameters() : List<Float> = listOf(bias)
 
     /**
      * resetState() reset any integrator variables or anything representing state

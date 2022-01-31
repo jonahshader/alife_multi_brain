@@ -1,6 +1,6 @@
-package com.jonahshader.systems.brain
+package com.jonahshader.systems.brain.cyclic
 
-class NetworkParams {
+class CyclicNetworkParams {
     var weightInitSd = 1f
     var addRemoveNeuronSd = 1f
     var addRemoveWeightSd = 0.4f

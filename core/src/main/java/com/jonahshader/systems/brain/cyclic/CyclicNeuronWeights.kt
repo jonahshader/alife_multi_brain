@@ -1,4 +1,4 @@
-package com.jonahshader.systems.brain
+package com.jonahshader.systems.brain.cyclic
 
 import com.jonahshader.systems.brain.neurons.Neuron
 import java.util.*

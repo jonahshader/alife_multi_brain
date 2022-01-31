@@ -25,12 +25,22 @@ class LeakyIntegrateAndFireNeuron : Neuron() {
 
     override fun makeGenetics() = NeuronGene(neuronType, floatArrayOf(bias, initMembraneVoltage, capacitance, resistance))
 
-    override fun setState(state: FloatArray) {
+    override fun setParameters(state: FloatArray) {
         bias = state[0]
         initMembraneVoltage = state[1]
         capacitance = state[2]
         resistance = state[3]
     }
+
+    override fun setParameters(params: List<Float>) {
+        bias = params[0]
+        initMembraneVoltage = params[1]
+        capacitance = params[2]
+        resistance = params[3]
+    }
+
+    override fun getParameters(): List<Float> = listOf(bias, initMembraneVoltage, capacitance, resistance)
+
 
     override fun update(dt: Float) {
         val inputCurrent = inputSum + bias

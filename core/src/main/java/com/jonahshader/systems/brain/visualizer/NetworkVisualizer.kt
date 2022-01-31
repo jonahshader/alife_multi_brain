@@ -3,7 +3,7 @@ package com.jonahshader.systems.brain.visualizer
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
-import com.jonahshader.systems.brain.CyclicNetwork
+import com.jonahshader.systems.brain.cyclic.CyclicNetwork
 import com.jonahshader.systems.brain.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
 import kotlin.math.absoluteValue

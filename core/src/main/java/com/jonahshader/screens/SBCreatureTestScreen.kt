@@ -33,7 +33,7 @@ class SBCreatureTestScreen : KtxScreen {
 
     private val maxSteps = 500
     private var stepsRemaining = maxSteps
-    private val sim = SoftBodyTravelSim(500, maxSteps, SIM_DELTA_TIME)
+    private val sim = SoftBodyTravelSim(800, maxSteps, SIM_DELTA_TIME)
 
     private var visEnabled = false
     private var running = true
@@ -42,10 +42,10 @@ class SBCreatureTestScreen : KtxScreen {
         visCam.translate(640f, 0f)
         visCam.zoom = 1.2f
 
-        sim.netParams.hiddenNeuronCountInit = 25
-        sim.netParams.connectivityInit = .3f
-        sim.bodyParams.gripperCountInit = 14
-        sim.bodyParams.connectivityInit = .3f
+        sim.netParams.hiddenNeuronCountInit = 250
+        sim.netParams.connectivityInit = .005f
+        sim.bodyParams.gripperCountInit = 15
+        sim.bodyParams.connectivityInit = .4f
         sim.setup()
         thread {
             while (running) {

@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.CyclicNetwork
-import com.jonahshader.systems.brain.NetworkParams
+import com.jonahshader.systems.brain.cyclic.CyclicNetwork
+import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
 import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
 import com.jonahshader.systems.brain.visualizer.NeuronGraphic
 import com.jonahshader.systems.screen.ScreenManager
@@ -21,7 +21,7 @@ class NetworkVisualTestScreen : KtxScreen {
     private val viewport = FitViewport(1920.0f, 1080.0f, camera)
 
     private val rand = Random()
-    private val netParams = NetworkParams()
+    private val netParams = CyclicNetworkParams()
     private val testNetwork = CyclicNetwork(6, 6, netParams, rand)
 
     private val netVisualizer = NetworkVisualizer(testNetwork)
