@@ -15,16 +15,29 @@ class Eval(var creature: FoodCreature, var fitness: Float = 0f)
 
 class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
               private val samples: Int, val steps: Int, val dt: Float,
-              private val rand: Random = Rand.randx) {
+              private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
+              private val logging: Boolean = false) {
+    enum class Algo {
+        EsPickBest,
+        EsGD,
+        EsGDM
+    }
+
+    companion object {
+        private const val PRINT_FITNESS = false
+    }
+
+
     private val population = mutableListOf<Eval>()
 
     private var bestLock = ReentrantLock()
     private var bestCreature: FoodCreature? = null
 
     private var gdCreatureCurrent: Eval? = null
-    private lateinit var pUpdate: List<Float>
+    private var pUpdate: List<Float>
 
     private var running = false
+    private val fitnessLog = mutableListOf<Float>()
 
     init {
         for (i in 0 until populationSize) {
@@ -35,27 +48,48 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         pUpdate = List(population[0].creature.network.getParameters().size) { 0f }
     }
 
+    private fun runAlgo() {
+        when (algo) {
+            Algo.EsPickBest -> esPickBestAlgo()
+            Algo.EsGD -> esGdAlgo()
+            Algo.EsGDM -> esGdMovementAlgo()
+        }
+    }
+
+    private fun logFitness(fitness: Float) {
+        if (logging)
+            fitnessLog += fitness
+        if (PRINT_FITNESS)
+            println("current fitness: $fitness")
+    }
+
+    fun getLog() : List<Float> = fitnessLog
+
+    fun runIterations(iterations: Int) {
+        for (i in 0 until iterations) {
+            runAlgo()
+        }
+    }
+
     fun start() {
         if (!running) {
             running = true
             thread {
                 while (running) {
-//                    selectBestAlgo()
-//                    gdAlgo()
-                    gdMovementAlgo()
+                    runAlgo()
                 }
             }
         }
     }
 
-    private fun gdMovementAlgo() {
+    private fun esGdMovementAlgo() {
         population.parallelStream().forEach { evaluate(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
             gdCreatureCurrent = population[population.size/2]
         }
 
-        println("current fitness: ${gdCreatureCurrent!!.fitness}")
+        logFitness(gdCreatureCurrent!!.fitness)
         bestLock.withLock {
             bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
         }
@@ -79,12 +113,9 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.1f, 0.9f)
         pUpdate = update
-        // TODO: newParams should come from the median population
         val medianParams = population[population.size/2].creature.network.getParameters()
         val newParams = medianParams.zip(update) { base, u -> base + u }
-//        val newParams = TODO()
 
-//        val newParams = esGradientDescent(gdCreatureCurrent!!.creature.network.getParameters(), paramsList, evals, 0.1f)
         population.forEachIndexed { index, it ->
             it.fitness = 0f
             it.creature.reset()
@@ -95,14 +126,14 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
     }
 
-    private fun gdAlgo() {
+    private fun esGdAlgo() {
         population.parallelStream().forEach { evaluate(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
             gdCreatureCurrent = population[population.size/2]
         }
 
-        println("current fitness: ${gdCreatureCurrent!!.fitness}")
+        logFitness(gdCreatureCurrent!!.fitness)
         bestLock.withLock {
             bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
         }
@@ -134,11 +165,11 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
     }
 
-    private fun selectBestAlgo() {
+    private fun esPickBestAlgo() {
         population.parallelStream().forEach { evaluate(it) }
         population.sortBy { it.fitness }
         val best = population.last()
-        println("best fitness: ${best.fitness}")
+        logFitness(best.fitness)
         bestLock.withLock {
             bestCreature = best.creature.cloneAndReset()
         }

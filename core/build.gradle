@@ -29,4 +29,5 @@ dependencies {
 	// custom libraries
 	implementation "org.jetbrains.kotlinx:multik-api:0.1.1"
 	implementation "org.jetbrains.kotlinx:multik-default:0.1.1"
+	implementation "com.github.doyaaaaaken:kotlin-csv-jvm:1.2.0"
 }
