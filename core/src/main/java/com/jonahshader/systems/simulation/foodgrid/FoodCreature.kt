@@ -37,9 +37,6 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
     }
 
     fun update(foodGrid: FoodGrid, dt: Float) {
-
-
-
         foodSensorPos.forEachIndexed { index, it ->
             tempSensor.set(pos).add(it)
             network.setInput(index, foodGrid.getFood(tempSensor))
@@ -65,9 +62,6 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
                 foodGrid.setFood(pos, 0f)
             }
         }
-
-
-
     }
 
     fun render() {
