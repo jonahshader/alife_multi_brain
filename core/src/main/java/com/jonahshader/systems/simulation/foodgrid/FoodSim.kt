@@ -16,15 +16,11 @@ class Eval(var creature: FoodCreature, var fitness: Float = 0f)
 class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
               private val samples: Int, val steps: Int, val dt: Float,
               private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
-              private val logging: Boolean = false) {
+              private val logging: Boolean = false, private val printFitness: Boolean = false) {
     enum class Algo {
         EsPickBest,
         EsGD,
         EsGDM
-    }
-
-    companion object {
-        private const val PRINT_FITNESS = false
     }
 
 
@@ -59,7 +55,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
     private fun logFitness(fitness: Float) {
         if (logging)
             fitnessLog += fitness
-        if (PRINT_FITNESS)
+        if (printFitness)
             println("current fitness: $fitness")
     }
 
@@ -113,7 +109,8 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.1f, 0.9f)
         pUpdate = update
-        val medianParams = population[population.size/2].creature.network.getParameters()
+        val medianParams = population[(population.size * .75f).toInt()].creature.network.getParameters()
+        gdCreatureCurrent = population[population.size/2]
         val newParams = medianParams.zip(update) { base, u -> base + u }
 
         population.forEachIndexed { index, it ->
@@ -122,6 +119,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
             it.creature.network.setParameters(newParams)
             if (it != gdCreatureCurrent!!) {
                 it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
+//                it.creature.network.mutateParameters(.1f)
             }
         }
     }

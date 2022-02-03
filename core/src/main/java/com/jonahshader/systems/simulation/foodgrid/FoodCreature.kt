@@ -5,7 +5,9 @@ import com.jonahshader.MultiBrain
 import com.jonahshader.systems.brain.Network
 import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.simulation.foodgrid.FoodGrid.Companion.CELL_SIZE
+import com.jonahshader.systems.utils.Rand
 import ktx.math.plusAssign
+import kotlin.math.pow
 
 class FoodCreature(networkBuilder: (Int, Int) -> Network) {
     companion object {
@@ -21,11 +23,11 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
     private val foodSensorPos = mutableListOf<Vector2>()
     var totalFood = 0f
 
-    private val pos = Vector2()
+    val pos = Vector2()
     private val vel = Vector2()
     private val tempSensor = Vector2()
 
-    val network = networkBuilder(FOOD_SENSOR_GRID_WIDTH * FOOD_SENSOR_GRID_HEIGHT, 3)
+    val network = networkBuilder(FOOD_SENSOR_GRID_WIDTH * FOOD_SENSOR_GRID_HEIGHT, 4)
 
     init {
         for (y in 0 until FOOD_SENSOR_GRID_HEIGHT) for (x in 0 until FOOD_SENSOR_GRID_WIDTH) {
@@ -39,18 +41,21 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
     fun update(foodGrid: FoodGrid, dt: Float) {
         foodSensorPos.forEachIndexed { index, it ->
             tempSensor.set(pos).add(it)
-            network.setInput(index, foodGrid.getFood(tempSensor))
+            network.setInput(index, foodGrid.readFoodBilinear(tempSensor))
         }
 
         network.update(dt)
 
         vel.x = network.getOutput(0)
         vel.y = network.getOutput(1)
+        val targetSpeed = network.getOutput(2)
+        vel.setLength(targetSpeed)
         vel.scl(dt)
 
         // move or eat
-        if (network.getOutput(2) < 0) {
+        if (network.getOutput(3) < 0) {
             pos += vel
+            totalFood -= .5f * ((targetSpeed / CELL_SIZE).pow(2) * EAT_PER_SECOND) * dt
         } else {
             val toEat = EAT_PER_SECOND * dt
             val foodAtBody = foodGrid.getFood(pos)
@@ -64,14 +69,23 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
         }
     }
 
-    fun render() {
+    fun render(foodGrid: FoodGrid) {
         MultiBrain.shapeDrawer.setColor(.5f, .5f, .5f, 1f)
         foodSensorPos.forEach {
             tempSensor.set(pos).add(it)
+            val brightness = foodGrid.readFoodBilinear(tempSensor)
+            MultiBrain.shapeDrawer.setColor(brightness, brightness, brightness, 1f)
             MultiBrain.shapeDrawer.circle(tempSensor.x, tempSensor.y, GRAPHIC_SENSOR_RADIUS)
         }
+
+//        for (i in 0 until 512) {
+//            tempSensor.set(pos).add(Rand.randx.nextGaussian().toFloat() * 32, Rand.randx.nextGaussian().toFloat() * 32)
+//            val brightness = foodGrid.readFoodBilinear(tempSensor)
+//            MultiBrain.shapeDrawer.setColor(brightness, brightness, brightness, 1f)
+//            MultiBrain.shapeDrawer.filledCircle(tempSensor, 2f)
+//        }
         MultiBrain.shapeDrawer.setColor(1f, 1f, 1f, 1f)
-        MultiBrain.shapeDrawer.filledCircle(pos.x, pos.y, GRAPHIC_BODY_RADIUS)
+        MultiBrain.shapeDrawer.filledCircle(pos, GRAPHIC_BODY_RADIUS)
     }
 
     fun reset() {

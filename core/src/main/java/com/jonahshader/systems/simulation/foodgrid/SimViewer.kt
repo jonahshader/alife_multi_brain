@@ -1,5 +1,7 @@
 package com.jonahshader.systems.simulation.foodgrid
 
+import com.badlogic.gdx.graphics.Camera
+
 class SimViewer(private val sim: FoodSim) {
     private val foodGrid = FoodGrid()
     private var creature: FoodCreature? = null
@@ -7,7 +9,15 @@ class SimViewer(private val sim: FoodSim) {
 
     fun render() {
         foodGrid.render()
-        creature?.render()
+        creature?.render(foodGrid)
+    }
+
+    fun follow(cam: Camera) {
+        if (creature != null) {
+            cam.position.x = creature!!.pos.x
+            cam.position.y = creature!!.pos.y
+        }
+        cam.update()
     }
 
     fun update() {

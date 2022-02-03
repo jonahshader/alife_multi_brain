@@ -5,7 +5,6 @@ import com.jonahshader.MultiBrain
 import com.jonahshader.systems.utils.Rand
 import java.util.*
 import kotlin.math.floor
-import kotlin.math.sqrt
 
 class FoodGrid(private val rand: Random = Rand.randx) {
     companion object {
@@ -16,7 +15,7 @@ class FoodGrid(private val rand: Random = Rand.randx) {
     private val food = HashMap<Int, Float>()
 
     private fun posToKey(pos: Vector2) = posToKey(worldToCell(pos.x), worldToCell(pos.y))
-    private fun posToKey(xWorld: Int, yWorld: Int) : Int = (xWorld shl 16) or (yWorld and 0xFFFF)
+    private fun posToKey(xCell: Int, yCell: Int) : Int = (xCell shl 16) or (yCell and 0xFFFF)
     private fun keyToXPos(key: Int) : Int = key shr 16
     private fun keyToYPos(key: Int) : Int = key.toShort().toInt()
     private fun worldToCell(pos: Float) : Int = floor(pos/ CELL_SIZE).toInt() + WORLD_RADIUS
@@ -27,17 +26,48 @@ class FoodGrid(private val rand: Random = Rand.randx) {
         val key = posToKey(pos)
 
         return if (inRange(pos)) {
-            if (food.containsKey(key)) {
-                food[key]!!
-            } else {
-                val newFood = 1f - sqrt(rand.nextFloat())
-                food[key] = newFood
-                newFood
-            }
+            getFood(key)
         } else {
             0f
         }
     }
+
+    private fun getFoodNoRangeCheck(xCell: Int, yCell: Int) : Float {
+        val key = posToKey(xCell, yCell)
+        return getFood(key)
+    }
+
+    private fun getFood(key: Int) : Float {
+        return if (food.containsKey(key)) {
+            food[key]!!
+        } else {
+//                val newFood = 1f - sqrt(rand.nextFloat())
+            val newFood = if (rand.nextFloat() < .25) 1f else 0f
+            food[key] = newFood
+            newFood
+        }
+    }
+
+    fun readFoodBilinear(pos: Vector2) : Float {
+        return if (inRange(pos)) {
+            val xCellF = ((pos.x + CELL_SIZE/2f) / CELL_SIZE) + WORLD_RADIUS
+            val yCellF = ((pos.y + CELL_SIZE/2f) / CELL_SIZE) + WORLD_RADIUS
+            val xCellI = worldToCell(pos.x + CELL_SIZE/2f)
+            val yCellI = worldToCell(pos.y + CELL_SIZE/2f)
+            val xWorldFR = xCellF - xCellI
+            val yWorldFR = yCellF - yCellI
+
+            val topLeftTopRight = lerp(xWorldFR, getFoodNoRangeCheck(xCellI - 1, yCellI), getFoodNoRangeCheck(xCellI, yCellI))
+            val bottomLeftBottomRight = lerp(xWorldFR, getFoodNoRangeCheck(xCellI - 1, yCellI - 1), getFoodNoRangeCheck(xCellI, yCellI - 1))
+
+            val topBottom = lerp(yWorldFR, bottomLeftBottomRight, topLeftTopRight)
+            topBottom
+        } else {
+            0f
+        }
+    }
+
+    private fun lerp(p: Float, min: Float, max: Float) = (1-p) * min + p * max
 
     fun setFood(pos: Vector2, newFood: Float) {
         if (inRange(pos)) {

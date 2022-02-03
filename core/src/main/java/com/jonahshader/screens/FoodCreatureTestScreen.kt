@@ -23,10 +23,11 @@ class FoodCreatureTestScreen : KtxScreen {
     private val visCam = OrthographicCamera()
     private val visViewport = FitViewport(1920.0f, 1080.0f, visCam)
 
-    private val sim = FoodSim(makeDenseNetworkBuilder(10), 100, 10, 500, 1/20f)
+    private val sim = FoodSim(makeDenseNetworkBuilder(35), 100, 20, 600, 1/20f, algo = FoodSim.Algo.EsGDM, printFitness = true)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false
+    private var following = false
 
     init {
         sim.start()
@@ -49,18 +50,22 @@ class FoodCreatureTestScreen : KtxScreen {
             sim.stop()
             ScreenManager.pop()
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.F)) following = !following
 
         simCam.update()
         visCam.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
 
         simViewer.update()
+        if (following)
+            simViewer.follow(simCam)
 
         simViewport.apply()
         MultiBrain.shapeDrawer.update()
         MultiBrain.batch.use(simCam) {
             simViewer.render()
         }
+
     }
 
     override fun show() {
