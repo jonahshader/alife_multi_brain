@@ -23,7 +23,7 @@ class FoodCreatureTestScreen : KtxScreen {
     private val visCam = OrthographicCamera()
     private val visViewport = FitViewport(1920.0f, 1080.0f, visCam)
 
-    private val sim = FoodSim(makeDenseNetworkBuilder(35), 100, 20, 600, 1/20f, algo = FoodSim.Algo.EsGDM, printFitness = true)
+    private val sim = FoodSim(makeDenseNetworkBuilder(90), 10, 100, 900, 1/20f, algo = FoodSim.Algo.EsGDM, printFitness = true)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false

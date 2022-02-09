@@ -1,16 +1,24 @@
 package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.math.Vector2
+import com.external.FastNoiseLite
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.utils.Rand
 import java.util.*
 import kotlin.math.floor
 
-class FoodGrid(private val rand: Random = Rand.randx) {
+class FoodGrid(private val rand: Random = Rand.randx, seed: Int = rand.nextInt()) {
     companion object {
         const val CELL_SIZE = 16f
         const val WORLD_RADIUS = 512 // in cells
     }
+
+//    private val noise = FastNoiseLite(seed)
+//    init {
+//        noise.SetNoiseType(FastNoiseLite.NoiseType.Value)
+//        noise.SetFrequency(1f)
+//    }
+
 
     private val food = HashMap<Int, Float>()
 
@@ -23,26 +31,25 @@ class FoodGrid(private val rand: Random = Rand.randx) {
     private fun inRange(pos: Vector2) : Boolean = pos.len2() < WORLD_RADIUS * WORLD_RADIUS * CELL_SIZE * CELL_SIZE
 
     fun getFood(pos: Vector2) : Float {
-        val key = posToKey(pos)
+        val xCell = worldToCell(pos.x)
+        val yCell = worldToCell(pos.y)
 
         return if (inRange(pos)) {
-            getFood(key)
+            getFood(xCell, yCell)
         } else {
             0f
         }
     }
 
-    private fun getFoodNoRangeCheck(xCell: Int, yCell: Int) : Float {
+    private fun getFood(xCell: Int, yCell: Int) : Float {
         val key = posToKey(xCell, yCell)
-        return getFood(key)
-    }
-
-    private fun getFood(key: Int) : Float {
         return if (food.containsKey(key)) {
             food[key]!!
         } else {
 //                val newFood = 1f - sqrt(rand.nextFloat())
-            val newFood = if (rand.nextFloat() < .25) 1f else 0f
+            val newFood = if (rand.nextFloat() > .75) 1f else 0f
+//            val newFood = if (noise.GetNoise(xCell.toFloat(), yCell.toFloat()) > .33) 1f else 0f
+//            val newFood = noise.GetNoise(xCell.toFloat(), yCell.toFloat()) * .5f + .5f
             food[key] = newFood
             newFood
         }
@@ -57,8 +64,8 @@ class FoodGrid(private val rand: Random = Rand.randx) {
             val xWorldFR = xCellF - xCellI
             val yWorldFR = yCellF - yCellI
 
-            val topLeftTopRight = lerp(xWorldFR, getFoodNoRangeCheck(xCellI - 1, yCellI), getFoodNoRangeCheck(xCellI, yCellI))
-            val bottomLeftBottomRight = lerp(xWorldFR, getFoodNoRangeCheck(xCellI - 1, yCellI - 1), getFoodNoRangeCheck(xCellI, yCellI - 1))
+            val topLeftTopRight = lerp(xWorldFR, getFood(xCellI - 1, yCellI), getFood(xCellI, yCellI))
+            val bottomLeftBottomRight = lerp(xWorldFR, getFood(xCellI - 1, yCellI - 1), getFood(xCellI, yCellI - 1))
 
             val topBottom = lerp(yWorldFR, bottomLeftBottomRight, topLeftTopRight)
             topBottom
@@ -88,4 +95,9 @@ class FoodGrid(private val rand: Random = Rand.randx) {
     fun reset() {
         food.clear()
     }
+
+//    fun setSeed(seed: Int) {
+//        noise.SetSeed(seed)
+//    }
+
 }

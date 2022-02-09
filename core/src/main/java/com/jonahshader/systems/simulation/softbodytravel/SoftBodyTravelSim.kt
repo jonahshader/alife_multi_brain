@@ -23,6 +23,8 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
 
 
     fun setup() {
+        netParams.connectivityInit = .11f
+        bodyParams.gripperCountInit = 5
         for (i in 0 until popSize) {
             population += InstFitnessPair(BrainSoftBody(rand, bodyParams, netParams))
         }

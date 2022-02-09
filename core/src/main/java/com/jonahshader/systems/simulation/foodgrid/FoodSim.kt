@@ -79,10 +79,10 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
     }
 
     private fun esGdMovementAlgo() {
-        population.parallelStream().forEach { evaluate(it) }
+        population.parallelStream().forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
-            gdCreatureCurrent = population[population.size/2]
+            gdCreatureCurrent = population[(population.size*.66f).toInt()]
         }
 
         logFitness(gdCreatureCurrent!!.fitness)
@@ -107,10 +107,11 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
-        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.1f, 0.9f)
+        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.05f, 0.9f)
         pUpdate = update
-        val medianParams = population[(population.size * .75f).toInt()].creature.network.getParameters()
-        gdCreatureCurrent = population[population.size/2]
+        val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
+//        val medianParams = population[population.size/2].creature.network.getParameters()
+//        gdCreatureCurrent = population[population.size/2]
         val newParams = medianParams.zip(update) { base, u -> base + u }
 
         population.forEachIndexed { index, it ->
@@ -125,7 +126,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
     }
 
     private fun esGdAlgo() {
-        population.parallelStream().forEach { evaluate(it) }
+        population.parallelStream().forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
             gdCreatureCurrent = population[population.size/2]
@@ -164,7 +165,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
     }
 
     private fun esPickBestAlgo() {
-        population.parallelStream().forEach { evaluate(it) }
+        population.parallelStream().forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         val best = population.last()
         logFitness(best.fitness)
@@ -195,12 +196,13 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         running = false
     }
 
-    private fun evaluate(eval: Eval) {
+    private fun evaluateAverage(eval: Eval) {
         var totalFitness = 0f
         val foodGrid = FoodGrid(rand)
         for (i in 0 until samples) {
             eval.creature.reset()
             foodGrid.reset()
+//            foodGrid.setSeed(i)
             for (j in 0 until steps) {
                 eval.creature.update(foodGrid, dt)
             }
@@ -208,5 +210,21 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
 
         eval.fitness = totalFitness / samples
+    }
+
+    private fun evaluateMedian(eval: Eval) {
+        val fitness = mutableListOf<Float>()
+        val foodGrid = FoodGrid(rand)
+        for (i in 0 until samples) {
+            eval.creature.reset()
+            foodGrid.reset()
+//            foodGrid.setSeed(i)
+            for (j in 0 until steps) {
+                eval.creature.update(foodGrid, dt)
+            }
+            fitness += eval.creature.totalFood
+        }
+        fitness.sort()
+        eval.fitness = fitness[fitness.size/2]
     }
 }

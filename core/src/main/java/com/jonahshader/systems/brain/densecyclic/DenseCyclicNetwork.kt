@@ -8,6 +8,7 @@ import org.jetbrains.kotlinx.multik.api.math.sin
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.util.*
+import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.tanh
 
@@ -111,6 +112,7 @@ class DenseCyclicNetwork : Network {
         outputVector = (hiddenToOutputWeights dot hiddenOut) + (inputToOutputWeights dot inputVector) + outputBias
 
         hiddenOut = hiddenBuffer.map { tanh(it) }
+//        hiddenOut = hiddenBuffer.map { it.coerceIn(0f, 4f) }
     }
 
     override fun clone() = DenseCyclicNetwork(this)
