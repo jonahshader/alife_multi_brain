@@ -1,4 +1,4 @@
-package com.jonahshader.systems.brain.neurons
+package com.jonahshader.systems.neuralnet.neurons
 
 class OutputNeuron : Neuron() {
     init {

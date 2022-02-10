@@ -1,9 +1,9 @@
-package com.jonahshader.systems.brain.visualizer
+package com.jonahshader.systems.neuralnet.visualizer
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.cyclic.Weight
+import com.jonahshader.systems.neuralnet.cyclic.Weight
 import ktx.math.minus
 import kotlin.math.absoluteValue
 import kotlin.math.pow

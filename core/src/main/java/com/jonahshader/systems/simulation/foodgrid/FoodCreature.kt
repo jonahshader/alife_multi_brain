@@ -2,10 +2,8 @@ package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
+import com.jonahshader.systems.neuralnet.Network
 import com.jonahshader.systems.simulation.foodgrid.FoodGrid.Companion.CELL_SIZE
-import com.jonahshader.systems.utils.Rand
 import ktx.math.plusAssign
 import kotlin.math.pow
 

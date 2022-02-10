@@ -1,6 +1,6 @@
-package com.jonahshader.systems.brain.cyclic
+package com.jonahshader.systems.neuralnet.cyclic
 
-import com.jonahshader.systems.brain.neurons.Neuron
+import com.jonahshader.systems.neuralnet.neurons.Neuron
 import java.util.*
 
 class Weight(val sourceNeuron: Neuron, val destNeuron: Neuron, var weight: Float) {

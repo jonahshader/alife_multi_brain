@@ -1,4 +1,4 @@
-package com.jonahshader.systems.brain.visualizer
+package com.jonahshader.systems.neuralnet.visualizer
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Camera
@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.neurons.Neuron
-import com.jonahshader.systems.brain.neurons.NeuronType
-import com.jonahshader.systems.brain.visualizer.NetworkVisualizer.Companion.ioNeuronHorizontalSpacing
-import com.jonahshader.systems.brain.visualizer.NetworkVisualizer.Companion.ioNeuronPadding
+import com.jonahshader.systems.neuralnet.neurons.Neuron
+import com.jonahshader.systems.neuralnet.neurons.NeuronType
+import com.jonahshader.systems.neuralnet.visualizer.NetworkVisualizer.Companion.ioNeuronHorizontalSpacing
+import com.jonahshader.systems.neuralnet.visualizer.NetworkVisualizer.Companion.ioNeuronPadding
 import com.jonahshader.systems.scenegraph.Node2D
 import ktx.math.minus
 import ktx.math.plusAssign

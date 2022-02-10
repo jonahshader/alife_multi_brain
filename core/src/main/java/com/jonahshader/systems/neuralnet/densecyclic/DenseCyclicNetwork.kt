@@ -1,15 +1,12 @@
-package com.jonahshader.systems.brain.densecyclic
+package com.jonahshader.systems.neuralnet.densecyclic
 
-import com.jonahshader.systems.brain.Network
+import com.jonahshader.systems.neuralnet.Network
 import com.jonahshader.systems.utils.Rand
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.linalg.dot
-import org.jetbrains.kotlinx.multik.api.math.sin
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.util.*
-import kotlin.math.max
-import kotlin.math.sin
 import kotlin.math.tanh
 
 class DenseCyclicNetwork : Network {
@@ -112,7 +109,6 @@ class DenseCyclicNetwork : Network {
         outputVector = (hiddenToOutputWeights dot hiddenOut) + (inputToOutputWeights dot inputVector) + outputBias
 
         hiddenOut = hiddenBuffer.map { tanh(it) }
-//        hiddenOut = hiddenBuffer.map { it.coerceIn(0f, 4f) }
     }
 
     override fun clone() = DenseCyclicNetwork(this)

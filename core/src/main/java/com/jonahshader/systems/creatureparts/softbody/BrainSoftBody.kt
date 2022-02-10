@@ -1,10 +1,7 @@
 package com.jonahshader.systems.creatureparts.softbody
 
-import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.brain.cyclic.CyclicNetwork
-import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
-import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.ga.BodyGenes
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetwork
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetworkParams
 import com.jonahshader.systems.ga.CombinedGenes
 import com.jonahshader.systems.utils.Rand
 import java.util.*

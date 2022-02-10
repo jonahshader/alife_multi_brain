@@ -2,7 +2,7 @@ package com.jonahshader.systems.simulation.softbodytravel
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.IntSet
-import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetworkParams
 import com.jonahshader.systems.creatureparts.softbody.BrainSoftBody
 import com.jonahshader.systems.creatureparts.softbody.SoftBodyParams
 import com.jonahshader.systems.ga.CombinedGenes

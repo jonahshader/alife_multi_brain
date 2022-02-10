@@ -1,4 +1,4 @@
-package com.jonahshader.systems.brain.neurons
+package com.jonahshader.systems.neuralnet.neurons
 
 import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
@@ -58,14 +58,11 @@ abstract class Neuron {
     /**
      * make genetic representation
      */
-    open fun makeGenetics() = NeuronGene(neuronType, floatArrayOf(bias))
+    fun makeGenetics() = NeuronGene(neuronType, getParameters().toFloatArray())
 
     /**
      * set trainable parameters
      */
-    open fun setParameters(state: FloatArray) {
-        bias = state[0]
-    }
     open fun setParameters(params: List<Float>) {
         bias = params[0]
     }

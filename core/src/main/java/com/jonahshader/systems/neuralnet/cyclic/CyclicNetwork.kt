@@ -1,7 +1,7 @@
-package com.jonahshader.systems.brain.cyclic
+package com.jonahshader.systems.neuralnet.cyclic
 
-import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.brain.neurons.*
+import com.jonahshader.systems.neuralnet.Network
+import com.jonahshader.systems.neuralnet.neurons.*
 import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.ga.WeightGene
 import com.jonahshader.systems.utils.Rand

@@ -1,4 +1,4 @@
-package com.jonahshader.systems.brain.visualizer.tools
+package com.jonahshader.systems.neuralnet.visualizer.tools
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2

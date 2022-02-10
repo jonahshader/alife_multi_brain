@@ -1,6 +1,5 @@
-package com.jonahshader.systems.brain.neurons
+package com.jonahshader.systems.neuralnet.neurons
 
-import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
 
 class LeakyIntegrateAndFireNeuron : Neuron() {
@@ -23,15 +22,6 @@ class LeakyIntegrateAndFireNeuron : Neuron() {
         neuronType = NeuronType.LeakyIntegrateAndFire
     }
 
-    override fun makeGenetics() = NeuronGene(neuronType, floatArrayOf(bias, initMembraneVoltage, capacitance, resistance))
-
-    override fun setParameters(state: FloatArray) {
-        bias = state[0]
-        initMembraneVoltage = state[1]
-        capacitance = state[2]
-        resistance = state[3]
-    }
-
     override fun setParameters(params: List<Float>) {
         bias = params[0]
         initMembraneVoltage = params[1]
@@ -40,7 +30,6 @@ class LeakyIntegrateAndFireNeuron : Neuron() {
     }
 
     override fun getParameters(): List<Float> = listOf(bias, initMembraneVoltage, capacitance, resistance)
-
 
     override fun update(dt: Float) {
         val inputCurrent = inputSum + bias
@@ -51,11 +40,11 @@ class LeakyIntegrateAndFireNeuron : Neuron() {
         membraneVoltage += deltaV * dt
 
         // spike
-        if (membraneVoltage > spikeThreshold) {
+        outputBuffer =  if (membraneVoltage > spikeThreshold) {
             membraneVoltage = recessMembraneVoltage
-            outputBuffer = 1/dt
+            1/dt
         } else {
-            outputBuffer = 0f
+            0f
         }
     }
 
@@ -78,7 +67,4 @@ class LeakyIntegrateAndFireNeuron : Neuron() {
         super.resetStateInternals()
         membraneVoltage = initMembraneVoltage
     }
-
-
-
 }

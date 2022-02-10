@@ -1,4 +1,4 @@
-package com.jonahshader.systems.brain.cyclic
+package com.jonahshader.systems.neuralnet.cyclic
 
 class CyclicNetworkParams {
     var weightInitSd = 1f

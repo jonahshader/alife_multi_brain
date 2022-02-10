@@ -7,10 +7,10 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.cyclic.CyclicNetwork
-import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
-import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
-import com.jonahshader.systems.brain.visualizer.NeuronGraphic
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetwork
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetworkParams
+import com.jonahshader.systems.neuralnet.visualizer.NetworkVisualizer
+import com.jonahshader.systems.neuralnet.visualizer.NeuronGraphic
 import com.jonahshader.systems.screen.ScreenManager
 import ktx.app.KtxScreen
 import ktx.graphics.use

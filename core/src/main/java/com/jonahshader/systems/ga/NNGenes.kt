@@ -1,7 +1,7 @@
 package com.jonahshader.systems.ga
 
-import com.jonahshader.systems.brain.neurons.Neuron
-import com.jonahshader.systems.brain.neurons.NeuronType
+import com.jonahshader.systems.neuralnet.neurons.Neuron
+import com.jonahshader.systems.neuralnet.neurons.NeuronType
 import java.util.*
 
 class WeightGene(var sourceNeuronIndex: Int, var destinationNeuronIndex: Int, var weight: Float) {

@@ -6,11 +6,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.brain.makeDenseNetworkBuilder
+import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.simulation.foodgrid.FoodCreature
-import com.jonahshader.systems.simulation.foodgrid.FoodGrid
 import com.jonahshader.systems.simulation.foodgrid.FoodSim
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
 import ktx.app.KtxScreen

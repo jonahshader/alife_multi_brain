@@ -1,6 +1,6 @@
 package com.jonahshader.systems.simulation.foodgrid
 
-import com.jonahshader.systems.brain.NetworkBuilder
+import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.training.computeGradientsFromParamEvals
 import com.jonahshader.systems.training.esGradientDescent
 import com.jonahshader.systems.training.gradientDescentUpdateMomentum
