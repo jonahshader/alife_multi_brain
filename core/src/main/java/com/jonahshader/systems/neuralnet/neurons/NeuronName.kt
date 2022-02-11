@@ -3,17 +3,18 @@ package com.jonahshader.systems.neuralnet.neurons
 import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
 
-enum class NeuronType {
+enum class NeuronName {
     Input,
     LeakyReLU,
     Output,
     Tanh,
     Sin,
-    LeakyIntegrateAndFire;
+    LeakyIntegrateAndFire,
+    Washboard;
 
     companion object {
         // excludes input, output
-        fun getRandomHidden(rand: Random) : NeuronType {
+        fun getRandomHidden(rand: Random) : NeuronName {
             var selection = rand.nextInt(values().size - 2) // TODO: is this correct?
             if (selection >= Input.ordinal) selection++
             if (selection >= Output.ordinal) selection++
@@ -21,7 +22,7 @@ enum class NeuronType {
         }
         fun getRandom(rand: Random) = values()[rand.nextInt(values().size)]
 
-        fun make(type: NeuronType) : Neuron {
+        fun make(type: NeuronName) : Neuron {
             return when (type) {
                 LeakyReLU -> LeakyReLUNeuron()
                 Tanh -> TanhNeuron()
@@ -29,12 +30,13 @@ enum class NeuronType {
                 Input -> InputNeuron()
                 Output -> OutputNeuron()
                 LeakyIntegrateAndFire -> LeakyIntegrateAndFireNeuron()
+                Washboard -> WashboardNeuron()
             }
         }
 
         fun make(gene: NeuronGene) : Neuron {
             val neuron = make(gene.neuron)
-            neuron.setParameters(gene.state)
+            neuron.setParameters(gene.state.toList())
             return neuron
         }
 

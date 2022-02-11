@@ -108,7 +108,8 @@ class DenseCyclicNetwork : Network {
         hiddenBuffer = (hiddenToHiddenWeights dot hiddenOut) + (inputToHiddenWeights dot inputVector) + hiddenBias
         outputVector = (hiddenToOutputWeights dot hiddenOut) + (inputToOutputWeights dot inputVector) + outputBias
 
-        hiddenOut = hiddenBuffer.map { tanh(it) }
+//        hiddenOut = hiddenBuffer.map { tanh(it) }
+        hiddenOut = hiddenBuffer.map { (if (it < 0) it/32 else it).coerceIn(-1f, 2f) }
     }
 
     override fun clone() = DenseCyclicNetwork(this)

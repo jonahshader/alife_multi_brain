@@ -82,7 +82,8 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         population.parallelStream().forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
-            gdCreatureCurrent = population[(population.size*.66f).toInt()]
+//            gdCreatureCurrent = population[(population.size*.80f).toInt()]
+            gdCreatureCurrent = population.last()
         }
 
         logFitness(gdCreatureCurrent!!.fitness)
@@ -108,6 +109,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.05f, 0.9f)
+//        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
         pUpdate = update
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
 //        val medianParams = population[population.size/2].creature.network.getParameters()

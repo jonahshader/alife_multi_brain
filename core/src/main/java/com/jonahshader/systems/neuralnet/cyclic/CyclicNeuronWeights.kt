@@ -10,7 +10,7 @@ class Weight(val sourceNeuron: Neuron, val destNeuron: Neuron, var weight: Float
     }
 
     fun forwardProp() {
-        destNeuron.accumulate(calculateWeightedValue())
+        destNeuron.addWeightedOutput(calculateWeightedValue())
     }
 
     fun isConnectedToNeuron(neuron: Neuron) : Boolean = neuron == sourceNeuron || neuron == destNeuron

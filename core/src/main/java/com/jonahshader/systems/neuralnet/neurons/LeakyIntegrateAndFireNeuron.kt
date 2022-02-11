@@ -19,7 +19,8 @@ class LeakyIntegrateAndFireNeuron : Neuron() {
     }
 
     init {
-        neuronType = NeuronType.LeakyIntegrateAndFire
+        neuronName = NeuronName.LeakyIntegrateAndFire
+        color.set(.2f, .8f, .2f, 1f)
     }
 
     override fun setParameters(params: List<Float>) {

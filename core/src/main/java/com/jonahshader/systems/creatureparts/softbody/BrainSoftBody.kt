@@ -33,7 +33,7 @@ class BrainSoftBody : SoftBody {
     override fun preUpdate(dt: Float) {
 //        network.setInput(0, cos(age))
 //        network.setInput(1, sin(age))
-        network.update(1/100f)
+        network.update(1/1000f)
         for (i in 0 until network.getOutputSize()) {
             setControllableValue(i, network.getOutput(i))
         }

@@ -4,7 +4,8 @@ import kotlin.math.sin
 
 class SinNeuron : Neuron() {
     init {
-        neuronType = NeuronType.Sin
+        neuronName = NeuronName.Sin
+        color.set(.8f, .2f, .2f, 1f)
     }
 
     override fun update(dt: Float) {
