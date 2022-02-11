@@ -50,15 +50,16 @@ class NeuronGraphic(val neuron: Neuron, initLocalPosition: Vector2) : Node2D() {
             acceleration.set(force)
             acceleration.scl(dt)
             velocity += acceleration
+            velocity.add(-velocity.x * 5f * dt, -velocity.y * 5f * dt)
             val dragAmount = DRAG_METERS_PER_SECOND * dt
             if (velocity.len2() > dragAmount * dragAmount) {
                 velocity.setLength(velocity.len() - dragAmount)
             } else {
                 velocity.setZero()
             }
-            if (velocity.len2() > SPEED_LIMIT * SPEED_LIMIT) {
-                velocity.setLength(SPEED_LIMIT)
-            }
+//            if (velocity.len2() > SPEED_LIMIT * SPEED_LIMIT) {
+//                velocity.setLength(SPEED_LIMIT)
+//            }
             localPosition.add(velocity.x * dt, velocity.y * dt)
 
             force.setZero()

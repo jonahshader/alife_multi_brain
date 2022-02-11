@@ -14,7 +14,7 @@ class NetworkVisualizer(var network: CyclicNetwork) : Node2D() {
     private val neurons = mutableListOf<NeuronGraphic>()
     private val mobileNeuronsSorted = mutableListOf<NeuronGraphic>()
     private val weights = mutableListOf<WeightSpringGraphic>()
-    private val sc = SpringConstants(6.0f, 1.0f)
+    private val sc = SpringConstants(6.0f, 0.0f)
 
     companion object {
         const val ioNeuronPadding = 120.0f
@@ -56,6 +56,12 @@ class NetworkVisualizer(var network: CyclicNetwork) : Node2D() {
         // add as child of network visualizer
         neurons.forEach {
             addChild(it)
+        }
+    }
+
+    fun incrementSpringLength(increment: Float) {
+        weights.forEach {
+            it.targetLength += increment
         }
     }
 

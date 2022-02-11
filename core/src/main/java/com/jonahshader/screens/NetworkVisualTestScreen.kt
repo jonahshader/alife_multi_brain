@@ -31,7 +31,7 @@ class NetworkVisualTestScreen : KtxScreen {
 
     init {
         netParams.hiddenNeuronTypes = listOf(NeuronName.Washboard)
-        netParams.connectivityInit = 0.03f
+        netParams.connectivityInit = 0.5f
         testNetwork = CyclicNetwork(6, 6, netParams, rand)
         netVisualizer = NetworkVisualizer(testNetwork)
     }
@@ -46,6 +46,8 @@ class NetworkVisualTestScreen : KtxScreen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) camera.zoom /= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) camera.zoom *= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) ScreenManager.pop()
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT_BRACKET)) netVisualizer.incrementSpringLength(-25f)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT_BRACKET)) netVisualizer.incrementSpringLength(25f)
 
         camera.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
