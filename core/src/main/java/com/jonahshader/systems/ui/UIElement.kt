@@ -1,15 +1,16 @@
-package com.jonahshader.systems.scenegraph
+package com.jonahshader.systems.ui
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
+import com.jonahshader.systems.scenegraph.Node2D
 
-abstract class Node2D {
+abstract class UIElement {
     val localPosition = Vector2()
     val globalPosition = Vector2()
     var localRotation = 0f
     var globalRotation = 0f
-    val children = mutableListOf<Node2D>()
+    val children = mutableListOf<UIElement>()
     var remove = false
 
     open fun update(parentPos: Vector2, parentRot: Float, dt: Float) {
@@ -30,7 +31,7 @@ abstract class Node2D {
         children.forEach { it.render(batch, cam) }
     }
 
-    fun addChild(child: Node2D) {
+    fun addChild(child: UIElement) {
         children += child
     }
 

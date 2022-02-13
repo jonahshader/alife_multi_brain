@@ -1,10 +1,7 @@
 package com.jonahshader.systems.creatureparts.softbody
 
-import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.brain.cyclic.CyclicNetwork
-import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
-import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.ga.BodyGenes
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetwork
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetworkParams
 import com.jonahshader.systems.ga.CombinedGenes
 import com.jonahshader.systems.utils.Rand
 import java.util.*
@@ -36,7 +33,7 @@ class BrainSoftBody : SoftBody {
     override fun preUpdate(dt: Float) {
 //        network.setInput(0, cos(age))
 //        network.setInput(1, sin(age))
-        network.update(1/100f)
+        network.update(1/1000f)
         for (i in 0 until network.getOutputSize()) {
             setControllableValue(i, network.getOutput(i))
         }

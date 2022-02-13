@@ -1,10 +1,10 @@
-package com.jonahshader.systems.brain.visualizer
+package com.jonahshader.systems.neuralnet.visualizer
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.math.Vector2
-import com.jonahshader.systems.brain.cyclic.CyclicNetwork
-import com.jonahshader.systems.brain.neurons.Neuron
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetwork
+import com.jonahshader.systems.neuralnet.neurons.Neuron
 import com.jonahshader.systems.scenegraph.Node2D
 import kotlin.math.absoluteValue
 import kotlin.math.min
@@ -14,7 +14,7 @@ class NetworkVisualizer(var network: CyclicNetwork) : Node2D() {
     private val neurons = mutableListOf<NeuronGraphic>()
     private val mobileNeuronsSorted = mutableListOf<NeuronGraphic>()
     private val weights = mutableListOf<WeightSpringGraphic>()
-    private val sc = SpringConstants(6.0f, 1.0f)
+    private val sc = SpringConstants(6.0f, 0.0f)
 
     companion object {
         const val ioNeuronPadding = 120.0f
@@ -56,6 +56,12 @@ class NetworkVisualizer(var network: CyclicNetwork) : Node2D() {
         // add as child of network visualizer
         neurons.forEach {
             addChild(it)
+        }
+    }
+
+    fun incrementSpringLength(increment: Float) {
+        weights.forEach {
+            it.targetLength += increment
         }
     }
 

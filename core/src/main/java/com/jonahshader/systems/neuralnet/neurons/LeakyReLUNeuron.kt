@@ -1,8 +1,9 @@
-package com.jonahshader.systems.brain.neurons
+package com.jonahshader.systems.neuralnet.neurons
 
 class LeakyReLUNeuron : Neuron() {
     init {
-        neuronType = NeuronType.LeakyReLU
+        neuronName = NeuronName.LeakyReLU
+        color.set(.25f, 1f, .5f, 1f)
     }
 
     override fun update(dt: Float) {

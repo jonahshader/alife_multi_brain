@@ -7,9 +7,11 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
-import com.jonahshader.systems.brain.visualizer.NeuronGraphic
+import com.jonahshader.systems.neuralnet.visualizer.NetworkVisualizer
+import com.jonahshader.systems.neuralnet.visualizer.NeuronGraphic
 import com.jonahshader.systems.creatureparts.softbody.BrainSoftBody
+import com.jonahshader.systems.neuralnet.neurons.NeuronName
+import com.jonahshader.systems.neuralnet.neurons.WashboardNeuron
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
 import ktx.app.KtxScreen
@@ -44,7 +46,10 @@ class SBCreatureTestScreen : KtxScreen {
 
         sim.netParams.hiddenNeuronCountInit = 60
         sim.netParams.connectivityInit = .1f
-        sim.bodyParams.gripperCountInit = 15
+        sim.netParams.weightInitSd = .25f
+        sim.netParams.hiddenNeuronTypes = listOf(NeuronName.Washboard)
+
+        sim.bodyParams.gripperCountInit = 9
         sim.bodyParams.connectivityInit = .4f
         sim.setup()
         thread {

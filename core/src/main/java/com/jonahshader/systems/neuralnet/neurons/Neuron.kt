@@ -1,5 +1,8 @@
-package com.jonahshader.systems.brain.neurons
+package com.jonahshader.systems.neuralnet.neurons
 
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.Vector2
+import com.jonahshader.MultiBrain
 import com.jonahshader.systems.ga.NeuronGene
 import java.util.*
 
@@ -19,8 +22,11 @@ abstract class Neuron {
     // this should be false for IO related neurons
     var neuronCategory = NeuronCategory.HIDDEN
         protected set
-    var neuronType = NeuronType.Input
+    var neuronName = NeuronName.Input
         protected set
+
+    // graphical stuff
+    protected val color = Color(.125f, 1f, 1f, 1f)
 
     /**
      * computes output, stores it in outputBuffer
@@ -42,10 +48,10 @@ abstract class Neuron {
     }
 
     /**
-     * accumulate weighted output from another neuron
+     * add weighted output from another neuron
      */
-    fun accumulate(acc: Float) {
-        inputSum += acc
+    fun addWeightedOutput(weightedOutput: Float) {
+        inputSum += weightedOutput
     }
 
     /**
@@ -58,14 +64,11 @@ abstract class Neuron {
     /**
      * make genetic representation
      */
-    open fun makeGenetics() = NeuronGene(neuronType, floatArrayOf(bias))
+    fun makeGenetics() = NeuronGene(neuronName, getParameters().toFloatArray())
 
     /**
      * set trainable parameters
      */
-    open fun setParameters(state: FloatArray) {
-        bias = state[0]
-    }
     open fun setParameters(params: List<Float>) {
         bias = params[0]
     }
@@ -83,5 +86,17 @@ abstract class Neuron {
         outputBuffer = 0.0f
         out = 0.0f
         resetStateInternals()
+    }
+
+    open fun render(pos: Vector2) {
+        val DEFAULT_RADIUS = 4.0f
+        // activation color
+        val brightness = (out / 2f).coerceIn(0f, 1f)
+        MultiBrain.shapeDrawer.setColor(brightness, brightness, brightness, 1f)
+        MultiBrain.shapeDrawer.filledCircle(pos, DEFAULT_RADIUS)
+
+        // shell color
+        MultiBrain.shapeDrawer.setColor(color)
+        MultiBrain.shapeDrawer.circle(pos.x, pos.y, DEFAULT_RADIUS)
     }
 }

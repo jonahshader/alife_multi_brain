@@ -7,10 +7,11 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.cyclic.CyclicNetwork
-import com.jonahshader.systems.brain.cyclic.CyclicNetworkParams
-import com.jonahshader.systems.brain.visualizer.NetworkVisualizer
-import com.jonahshader.systems.brain.visualizer.NeuronGraphic
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetwork
+import com.jonahshader.systems.neuralnet.cyclic.CyclicNetworkParams
+import com.jonahshader.systems.neuralnet.neurons.NeuronName
+import com.jonahshader.systems.neuralnet.visualizer.NetworkVisualizer
+import com.jonahshader.systems.neuralnet.visualizer.NeuronGraphic
 import com.jonahshader.systems.screen.ScreenManager
 import ktx.app.KtxScreen
 import ktx.graphics.use
@@ -22,11 +23,18 @@ class NetworkVisualTestScreen : KtxScreen {
 
     private val rand = Random()
     private val netParams = CyclicNetworkParams()
-    private val testNetwork = CyclicNetwork(6, 6, netParams, rand)
+    private val testNetwork: CyclicNetwork
 
-    private val netVisualizer = NetworkVisualizer(testNetwork)
+    private val netVisualizer: NetworkVisualizer
 
 //    private val simpleSim = SimpleSim()
+
+    init {
+        netParams.hiddenNeuronTypes = listOf(NeuronName.Washboard)
+        netParams.connectivityInit = 0.5f
+        testNetwork = CyclicNetwork(6, 6, netParams, rand)
+        netVisualizer = NetworkVisualizer(testNetwork)
+    }
 
     override fun render(delta: Float) {
         val speed = camera.zoom * 500 * delta
@@ -38,12 +46,14 @@ class NetworkVisualTestScreen : KtxScreen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) camera.zoom /= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) camera.zoom *= 1.5f
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) ScreenManager.pop()
+        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT_BRACKET)) netVisualizer.incrementSpringLength(-25f)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT_BRACKET)) netVisualizer.incrementSpringLength(25f)
 
         camera.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
         viewport.apply()
 
-        testNetwork.update(1/60.0f)
+        testNetwork.update(1/1000.0f)
         netVisualizer.update(Vector2.Zero, 0.0f, 1/60.0f)
 //        simpleSim.update(delta)
 

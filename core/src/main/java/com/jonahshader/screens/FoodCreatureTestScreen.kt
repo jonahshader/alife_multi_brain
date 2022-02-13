@@ -6,11 +6,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.brain.makeDenseNetworkBuilder
+import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.simulation.foodgrid.FoodCreature
-import com.jonahshader.systems.simulation.foodgrid.FoodGrid
 import com.jonahshader.systems.simulation.foodgrid.FoodSim
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
 import ktx.app.KtxScreen
@@ -23,7 +20,7 @@ class FoodCreatureTestScreen : KtxScreen {
     private val visCam = OrthographicCamera()
     private val visViewport = FitViewport(1920.0f, 1080.0f, visCam)
 
-    private val sim = FoodSim(makeDenseNetworkBuilder(90), 10, 100, 900, 1/20f, algo = FoodSim.Algo.EsGDM, printFitness = true)
+    private val sim = FoodSim(makeDenseNetworkBuilder(60), 100, 100, 600, 1/20f, algo = FoodSim.Algo.EsGDM, printFitness = true)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false

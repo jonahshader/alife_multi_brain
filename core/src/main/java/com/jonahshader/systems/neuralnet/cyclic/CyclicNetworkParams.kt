@@ -1,4 +1,6 @@
-package com.jonahshader.systems.brain.cyclic
+package com.jonahshader.systems.neuralnet.cyclic
+
+import com.jonahshader.systems.neuralnet.neurons.NeuronName
 
 class CyclicNetworkParams {
     var weightInitSd = 1f
@@ -9,4 +11,6 @@ class CyclicNetworkParams {
     var connectivityInit = .1f // .1f
 
     val mutateWeightSd = .1f
+
+    var hiddenNeuronTypes = listOf(NeuronName.LeakyIntegrateAndFire)
 }

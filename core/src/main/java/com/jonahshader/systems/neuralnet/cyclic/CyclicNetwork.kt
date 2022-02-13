@@ -1,7 +1,7 @@
-package com.jonahshader.systems.brain.cyclic
+package com.jonahshader.systems.neuralnet.cyclic
 
-import com.jonahshader.systems.brain.Network
-import com.jonahshader.systems.brain.neurons.*
+import com.jonahshader.systems.neuralnet.Network
+import com.jonahshader.systems.neuralnet.neurons.*
 import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.ga.WeightGene
 import com.jonahshader.systems.utils.Rand
@@ -33,7 +33,7 @@ class CyclicNetwork : Network {
         for (i in 0 until networkParams.hiddenNeuronCountInit) {
 //            val neuron = LeakyReLUNeuron()
 //            val neuron = NeuronType.makeRandomHidden(rand)
-            val neuron = LeakyIntegrateAndFireNeuron()
+            val neuron = NeuronName.make(networkParams.hiddenNeuronTypes.random(kRand))
             neuron.mutateScalars(rand, 1.25f)
             hiddenNeurons += neuron
         }
@@ -115,7 +115,7 @@ class CyclicNetwork : Network {
     }
 
     private fun generateRandomHiddenNeuron() : Neuron {
-        val n = NeuronType.makeRandomHidden(rand)
+        val n = NeuronName.makeRandomHidden(rand)
         n.bias = networkParams.weightInitSd * rand.nextGaussian().toFloat()
         return n
     }

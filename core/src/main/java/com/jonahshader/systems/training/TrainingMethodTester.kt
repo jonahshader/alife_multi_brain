@@ -1,10 +1,9 @@
 package com.jonahshader.systems.training
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import com.jonahshader.systems.brain.makeDenseNetworkBuilder
+import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
 import com.jonahshader.systems.simulation.foodgrid.FoodSim
 import kotlin.system.measureTimeMillis
-import kotlin.time.measureTime
 
 fun main() {
     val hiddenSize = 35

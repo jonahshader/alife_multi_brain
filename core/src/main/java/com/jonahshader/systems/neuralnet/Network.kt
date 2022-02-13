@@ -1,6 +1,6 @@
-package com.jonahshader.systems.brain
+package com.jonahshader.systems.neuralnet
 
-import com.jonahshader.systems.brain.densecyclic.DenseCyclicNetwork
+import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 
 typealias NetworkBuilder = (Int, Int) -> Network
 
@@ -18,8 +18,6 @@ interface Network {
     fun setParameters(params: List<Float>)
 
     fun update(dt: Float)
-
     fun clone() : Network
-
     fun reset()
 }

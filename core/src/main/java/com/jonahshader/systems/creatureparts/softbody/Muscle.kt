@@ -2,7 +2,7 @@ package com.jonahshader.systems.creatureparts.softbody
 
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.brain.visualizer.SpringConstants
+import com.jonahshader.systems.neuralnet.visualizer.SpringConstants
 import com.jonahshader.systems.creatureparts.Controllable
 import com.jonahshader.systems.ga.MuscleGene
 import ktx.math.minusAssign

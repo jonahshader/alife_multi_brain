@@ -1,34 +1,28 @@
 package com.jonahshader.screens
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Screen
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
+import com.jonahshader.data.TestPerformance
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.settings.Settings
-import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class MenuScreen : KtxScreen {
+class PerformanceMenuScreen : KtxScreen {
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(640f, 900f, camera)
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(), Vector2(500f, 90f))
 
     init {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
-        menu.addMenuItem("Food Creature") { ScreenManager.push(FoodCreatureTestScreen()) }
-        menu.addMenuItem("Visualizer") { ScreenManager.push(NetworkVisualTestScreen()) }
-        menu.addMenuItem("SB Creature") { ScreenManager.push(SBCreatureTestScreen()) }
-        menu.addMenuItem("Performance Tests") { ScreenManager.push(PerformanceMenuScreen()) }
-        menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
-        menu.addMenuItem("Exit") { Gdx.app.exit()}
+        menu.addMenuItem("System Perf. Test") { TestPerformance.testPerformance() }
+        menu.addMenuItem("Back") { ScreenManager.pop() }
 
         if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
     }
