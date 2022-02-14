@@ -98,8 +98,8 @@ class SBCreatureTestScreen : KtxScreen {
             }
         }
 
-        creature?.update(Vector2.Zero, 0f, SIM_DELTA_TIME)
-        visualizer?.update(Vector2.Zero, 0f, 1/60f)
+        creature?.update(SIM_DELTA_TIME)
+        visualizer?.update(1/60f)
 
         if (visEnabled) {
             visViewport.apply()

@@ -54,7 +54,7 @@ class NetworkVisualTestScreen : KtxScreen {
         viewport.apply()
 
         testNetwork.update(1/1000.0f)
-        netVisualizer.update(Vector2.Zero, 0.0f, 1/60.0f)
+        netVisualizer.update(1/60.0f)
 //        simpleSim.update(delta)
 
         MultiBrain.shapeDrawer.update()

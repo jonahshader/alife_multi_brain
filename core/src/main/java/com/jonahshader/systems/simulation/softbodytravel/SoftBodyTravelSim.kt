@@ -76,7 +76,7 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
     private fun runEpisode(sb: BrainSoftBody) : Float {
         val positionSet = IntSet()
         for (i in 0 until steps) {
-            sb.update(Vector2.Zero, 0f, dt)
+            sb.update(dt)
             if (i % 10 == 0) {
                 sb.grippers.forEach {
                     val hash = (it.globalPosition.x.toInt()/2) + (it.globalPosition.y.toInt()/2) * 80000

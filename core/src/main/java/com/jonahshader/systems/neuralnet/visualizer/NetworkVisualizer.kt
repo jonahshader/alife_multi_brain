@@ -66,10 +66,10 @@ class NetworkVisualizer(var network: CyclicNetwork) : Node2D() {
     }
 
     override fun preUpdate(dt: Float) {
-        update(dt)
+        netUpdate(dt)
     }
 
-    private fun update(dt: Float) {
+    private fun netUpdate(dt: Float) {
         val dist = Vector2()
         mobileNeuronsSorted.sortBy { it.localPosition.x }
         mobileNeuronsSorted.forEachIndexed { index, it ->

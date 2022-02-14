@@ -14,7 +14,7 @@ class SimpleSim {
 
     fun update(dt: Float) {
         creatures.forEach {
-            it.update(parentPos, 0.0f, dt)
+            it.update(dt)
         }
     }
 

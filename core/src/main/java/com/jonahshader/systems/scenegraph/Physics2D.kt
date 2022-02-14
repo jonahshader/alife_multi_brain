@@ -12,7 +12,7 @@ abstract class Physics2D : Bounded() {
     val force = Vector2()
     val temp = Vector2()
 
-    override fun update(parentPos: Vector2, parentRot: Float, dt: Float) {
+    override fun update(dt: Float) {
         // add force to acceleration
         force.scl(1/mass)
         acceleration.add(force)
@@ -27,6 +27,6 @@ abstract class Physics2D : Bounded() {
         localPosition += temp
         // set accel to zero
         acceleration.setZero()
-        super.update(parentPos, parentRot, dt)
+        super.update(dt)
     }
 }
