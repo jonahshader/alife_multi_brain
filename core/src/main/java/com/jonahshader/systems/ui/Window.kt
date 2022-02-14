@@ -172,6 +172,12 @@ class Window {
         }
     }
 
+    /*TODO: need another function to not squash children. need to determine minimum bounding box of children
+    (as they currently are, without rearranging them)
+    TODO: also move this stuff back. maybe make the method take in two bools so it can determine which
+    case is being fixed. right now it might break idk, and its less efficient.
+    TODO: add minimum size to window
+     */
     private fun keepWithinParent() {
         updateGlobalPosition()
 
