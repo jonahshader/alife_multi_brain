@@ -99,8 +99,8 @@ class Window {
                 pDragPos.set(mousePos)
                 return true
             }
-
         }
+
         if (!mouseDown) {
             dragging = false
             resizing = false
@@ -134,18 +134,24 @@ class Window {
                 val delta = mousePos.x - pDragPos.x
                 if (xMaxResizing) {
                     size.x += delta
+                    keepWithinParent()
                 } else {
                     localPosition.x += delta
                     size.x -= delta
+                    keepWithinParent()
                 }
+
             }
             if (yResizing) {
                 val delta = mousePos.y - pDragPos.y
                 if (yMaxResizing) {
                     size.y += delta
+                    keepWithinParent()
                 } else {
                     localPosition.y += delta
                     size.y -= delta
+                    keepWithinParent()
+
                 }
             }
             pDragPos.set(mousePos)
@@ -159,5 +165,59 @@ class Window {
         if (parent != null)
             globalPosition.add(parent!!.globalPosition)
     }
+
+    private fun notifyResize() {
+        childWindows.forEach {
+            it.notifyResize()
+        }
+    }
+
+    private fun keepWithinParent() {
+        updateGlobalPosition()
+
+        // keep within parent while resizing
+        if (parent != null) {
+            if (globalPosition.x + size.x > parent!!.globalPosition.x + parent!!.size.x) {
+                size.x = parent!!.globalPosition.x + parent!!.size.x - globalPosition.x
+            }
+        }
+        // keep within parent while resizing
+        if (parent != null) {
+            if (globalPosition.x < parent!!.globalPosition.x) {
+                val fixDelta = globalPosition.x - parent!!.globalPosition.x
+                localPosition.x -= fixDelta
+                size.x += fixDelta
+                updateGlobalPosition()
+            }
+        }
+
+        // keep within parent while resizing
+        if (parent != null) {
+            if (globalPosition.y + size.y > parent!!.globalPosition.y + parent!!.size.y) {
+                size.y = parent!!.globalPosition.y + parent!!.size.y - globalPosition.y
+            }
+        }
+
+        // keep within parent while resizing
+        if (parent != null) {
+            if (globalPosition.y < parent!!.globalPosition.y) {
+                val fixDelta = globalPosition.y - parent!!.globalPosition.y
+                localPosition.y -= fixDelta
+                size.y += fixDelta
+                updateGlobalPosition()
+            }
+        }
+        childWindows.forEach {
+            it.keepWithinParent()
+        }
+    }
+
+//    private fun restrictToParent() {
+//        if (parent != null) {
+//            if (size.x > parent!!.size.x) {
+//                size.x
+//            }
+//        }
+//    }
 
 }

@@ -23,7 +23,7 @@ class UIDemoScreen : KtxScreen {
     private var pMouseDown = false
 
     init {
-        makeChildren(4, 2, window)
+        makeChildren(2, 2, window)
     }
 
     private fun makeChildren(branches: Int, depth: Int, parent: Window) {
