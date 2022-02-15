@@ -1,29 +1,38 @@
 package com.jonahshader.screens
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.Window
 import com.jonahshader.systems.utils.Rand
 import ktx.app.KtxScreen
 import ktx.graphics.use
+import ktx.math.div
 import ktx.math.minus
 import ktx.math.times
-import kotlin.math.pow
 
 class UIDemoScreen : KtxScreen {
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(1280f, 720f, camera)
-    private val window = Window(Vector2(), Vector2(500f, 400f))
+    private val window = Window(Vector2(), Vector2(500f, 400f), Vector2(20f, 20f))
 
     private var pMouseDown = false
 
     init {
-        makeChildren(2, 2, window)
+        makeChildren(2, 1, window)
+        val plot = Plot("X values", "Y values", "Title", pos = Vector2(), mode = Plot.Mode.LINE)
+        plot.addTrend(Plot.Trend("Test Data", Color.WHITE, true))
+        for (i in 0 until 100) {
+            plot.addDatum("Test Data", Vector2(Rand.randx.nextFloat(), Rand.randx.nextGaussian().toFloat()))
+        }
+
+        window.addChildWindow(plot)
     }
 
     private fun makeChildren(branches: Int, depth: Int, parent: Window) {
@@ -31,7 +40,7 @@ class UIDemoScreen : KtxScreen {
             for (b in 0 until branches) {
                 val size = (parent.size) * Rand.randx.nextFloat()
                 val pos = (parent.size - size) * Vector2(Rand.randx.nextFloat(), Rand.randx.nextFloat())
-                val newWin = Window(pos, size)
+                val newWin = Window(pos, size, size/2)
                 parent.addChildWindow(newWin)
                 makeChildren(branches, depth - 1, newWin)
             }
@@ -55,7 +64,7 @@ class UIDemoScreen : KtxScreen {
 
         viewport.apply()
         MultiBrain.batch.use(camera) {
-            window.render(camera)
+            window.render(camera, viewport)
         }
     }
 

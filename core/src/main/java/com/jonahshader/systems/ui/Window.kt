@@ -2,17 +2,23 @@ package com.jonahshader.systems.ui
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.jonahshader.MultiBrain
 import ktx.math.minus
 import ktx.math.plusAssign
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 
-class Window {
+open class Window {
     val size = Vector2()
     val localPosition = Vector2()
     val globalPosition = Vector2()
-    private val childWindows = mutableListOf<Window>()
+    val minSize = Vector2(15f, 15f)
+    protected val childWindows = mutableListOf<Window>()
     private var parent: Window? = null
     private var remove = false
 
@@ -29,9 +35,10 @@ class Window {
     }
 
 
-    constructor(pos: Vector2, size: Vector2) {
+    constructor(pos: Vector2, size: Vector2, minSize: Vector2) {
         this.localPosition.set(pos)
         this.size.set(size)
+        this.minSize.set(minSize)
     }
 
     fun update(dt: Float) {
@@ -40,12 +47,15 @@ class Window {
         childWindows.removeIf { it.remove }
     }
 
-    fun render(cam: Camera) {
+    open fun render(cam: OrthographicCamera, viewport: ScalingViewport) {
+        drawContainer()
+        childWindows.forEach { it.render(cam, viewport) }
+    }
+
+    protected fun drawContainer() {
         MultiBrain.shapeDrawer.setColor(.8f, .8f, .8f, 1f)
         MultiBrain.shapeDrawer.filledRectangle(globalPosition.x, globalPosition.y, size.x, size.y, Color(.8f, .8f, .8f, 1f))
         MultiBrain.shapeDrawer.filledRectangle(globalPosition.x + 2, globalPosition.y + 2, size.x - 4, size.y - 4, Color(.2f, .2f, .2f, 1f))
-//        MultiBrain.shapeDrawer.rectangle(globalPosition.x, globalPosition.y, size.x, size.y, 2f, JoinType.SMOOTH)
-        childWindows.forEach { it.render(cam) }
     }
 
     fun addChildWindow(childWindow: Window) {
@@ -55,8 +65,17 @@ class Window {
 
     fun handleMouseInput(mouseStateChange: Boolean, mouseDown: Boolean, mousePos: Vector2) : Boolean {
         // first check all children to find the lowest window in the tree that could be dragged by this input
+        var childToReorder: Window? = null
         for (w in childWindows.reversed()) {
-            if (w.handleMouseInput(mouseStateChange, mouseDown, mousePos)) return true
+            if (w.handleMouseInput(mouseStateChange, mouseDown, mousePos)) {
+                childToReorder = w
+                break
+            }
+        }
+        if (childToReorder != null) {
+            childWindows.remove(childToReorder)
+            childWindows += childToReorder
+            return true
         }
         // none of the children handled that, so see if that input is applicable to this instance
 
@@ -134,24 +153,30 @@ class Window {
                 val delta = mousePos.x - pDragPos.x
                 if (xMaxResizing) {
                     size.x += delta
-                    keepWithinParent()
+                    keepWithinBounds(true, false)
+                    keepWithinParent(true, false)
                 } else {
                     localPosition.x += delta
                     size.x -= delta
-                    keepWithinParent()
+                    moveChildren(-delta, 0f)
+                    updateGlobalPosition()
+                    keepWithinBounds(true, true)
+                    keepWithinParent(true, true)
                 }
-
             }
             if (yResizing) {
                 val delta = mousePos.y - pDragPos.y
                 if (yMaxResizing) {
                     size.y += delta
-                    keepWithinParent()
+                    keepWithinBounds(false, false)
+                    keepWithinParent(false, false)
                 } else {
                     localPosition.y += delta
                     size.y -= delta
-                    keepWithinParent()
-
+                    moveChildren(0f, -delta)
+                    updateGlobalPosition()
+                    keepWithinBounds(false, true)
+                    keepWithinParent(false, true)
                 }
             }
             pDragPos.set(mousePos)
@@ -178,52 +203,108 @@ class Window {
     case is being fixed. right now it might break idk, and its less efficient.
     TODO: add minimum size to window
      */
-    private fun keepWithinParent() {
+
+
+    /**
+     * xSide: true = x, false = y
+     * minSide: true = min, false = max
+     */
+    private fun keepWithinParent(xSide: Boolean, minSide: Boolean) {
         updateGlobalPosition()
+        if (parent != null) {
+            if (xSide) {
+                if (minSide) {
+                    if (globalPosition.x < parent!!.globalPosition.x) {
+                        val fixDelta = globalPosition.x - parent!!.globalPosition.x
+                        localPosition.x -= fixDelta
+                        size.x += fixDelta
+//                        moveChildren(fixDelta, 0f)
+                        updateGlobalPosition()
+                    }
+                } else {
+                    if (globalPosition.x + size.x > parent!!.globalPosition.x + parent!!.size.x) {
+                        size.x = parent!!.globalPosition.x + parent!!.size.x - globalPosition.x
+                    }
+                }
+            } else {
+                if (minSide) {
+                    if (globalPosition.y < parent!!.globalPosition.y) {
+                        val fixDelta = globalPosition.y - parent!!.globalPosition.y
+                        localPosition.y -= fixDelta
+                        size.y += fixDelta
+//                        moveChildren(0f, fixDelta)
+                        updateGlobalPosition()
+                    }
+                } else {
+                    if (globalPosition.y + size.y > parent!!.globalPosition.y + parent!!.size.y) {
+                        size.y = parent!!.globalPosition.y + parent!!.size.y - globalPosition.y
+                    }
+                }
+            }
+        }
 
-        // keep within parent while resizing
-        if (parent != null) {
-            if (globalPosition.x + size.x > parent!!.globalPosition.x + parent!!.size.x) {
-                size.x = parent!!.globalPosition.x + parent!!.size.x - globalPosition.x
-            }
-        }
-        // keep within parent while resizing
-        if (parent != null) {
-            if (globalPosition.x < parent!!.globalPosition.x) {
-                val fixDelta = globalPosition.x - parent!!.globalPosition.x
-                localPosition.x -= fixDelta
-                size.x += fixDelta
-                updateGlobalPosition()
-            }
-        }
 
-        // keep within parent while resizing
-        if (parent != null) {
-            if (globalPosition.y + size.y > parent!!.globalPosition.y + parent!!.size.y) {
-                size.y = parent!!.globalPosition.y + parent!!.size.y - globalPosition.y
-            }
-        }
-
-        // keep within parent while resizing
-        if (parent != null) {
-            if (globalPosition.y < parent!!.globalPosition.y) {
-                val fixDelta = globalPosition.y - parent!!.globalPosition.y
-                localPosition.y -= fixDelta
-                size.y += fixDelta
-                updateGlobalPosition()
-            }
-        }
         childWindows.forEach {
-            it.keepWithinParent()
+            it.keepWithinParent(xSide, minSide)
         }
     }
 
-//    private fun restrictToParent() {
-//        if (parent != null) {
-//            if (size.x > parent!!.size.x) {
-//                size.x
-//            }
-//        }
-//    }
+    private fun keepWithinBounds(xSide: Boolean, minSide: Boolean) {
+        val bounds = getBounds()
+        if (xSide) {
+            if (minSide) {
+                if (size.x < bounds.width) {
+                    val fixDelta = size.x - bounds.width
+                    localPosition.x += fixDelta
+                    size.x -= fixDelta
+                    moveChildren(-fixDelta, 0f)
+                    updateGlobalPosition()
+                }
+            } else {
+                if (globalPosition.x + size.x < bounds.x + bounds.width) {
+                    size.x = bounds.x + bounds.width - globalPosition.x
+                }
+            }
+        } else {
+            if (minSide) {
+                if (size.y < bounds.height) {
+                    val fixDelta = size.y - bounds.height
+                    localPosition.y += fixDelta
+                    size.y -= fixDelta
+                    moveChildren(0f, -fixDelta)
+                    updateGlobalPosition()
+                }
+            } else {
+                if (globalPosition.y + size.y < bounds.y + bounds.height) {
+                    size.y = bounds.y + bounds.height - globalPosition.y
+                }
+            }
+        }
+    }
+
+    private fun getBounds() : Rectangle {
+        updateGlobalPosition()
+        var xMin = globalPosition.x
+        var xMax = globalPosition.x + max(size.x, minSize.x)
+        var yMin = globalPosition.y
+        var yMax = globalPosition.y + max(size.y, minSize.y)
+
+        childWindows.forEach {
+            val childBounds = it.getBounds()
+            xMin = min(xMin, childBounds.x)
+            xMax = max(xMax, childBounds.x + childBounds.width)
+            yMin = min(yMin, childBounds.y)
+            yMax = max(yMax, childBounds.y + childBounds.height)
+        }
+        return Rectangle(xMin, yMin, xMax - xMin, yMax - yMin)
+    }
+
+    private fun moveChildren(xm: Float, ym: Float) {
+        childWindows.forEach {
+            it.localPosition.x += xm
+            it.localPosition.y += ym
+            it.updateGlobalPosition()
+        }
+    }
 
 }
