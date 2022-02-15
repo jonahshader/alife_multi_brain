@@ -16,20 +16,45 @@ import ktx.graphics.use
 import ktx.math.div
 import ktx.math.minus
 import ktx.math.times
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
 
 class UIDemoScreen : KtxScreen {
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(1280f, 720f, camera)
-    private val window = Window(Vector2(), Vector2(500f, 400f), Vector2(20f, 20f))
+    private val window = Window(Vector2(-viewport.worldWidth/2f, -viewport.worldHeight/2f), Vector2(viewport.worldWidth, viewport.worldHeight), Vector2(20f, 20f))
 
     private var pMouseDown = false
 
     init {
-        makeChildren(2, 1, window)
-        val plot = Plot("X values", "Y values", "Title", pos = Vector2(), mode = Plot.Mode.LINE)
-        plot.addTrend(Plot.Trend("Test Data", Color.WHITE, true))
-        for (i in 0 until 100) {
-            plot.addDatum("Test Data", Vector2(Rand.randx.nextFloat(), Rand.randx.nextGaussian().toFloat()))
+        window.bodyColor.a = 0f
+        window.edgeColor.a = 0f
+        window.draggingEnabled = false
+        window.resizingEnabled = false
+//        makeChildren(2, 1, window)
+        val plot = Plot("X values", "Y values", "Title", pos = Vector2())
+//        plot.addTrend(Plot.Trend("Test Data", Color.WHITE, true))
+//        for (i in 0 until 100) {
+//            plot.addDatum("Test Data", Vector2(Rand.randx.nextFloat(), Rand.randx.nextGaussian().toFloat()))
+//        }
+
+        plot.addTrend(Plot.Trend("Scatter", Color.BLUE, false, mode = Plot.Mode.POINT))
+        for (i in 0 until 1000) {
+            plot.addDatum("Scatter", Vector2(Rand.randx.nextGaussian().toFloat(), Rand.randx.nextGaussian().toFloat()))
+        }
+
+        plot.addTrend(Plot.Trend("Scatter2", Color.RED, false, mode = Plot.Mode.POINT))
+        for (i in 0 until 1000) {
+            plot.addDatum("Scatter2", Vector2(cos(Rand.randx.nextGaussian()).toFloat(), 0f).rotateRad(sin(Rand.randx.nextGaussian()).toFloat()))
+        }
+
+        plot.addTrend(Plot.Trend("Spiral", Color.GREEN, false, mode = Plot.Mode.LINE))
+        for (i in 0 until 1000) {
+            val t = (i * 2 * Math.PI / 500).toFloat()
+            val x = cos(t * 3) / 2f.pow(t)
+            val y = sin(t * 3) / 2f.pow(t)
+            plot.addDatum("Spiral", Vector2(x, y))
         }
 
         window.addChildWindow(plot)

@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.badlogic.gdx.utils.viewport.Viewport
@@ -14,6 +16,8 @@ object TextRenderer {
     private var viewport: Viewport? = null
     private var font: BitmapFont? = null
     var color: Color = Color.WHITE
+
+    private val fontMatrix = Matrix4()
 
     enum class Font {
         LIGHT,
@@ -45,7 +49,7 @@ object TextRenderer {
         }
     }
 
-    fun begin(batch: Batch, viewport: ScalingViewport, font: Font, size: Float, boldness: Float, cameraZoom: Float = 1f) {
+    fun begin(batch: Batch, viewport: ScalingViewport, font: Font, size: Float, boldness: Float, cameraZoom: Float = 1f, rotation: Float = 0f) {
         TextRenderer.batch = batch
         TextRenderer.viewport = viewport
         TextRenderer.font = fontToBitmapFont(font)
@@ -59,6 +63,9 @@ object TextRenderer {
         Assets.dffShader.setUniformf("p_distOffset", boldness)
         Assets.dffShader.setUniformf("p_spread", fontToSpread(font))
         Assets.dffShader.setUniformf("p_renderScale", scale * screenScale / cameraZoom)
+
+        fontMatrix.idt().rotate(Vector3(0f, 0f, 1f), rotation)
+        Assets.dffShader.setUniformMatrix("p_rotation", fontMatrix)
     }
 
     fun end() {
@@ -66,6 +73,7 @@ object TextRenderer {
     }
 
     fun drawTextCentered(x: Float, y: Float, text: String, shadowDistance: Float, shadowOpacity: Float) {
+        Assets.dffShader.setUniform3fv("p_origin", floatArrayOf(x, y, 0f), 0, 3)
         font?.color?.set(0f, 0f, 0f, color.a * shadowOpacity)
         font?.draw(batch!!, text, x, y + font!!.capHeight/2f, 0f, Align.center, false)
         updateColor()
@@ -73,11 +81,13 @@ object TextRenderer {
     }
 
     fun drawTextCentered(x: Float, y: Float, text: String) {
+        Assets.dffShader.setUniform3fv("p_origin", floatArrayOf(x, y, 0f), 0, 3)
         updateColor()
         font?.draw(batch!!, text, x, y + font!!.capHeight/2f, 0f, Align.center, false)
     }
 
     fun drawText(x: Float, y: Float, text: String) {
+        Assets.dffShader.setUniform3fv("p_origin", floatArrayOf(x, y, 0f), 0, 3)
         updateColor()
         font?.draw(batch!!, text, x, y + font!!.capHeight, 0f, Align.left, false)
     }

@@ -1,6 +1,5 @@
 package com.jonahshader.systems.ui
 
-import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Rectangle
@@ -18,6 +17,10 @@ open class Window {
     val localPosition = Vector2()
     val globalPosition = Vector2()
     val minSize = Vector2(15f, 15f)
+    var draggingEnabled = true
+    var resizingEnabled = true
+    val edgeColor = Color(1f, 1f, 1f, 1f)
+    val bodyColor = Color(.2f, .2f, .2f, 1f)
     protected val childWindows = mutableListOf<Window>()
     private var parent: Window? = null
     private var remove = false
@@ -53,9 +56,11 @@ open class Window {
     }
 
     protected fun drawContainer() {
-        MultiBrain.shapeDrawer.setColor(.8f, .8f, .8f, 1f)
-        MultiBrain.shapeDrawer.filledRectangle(globalPosition.x, globalPosition.y, size.x, size.y, Color(.8f, .8f, .8f, 1f))
-        MultiBrain.shapeDrawer.filledRectangle(globalPosition.x + 2, globalPosition.y + 2, size.x - 4, size.y - 4, Color(.2f, .2f, .2f, 1f))
+        MultiBrain.shapeDrawer.setColor(edgeColor)
+        if (edgeColor.a > 0f)
+            MultiBrain.shapeDrawer.filledRectangle(globalPosition.x, globalPosition.y, size.x, size.y, Color(.8f, .8f, .8f, 1f))
+        if (bodyColor.a > 0f)
+            MultiBrain.shapeDrawer.filledRectangle(globalPosition.x + 2, globalPosition.y + 2, size.x - 4, size.y - 4, bodyColor)
     }
 
     fun addChildWindow(childWindow: Window) {
@@ -81,33 +86,34 @@ open class Window {
 
         if (mouseStateChange && mouseDown) {
             // check resize edges
-            if ((mousePos.y > (globalPosition.y - RESIZE_RADIUS)) && mousePos.y < (globalPosition.y + size.y + RESIZE_RADIUS)) {
-                if ((mousePos.x - globalPosition.x).absoluteValue < RESIZE_RADIUS) {
-                    resizing = true
-                    xResizing = true
-                    xMaxResizing = false
-                } else if ((mousePos.x - (globalPosition.x + size.x)).absoluteValue < RESIZE_RADIUS) {
-                    resizing = true
-                    xResizing = true
-                    xMaxResizing = true
+            if (resizingEnabled) {
+                if ((mousePos.y > (globalPosition.y - RESIZE_RADIUS)) && mousePos.y < (globalPosition.y + size.y + RESIZE_RADIUS)) {
+                    if ((mousePos.x - globalPosition.x).absoluteValue < RESIZE_RADIUS) {
+                        resizing = true
+                        xResizing = true
+                        xMaxResizing = false
+                    } else if ((mousePos.x - (globalPosition.x + size.x)).absoluteValue < RESIZE_RADIUS) {
+                        resizing = true
+                        xResizing = true
+                        xMaxResizing = true
+                    }
+                }
+                if ((mousePos.x > (globalPosition.x - RESIZE_RADIUS)) && mousePos.x < (globalPosition.x + size.x + RESIZE_RADIUS)) {
+                    if ((mousePos.y - globalPosition.y).absoluteValue < RESIZE_RADIUS) {
+                        resizing = true
+                        yResizing = true
+                        yMaxResizing = false
+                    } else if ((mousePos.y - (globalPosition.y + size.y)).absoluteValue < RESIZE_RADIUS) {
+                        resizing = true
+                        yResizing = true
+                        yMaxResizing = true
+                    }
                 }
             }
-            if ((mousePos.x > (globalPosition.x - RESIZE_RADIUS)) && mousePos.x < (globalPosition.x + size.x + RESIZE_RADIUS)) {
-                if ((mousePos.y - globalPosition.y).absoluteValue < RESIZE_RADIUS) {
-                    resizing = true
-                    yResizing = true
-                    yMaxResizing = false
-                } else if ((mousePos.y - (globalPosition.y + size.y)).absoluteValue < RESIZE_RADIUS) {
-                    resizing = true
-                    yResizing = true
-                    yMaxResizing = true
-                }
-            }
-
-            // TODO: keep resize within parent size. stop resizing if it goes out of bounds of parent
 
             if (!resizing) {
-                if ((mousePos.x in (globalPosition.x..(globalPosition.x + size.x))) &&
+                if (draggingEnabled &&
+                    (mousePos.x in (globalPosition.x..(globalPosition.x + size.x))) &&
                     (mousePos.y in (globalPosition.y..(globalPosition.y + size.y)))
                 ) {
                     dragging = true
