@@ -29,7 +29,7 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = FoodSim(makeDenseNetworkBuilder(55), 80, 70, 800, 1/20f, algo = FoodSim.Algo.EsGDM)
+    private val sim = FoodSim(makeDenseNetworkBuilder(120), 100, 100, 800, 1/10f, algo = FoodSim.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false

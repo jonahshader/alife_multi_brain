@@ -114,7 +114,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
-        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.1f, 0.92f)
+        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.08f, 0.92f)
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
         pUpdate = update
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
