@@ -16,7 +16,7 @@ class WashboardNeuron : Neuron() {
         // exchange frequency(THz) * 2pi
         const val w_ex = (27.5 * 2 * PI).toFloat()
         // effective damping
-        const val a = 0.1f // 0.0001 or 0.1
+        const val a = 0.0001f // 0.0001 or 0.1
         // easy axis anisotropy(GHz) * 2pi
         const val w_e = (1.75 * 2 * PI).toFloat()
         // spin-torque efficiency (THz/A)
@@ -31,7 +31,7 @@ class WashboardNeuron : Neuron() {
     private var angularVel = 0f
     private var angularAccel = 0f
 
-    private var angleD = 0.0
+    var angleD = 0.0
     private var angularVelD = 0.0
     private var angularAccelD = 0.0
 

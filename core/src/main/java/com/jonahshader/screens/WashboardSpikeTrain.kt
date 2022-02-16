@@ -13,23 +13,30 @@ class WashboardSpikeTrain : KtxScreen {
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
     companion object {
-        private const val SIM_STEPS = 1000
+        private const val SIM_STEPS = 20000
     }
 
     init {
         val plot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(300f, 200f))
         val trend = Plot.Trend("asdf", Color.WHITE, true, Plot.Mode.LINE)
+        val trend2 = Plot.Trend("phase", Color.GREEN, true, Plot.Mode.LINE)
+        val inputCurrentTrend = Plot.Trend("Input Current", Color.BLUE, true, Plot.Mode.LINE)
         window.addChildWindow(plot)
         plot.addTrend(trend)
+        plot.addTrend(trend2)
+        plot.addTrend(inputCurrentTrend)
         // configure window contents
         val washboardNeuron = WashboardNeuron()
 
         for (i in 0 until SIM_STEPS) {
-            val inputCurrent = (i / SIM_STEPS.toFloat()) * 0.01f
+            var inputCurrent = .002f
+            if (i > 333) inputCurrent = 0f
             washboardNeuron.addWeightedOutput(inputCurrent)
             washboardNeuron.update(0f)
             washboardNeuron.updateOutput()
             plot.addDatum("asdf", Vector2(i.toFloat(), washboardNeuron.out))
+            plot.addDatum("phase", Vector2(i.toFloat(), washboardNeuron.angleD.toFloat() / (2 * Math.PI.toFloat())))
+            plot.addDatum("Input Current", Vector2(i.toFloat(), inputCurrent))
         }
     }
 
