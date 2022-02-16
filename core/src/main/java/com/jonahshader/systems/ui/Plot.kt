@@ -13,7 +13,7 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
            pos: Vector2, size: Vector2 = Vector2(150f, 130f)) : Window(pos, size, Vector2(150f, 130f)) {
     companion object {
         private const val BOX_LEFT_PADDING = 50f
-        private const val BOX_RIGHT_PADDING = 5f
+        private const val BOX_RIGHT_PADDING = 12f
         private const val BOX_TOP_PADDING = 20f
         private const val BOX_BOTTOM_PADDING = 50f
         private const val TREND_PADDING = 10f
@@ -26,25 +26,28 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
         POINT,
         LINE
     }
-    class Trend(val label: String, private val color: Color, private val sorted: Boolean, private val mode: Mode = Mode.POINT) {
+    class Trend(val label: String, private val color: Color, private val sortData: Boolean, private val mode: Mode = Mode.POINT) {
         companion object {
             private const val LINE_THICKNESS = 1f
             private const val POINT_RADIUS = 1f
 
         }
 
-        val dataMin = Vector2(Float.MAX_VALUE, Float.MAX_VALUE)
-        val dataMax = Vector2(-Float.MAX_VALUE, -Float.MAX_VALUE)
+        var dataMin: Vector2? = null
+        var dataMax: Vector2? = null
         private val data = mutableListOf<Vector2>()
 
         fun addDatum(datum: Vector2) {
             data += datum
-            if (sorted) data.sortBy { it.x }
+            if (sortData) data.sortBy { it.x }
 
-            dataMin.x = min(datum.x, dataMin.x)
-            dataMin.y = min(datum.y, dataMin.y)
-            dataMax.x = max(datum.x, dataMax.x)
-            dataMax.y = max(datum.y, dataMax.y)
+            if (dataMin == null) dataMin = Vector2(datum)
+            if (dataMax == null) dataMax = Vector2(datum)
+
+            dataMin!!.x = min(datum.x, dataMin!!.x)
+            dataMin!!.y = min(datum.y, dataMin!!.y)
+            dataMax!!.x = max(datum.x, dataMax!!.x)
+            dataMax!!.y = max(datum.y, dataMax!!.y)
         }
 
         fun render(cam: Camera, minVals: Vector2, maxVals: Vector2, bottomLeft: Vector2, topRight: Vector2) {
@@ -105,10 +108,21 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
         TextRenderer.end()
 
         // determine minRender and maxRender
-        var xMinData = trends.values.minOf { it.dataMin.x }
-        var yMinData = trends.values.minOf { it.dataMin.y }
-        var xMaxData = trends.values.maxOf { it.dataMax.x }
-        var yMaxData = trends.values.maxOf { it.dataMax.y }
+        var xMinData: Float
+        var yMinData: Float
+        var xMaxData: Float
+        var yMaxData: Float
+        if (trends.values.isNotEmpty()) {
+            xMinData = trends.values.filter { it.dataMin != null }.map { it.dataMin!! }.ifEmpty { listOf(Vector2()) }.minOf { it.x }
+            yMinData = trends.values.filter { it.dataMin != null }.map { it.dataMin!! }.ifEmpty { listOf(Vector2()) }.minOf { it.y }
+            xMaxData = trends.values.filter { it.dataMin != null }.map { it.dataMax!! }.ifEmpty { listOf(Vector2()) }.maxOf { it.x }
+            yMaxData = trends.values.filter { it.dataMin != null }.map { it.dataMax!! }.ifEmpty { listOf(Vector2()) }.maxOf { it.y }
+        } else {
+            xMinData = -.5f
+            yMinData = -.5f
+            xMaxData = .5f
+            yMaxData = .5f
+        }
 
         if (xMinData == xMaxData) {
             xMinData -= .5f
@@ -154,7 +168,7 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
             val intervalRender = map(interval, dataMin.y, dataMax.y, renderMin.y, renderMax.y)
             if (intervalRender in (globalPosition.y + BOX_BOTTOM_PADDING..globalPosition.y + size.y - BOX_TOP_PADDING)) {
                 TextRenderer.drawText(
-                    globalPosition.x + BOX_LEFT_PADDING * (3f / 6),
+                    globalPosition.x + BOX_LEFT_PADDING * .5f,
                     intervalRender - fontSize / 2,
                     interval.toString()
                 ) //.take(3)

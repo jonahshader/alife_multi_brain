@@ -1,6 +1,7 @@
 package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.graphics.Camera
+import com.jonahshader.systems.ui.Window
 
 class SimViewer(private val sim: FoodSim) {
     private val foodGrid = FoodGrid()

@@ -20,7 +20,7 @@ open class Window {
     var draggingEnabled = true
     var resizingEnabled = true
     val edgeColor = Color(1f, 1f, 1f, 1f)
-    val bodyColor = Color(.2f, .2f, .2f, 1f)
+    val bodyColor = Color(.1f, .1f, .1f, 1f)
     protected val childWindows = mutableListOf<Window>()
     private var parent: Window? = null
     private var remove = false
@@ -37,6 +37,14 @@ open class Window {
         private const val RESIZE_RADIUS = 4f
     }
 
+    constructor(viewport: ScalingViewport) {
+        this.localPosition.set(-viewport.worldWidth/2f, -viewport.worldHeight/2f)
+        this.size.set(viewport.worldWidth, viewport.worldHeight)
+        draggingEnabled = false
+        resizingEnabled = false
+        bodyColor.a = 0f
+        edgeColor.a = 0f
+    }
 
     constructor(pos: Vector2, size: Vector2, minSize: Vector2) {
         this.localPosition.set(pos)

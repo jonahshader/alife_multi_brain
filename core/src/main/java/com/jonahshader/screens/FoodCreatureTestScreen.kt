@@ -2,31 +2,46 @@ package com.jonahshader.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
+import com.badlogic.gdx.utils.viewport.FillViewport
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodSim
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
+import com.jonahshader.systems.ui.Plot
+import com.jonahshader.systems.ui.ScreenWindow
+import com.jonahshader.systems.ui.Window
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
 class FoodCreatureTestScreen : KtxScreen {
     private val simCam = OrthographicCamera()
-    private val simViewport = FitViewport(1920.0f, 1080.0f, simCam)
+    private val simViewport = FillViewport(1920.0f, 1080.0f, simCam)
 
     private val visCam = OrthographicCamera()
-    private val visViewport = FitViewport(1920.0f, 1080.0f, visCam)
+    private val visViewport = FillViewport(1920.0f, 1080.0f, visCam)
 
-    private val sim = FoodSim(makeDenseNetworkBuilder(60), 100, 100, 600, 1/20f, algo = FoodSim.Algo.EsGDM, printFitness = true)
+    private val window = ScreenWindow(Vector2(1280f, 720f))
+
+    private val sim = FoodSim(makeDenseNetworkBuilder(55), 80, 70, 800, 1/20f, algo = FoodSim.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false
     private var following = false
 
     init {
+        val plot = Plot("Iteration", "Fitness", "Food Creature Fitness", Vector2())
+        window.addChildWindow(plot)
+        plot.addTrend(Plot.Trend("todo: autogen from foodsim params", Color.BLUE, false, mode = Plot.Mode.LINE))
+        sim.addFitnessCallback {
+            plot.addDatum("todo: autogen from foodsim params", it)
+        }
         sim.start()
     }
 
@@ -54,24 +69,28 @@ class FoodCreatureTestScreen : KtxScreen {
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
 
         simViewer.update()
+        window.update(delta)
         if (following)
             simViewer.follow(simCam)
 
         simViewport.apply()
-        MultiBrain.shapeDrawer.update()
         MultiBrain.batch.use(simCam) {
+            MultiBrain.shapeDrawer.update()
             simViewer.render()
         }
 
+        window.render(MultiBrain.batch)
     }
 
     override fun show() {
         simViewport.update(Gdx.graphics.width, Gdx.graphics.height)
         visViewport.update(Gdx.graphics.width, Gdx.graphics.height)
+        window.show()
     }
 
     override fun resize(width: Int, height: Int) {
         simViewport.update(width, height)
         visViewport.update(width, height)
+        window.resize(width, height)
     }
 }

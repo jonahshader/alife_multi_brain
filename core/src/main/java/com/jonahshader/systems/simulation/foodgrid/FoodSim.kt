@@ -1,5 +1,6 @@
 package com.jonahshader.systems.simulation.foodgrid
 
+import com.badlogic.gdx.math.Vector2
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.training.computeGradientsFromParamEvals
 import com.jonahshader.systems.training.esGradientDescent
@@ -31,9 +32,11 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
 
     private var gdCreatureCurrent: Eval? = null
     private var pUpdate: List<Float>
+    private var currentIteration = 0
 
     private var running = false
     private val fitnessLog = mutableListOf<Float>()
+    private val fitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
 
     init {
         for (i in 0 until populationSize) {
@@ -50,6 +53,8 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
             Algo.EsGD -> esGdAlgo()
             Algo.EsGDM -> esGdMovementAlgo()
         }
+
+        currentIteration++
     }
 
     private fun logFitness(fitness: Float) {
@@ -57,6 +62,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
             fitnessLog += fitness
         if (printFitness)
             println("current fitness: $fitness")
+        fitnessCallbacks.forEach { it(Vector2(currentIteration.toFloat(), fitness)) }
     }
 
     fun getLog() : List<Float> = fitnessLog
@@ -108,7 +114,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
-        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.05f, 0.9f)
+        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.1f, 0.92f)
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
         pUpdate = update
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
@@ -228,5 +234,9 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
         fitness.sort()
         eval.fitness = fitness[fitness.size/2]
+    }
+
+    fun addFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
+        fitnessCallbacks += fitnessCallback
     }
 }
