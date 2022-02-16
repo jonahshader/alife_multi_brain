@@ -24,7 +24,7 @@ class WashboardNeuron : Neuron() {
         // spin pumping efficiency (fVs)
         const val B = 0.11f
 
-        const val USE_D = false
+        const val USE_D = true
     }
 
     private var angle = 0f
@@ -68,7 +68,7 @@ class WashboardNeuron : Neuron() {
     }
 
     private fun updateDp() {
-        val dt = 10e-15 // 1 picoseconds
+        val dt = 10e-16 // 1 picoseconds?? idk was 10e-15
         val inputCurrent = inputSum + bias * 10e-6 // TODO: multiply by B here instead of at the output
 //        val inputCurrent = (inputSum + bias) * B * FEMTO
 //        val inputCurrent = inputSum

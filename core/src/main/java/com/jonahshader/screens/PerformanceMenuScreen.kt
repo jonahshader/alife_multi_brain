@@ -22,6 +22,7 @@ class PerformanceMenuScreen : KtxScreen {
     init {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
         menu.addMenuItem("System Perf. Test") { TestPerformance.testPerformance() }
+        menu.addMenuItem("Washboard Single Pulse") { ScreenManager.push(WashboardSpikeTrain())}
         menu.addMenuItem("Back") { ScreenManager.pop() }
 
         if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
