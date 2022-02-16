@@ -1,5 +1,11 @@
+//#ifdef GL_ES
+//precision mediump float;
+//#endif
 #ifdef GL_ES
+#define LOWP lowp
 precision mediump float;
+#else
+#define LOWP
 #endif
 
 uniform sampler2D u_texture;

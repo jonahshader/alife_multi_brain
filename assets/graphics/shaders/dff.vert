@@ -11,7 +11,7 @@ varying vec4 v_color;
 varying vec2 v_texCoord;
 
 void main() {
-    gl_Position = u_projTrans * ((p_rotation * (a_position - vec4(p_origin.xyz, 0f))) + vec4(p_origin.xyz, 0f));
+    gl_Position = u_projTrans * ((p_rotation * (a_position - vec4(p_origin.xyz, 0.0))) + vec4(p_origin.xyz, 0.0));
     v_texCoord = a_texCoord0;
     v_color = a_color;
 }
