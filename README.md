@@ -1,8 +1,12 @@
 # alife_multi_brain
 Test bed program for reinforcement learning neural net model development.
 
+
+![Alt Text](https://github.com/jonahshader/alife_multi_brain/blob/master/images/sb_creature.gif)
+"Soft Body Creature" being evaluated
+
 ![Alt Text](https://github.com/jonahshader/alife_multi_brain/blob/master/images/food_creature.gif)
-"Food Creature" being trained
+"Food Creature" being trained and evaluated
 
 
 
