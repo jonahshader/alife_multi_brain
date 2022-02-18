@@ -10,7 +10,8 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FillViewport
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
+import com.jonahshader.systems.neuralnet.cudacyclic.CudaCyclicNetwork
+import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.EvolutionStrategies
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
@@ -30,13 +31,14 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = EvolutionStrategies(makeDenseNetworkBuilder(60), FoodCreature.builder, 200, 40, 500, 1/15f, algo = EvolutionStrategies.Algo.EsGDM)
+    private val sim = EvolutionStrategies(CudaCyclicNetwork.makeBuilder(60), FoodCreature.builder, 20, 40, 500, 1/15f, algo = EvolutionStrategies.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false
     private var following = false
 
     init {
+        //TODO: compare dense to cuda. should be 1 to 1 identical (after tanh is solved or removed temporarily)
         val plot = Plot("Iteration", "Fitness", "Food Creature Fitness", Vector2())
         window.addChildWindow(plot)
         plot.addTrend(Plot.Trend("todo: autogen from foodsim params", Color.BLUE, false, mode = Plot.Mode.LINE))

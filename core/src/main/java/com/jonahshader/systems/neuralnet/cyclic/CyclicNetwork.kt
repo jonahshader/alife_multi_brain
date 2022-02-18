@@ -92,6 +92,9 @@ class CyclicNetwork : Network {
         }
     }
 
+    override fun dispose() {
+    }
+
     private fun removeRandomNeuron() : Boolean =
         if (hiddenNeurons.isNotEmpty()) {
             val toRemove = hiddenNeurons.random(kRand)
@@ -99,6 +102,8 @@ class CyclicNetwork : Network {
             hiddenNeurons.remove(toRemove)
             true
         } else { false }
+
+    override val multithreadable = true
 
 
     override fun setInput(index: Int, value: Float) {

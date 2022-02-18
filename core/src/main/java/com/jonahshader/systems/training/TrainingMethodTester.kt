@@ -1,7 +1,7 @@
 package com.jonahshader.systems.training
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
-import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
+import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.simulation.EvolutionStrategies
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import kotlin.system.measureTimeMillis
@@ -12,9 +12,9 @@ fun main() {
     val samples = 10
     val steps = 500
     val dt = 1/20f
-    val sim1 = EvolutionStrategies(makeDenseNetworkBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsPickBest, logging = true)
-    val sim2 = EvolutionStrategies(makeDenseNetworkBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsGD, logging = true)
-    val sim3 = EvolutionStrategies(makeDenseNetworkBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsGDM, logging = true)
+    val sim1 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsPickBest, logging = true)
+    val sim2 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsGD, logging = true)
+    val sim3 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsGDM, logging = true)
 
     val iterations = 30
     val sim1time = measureTimeMillis { sim1.runIterations(iterations) }

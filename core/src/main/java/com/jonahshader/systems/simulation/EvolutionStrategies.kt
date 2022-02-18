@@ -87,7 +87,10 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     }
 
     private fun esGdMovementAlgo() {
-        population.parallelStream().forEach { evaluateAverage(it) }
+        if (population[0].creature.network.multithreadable)
+            population.parallelStream().forEach { evaluateAverage(it) }
+        else
+            population.forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
 //            gdCreatureCurrent = population[(population.size*.80f).toInt()]
@@ -96,6 +99,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
         logFitness(gdCreatureCurrent!!.fitness)
         bestLock.withLock {
+            bestCreature?.network?.dispose()
             bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
         }
 
@@ -140,7 +144,10 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     }
 
     private fun esGdAlgo() {
-        population.parallelStream().forEach { evaluateAverage(it) }
+        if (population[0].creature.network.multithreadable)
+            population.parallelStream().forEach { evaluateAverage(it) }
+        else
+            population.forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         if (gdCreatureCurrent == null) {
             gdCreatureCurrent = population[population.size/2]
@@ -148,6 +155,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
         logFitness(gdCreatureCurrent!!.fitness)
         bestLock.withLock {
+            bestCreature?.network?.dispose()
             bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
         }
 
@@ -179,11 +187,15 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     }
 
     private fun esPickBestAlgo() {
-        population.parallelStream().forEach { evaluateAverage(it) }
+        if (population[0].creature.network.multithreadable)
+            population.parallelStream().forEach { evaluateAverage(it) }
+        else
+            population.forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         val best = population.last()
         logFitness(best.fitness)
         bestLock.withLock {
+            bestCreature?.network?.dispose()
             bestCreature = best.creature.cloneAndReset()
         }
         population.forEachIndexed { index, it ->
@@ -196,6 +208,9 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         }
     }
 
+    /**
+     * whoever gets this must dispose it after using it (right now thats just the network)
+     */
     fun getBestCopy() : Creature? {
         bestLock.withLock {
             return if (bestCreature != null) {

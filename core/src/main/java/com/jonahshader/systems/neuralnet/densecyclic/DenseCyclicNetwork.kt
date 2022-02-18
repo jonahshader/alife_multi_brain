@@ -1,6 +1,7 @@
 package com.jonahshader.systems.neuralnet.densecyclic
 
 import com.jonahshader.systems.neuralnet.Network
+import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.utils.Rand
 import org.jetbrains.kotlinx.multik.api.*
 import org.jetbrains.kotlinx.multik.api.linalg.dot
@@ -10,7 +11,22 @@ import java.util.*
 import kotlin.math.tanh
 
 class DenseCyclicNetwork : Network {
+    companion object {
+        fun makeBuilder(hiddenSize: Int) : NetworkBuilder = { input, output -> DenseCyclicNetwork(input, hiddenSize, output) }
+    }
     private val rand: Random
+
+    private val inputVector: NDArray<Float, D1>
+    private var outputVector: NDArray<Float, D1>
+    private var hiddenBuffer: NDArray<Float, D1>
+    private var hiddenOut: NDArray<Float, D1>
+    private val hiddenBias: NDArray<Float, D1>
+    private val outputBias: NDArray<Float, D1>
+
+    private val inputToHiddenWeights: NDArray<Float, D2>
+    private val hiddenToHiddenWeights: NDArray<Float, D2>
+    private val inputToOutputWeights: NDArray<Float, D2>
+    private val hiddenToOutputWeights: NDArray<Float, D2>
 
     constructor(inputSize: Int, hiddenSize: Int, outputSize: Int, rand: Random = Rand.randx) {
         this.rand = rand
@@ -40,17 +56,7 @@ class DenseCyclicNetwork : Network {
         this.hiddenToOutputWeights = toCopy.hiddenToOutputWeights.deepCopy()
     }
 
-    private val inputVector: NDArray<Float, D1>
-    private var outputVector: NDArray<Float, D1>
-    private var hiddenBuffer: NDArray<Float, D1>
-    private var hiddenOut: NDArray<Float, D1>
-    private val hiddenBias: NDArray<Float, D1>
-    private val outputBias: NDArray<Float, D1>
-
-    private val inputToHiddenWeights: NDArray<Float, D2>
-    private val hiddenToHiddenWeights: NDArray<Float, D2>
-    private val inputToOutputWeights: NDArray<Float, D2>
-    private val hiddenToOutputWeights: NDArray<Float, D2>
+    override val multithreadable = true
 
     override fun setInput(index: Int, value: Float) {
         inputVector[index] = value
@@ -120,5 +126,9 @@ class DenseCyclicNetwork : Network {
             hiddenBuffer[i] = 0f
         for (i in hiddenOut.indices)
             hiddenOut[i] = 0f
+    }
+
+    override fun dispose() {
+        // empty
     }
 }

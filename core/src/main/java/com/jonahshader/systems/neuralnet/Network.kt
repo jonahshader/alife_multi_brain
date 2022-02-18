@@ -1,12 +1,12 @@
 package com.jonahshader.systems.neuralnet
 
+import com.badlogic.gdx.utils.Disposable
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 
 typealias NetworkBuilder = (Int, Int) -> Network
 
-fun makeDenseNetworkBuilder(hiddenSize: Int) : NetworkBuilder = { input, output -> DenseCyclicNetwork(input, hiddenSize, output) }
-
-interface Network {
+interface Network : Disposable {
+    val multithreadable: Boolean
     fun setInput(index: Int, value: Float)
     fun getOutput(index: Int) : Float
 
