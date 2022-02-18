@@ -1,13 +1,13 @@
 package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.math.Vector2
-import com.external.FastNoiseLite
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.simulation.Environment
 import com.jonahshader.systems.utils.Rand
 import java.util.*
 import kotlin.math.floor
 
-class FoodGrid(private val rand: Random = Rand.randx, seed: Int = rand.nextInt()) {
+class FoodGrid(private val rand: Random = Rand.randx) : Environment {
     companion object {
         const val CELL_SIZE = 16f
         const val WORLD_RADIUS = 512 // in cells
@@ -82,7 +82,7 @@ class FoodGrid(private val rand: Random = Rand.randx, seed: Int = rand.nextInt()
         }
     }
 
-    fun render() {
+    override fun render() {
         food.entries.forEach {
             val xWorld = cellToWorld(keyToXPos(it.key))
             val yWorld = cellToWorld(keyToYPos(it.key))
@@ -92,7 +92,7 @@ class FoodGrid(private val rand: Random = Rand.randx, seed: Int = rand.nextInt()
         }
     }
 
-    fun reset() {
+    override fun resetAndRandomize() {
         food.clear()
     }
 

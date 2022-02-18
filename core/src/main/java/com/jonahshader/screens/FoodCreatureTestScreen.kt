@@ -12,7 +12,8 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.makeDenseNetworkBuilder
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.simulation.foodgrid.FoodSim
+import com.jonahshader.systems.simulation.EvolutionStrategies
+import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
@@ -29,7 +30,7 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = FoodSim(makeDenseNetworkBuilder(60), 200, 40, 500, 1/15f, algo = FoodSim.Algo.EsGDM)
+    private val sim = EvolutionStrategies(makeDenseNetworkBuilder(60), FoodCreature.builder, 200, 40, 500, 1/15f, algo = EvolutionStrategies.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false

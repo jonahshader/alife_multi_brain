@@ -1,16 +1,16 @@
 package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.graphics.Camera
-import com.jonahshader.systems.ui.Window
+import com.jonahshader.systems.creatureparts.Creature
+import com.jonahshader.systems.simulation.EvolutionStrategies
 
-class SimViewer(private val sim: FoodSim) {
-    private val foodGrid = FoodGrid()
-    private var creature: FoodCreature? = null
+class SimViewer(private val sim: EvolutionStrategies) {
+    private var creature: Creature? = null
     private var timestep = 0
 
     fun render() {
-        foodGrid.render()
-        creature?.render(foodGrid)
+        creature?.environment?.render()
+        creature?.render()
     }
 
     fun follow(cam: Camera) {
@@ -24,7 +24,7 @@ class SimViewer(private val sim: FoodSim) {
     fun update() {
         if (timestep > sim.steps) {
             timestep = 0
-            foodGrid.reset()
+            creature?.environment?.resetAndRandomize()
             creature = sim.getBestCopy()
         }
 
@@ -33,6 +33,6 @@ class SimViewer(private val sim: FoodSim) {
         } else {
             timestep++
         }
-        creature?.update(foodGrid, sim.dt)
+        creature?.update(sim.dt)
     }
 }

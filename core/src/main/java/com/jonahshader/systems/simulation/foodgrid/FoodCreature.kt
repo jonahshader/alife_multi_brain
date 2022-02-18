@@ -2,12 +2,15 @@ package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.creatureparts.Creature
+import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.Network
+import com.jonahshader.systems.simulation.Environment
 import com.jonahshader.systems.simulation.foodgrid.FoodGrid.Companion.CELL_SIZE
 import ktx.math.plusAssign
 import kotlin.math.pow
 
-class FoodCreature(networkBuilder: (Int, Int) -> Network) {
+class FoodCreature(networkBuilder: (Int, Int) -> Network) : Creature {
     companion object {
         private const val FOOD_SENSOR_GRID_WIDTH = 5
         private const val FOOD_SENSOR_GRID_HEIGHT = 5
@@ -16,16 +19,20 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
         private const val GRAPHIC_SENSOR_RADIUS = 2f
         private const val GRAPHIC_BODY_RADIUS = 3f
 
+        val builder: CreatureBuilder = { FoodCreature(it) }
+
     }
 
     private val foodSensorPos = mutableListOf<Vector2>()
     var totalFood = 0f
 
-    val pos = Vector2()
+    override val pos = Vector2()
     private val vel = Vector2()
     private val tempSensor = Vector2()
 
-    val network = networkBuilder(FOOD_SENSOR_GRID_WIDTH * FOOD_SENSOR_GRID_HEIGHT, 4)
+    override val network = networkBuilder(FOOD_SENSOR_GRID_WIDTH * FOOD_SENSOR_GRID_HEIGHT, 4)
+    private val foodGrid = FoodGrid()
+    override val environment = foodGrid
 
     init {
         for (y in 0 until FOOD_SENSOR_GRID_HEIGHT) for (x in 0 until FOOD_SENSOR_GRID_WIDTH) {
@@ -36,7 +43,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
         }
     }
 
-    fun update(foodGrid: FoodGrid, dt: Float) {
+    override fun update(dt: Float) {
         foodSensorPos.forEachIndexed { index, it ->
             tempSensor.set(pos).add(it)
             network.setInput(index, foodGrid.readFoodBilinear(tempSensor))
@@ -67,7 +74,11 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
         }
     }
 
-    fun render(foodGrid: FoodGrid) {
+    override fun getFitness(): Float {
+        return totalFood
+    }
+
+    override fun render() {
         MultiBrain.shapeDrawer.setColor(.5f, .5f, .5f, 1f)
         foodSensorPos.forEach {
             tempSensor.set(pos).add(it)
@@ -86,7 +97,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
         MultiBrain.shapeDrawer.filledCircle(pos, GRAPHIC_BODY_RADIUS)
     }
 
-    fun reset() {
+    override fun reset() {
         pos.setZero()
         vel.setZero()
         tempSensor.setZero()
@@ -94,7 +105,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) {
         totalFood = 0f
     }
 
-    fun cloneAndReset() : FoodCreature {
+    override fun cloneAndReset() : Creature {
         val newCreature = FoodCreature { _, _ -> network.clone() }
         newCreature.reset()
         return newCreature

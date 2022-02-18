@@ -1,6 +1,8 @@
-package com.jonahshader.systems.simulation.foodgrid
+package com.jonahshader.systems.simulation
 
 import com.badlogic.gdx.math.Vector2
+import com.jonahshader.systems.creatureparts.Creature
+import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.training.computeGradientsFromParamEvals
 import com.jonahshader.systems.training.esGradientDescent
@@ -12,9 +14,9 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 import kotlin.math.pow
 
-class Eval(var creature: FoodCreature, var fitness: Float = 0f)
+class Eval(var creature: Creature, var fitness: Float = 0f)
 
-class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
+class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: CreatureBuilder, populationSize: Int,
               private val samples: Int, val steps: Int, val dt: Float,
               private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
               private val logging: Boolean = false, private val printFitness: Boolean = false) {
@@ -28,7 +30,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
     private val population = mutableListOf<Eval>()
 
     private var bestLock = ReentrantLock()
-    private var bestCreature: FoodCreature? = null
+    private var bestCreature: Creature? = null
 
     private var gdCreatureCurrent: Eval? = null
     private var pUpdate: List<Float>
@@ -40,7 +42,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
 
     init {
         for (i in 0 until populationSize) {
-            population += Eval(FoodCreature(networkBuilder))
+            population += Eval(creatureBuilder(networkBuilder))
         }
 
         // initialize pUpdate for gd with momentum
@@ -114,7 +116,8 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
-        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.08f, 0.92f)
+        val mutationRate = 0.015f
+        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.08f * mutationRate, 0.92f)
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
         pUpdate = update
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
@@ -127,7 +130,10 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
             it.creature.reset()
             it.creature.network.setParameters(newParams)
             if (it != gdCreatureCurrent!!) {
-                it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
+//                it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
+                // TODO: scale mutation based on update per parameter
+                it.creature.network.mutateParameters(mutationRate)
+//                it.creature.network.mutateParameters()
 //                it.creature.network.mutateParameters(.1f)
             }
         }
@@ -190,7 +196,7 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
         }
     }
 
-    fun getBestCopy() : FoodCreature? {
+    fun getBestCopy() : Creature? {
         bestLock.withLock {
             return if (bestCreature != null) {
                 bestCreature!!.cloneAndReset()
@@ -206,15 +212,13 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
 
     private fun evaluateAverage(eval: Eval) {
         var totalFitness = 0f
-        val foodGrid = FoodGrid(rand)
         for (i in 0 until samples) {
             eval.creature.reset()
-            foodGrid.reset()
-//            foodGrid.setSeed(i)
+            eval.creature.environment.resetAndRandomize()
             for (j in 0 until steps) {
-                eval.creature.update(foodGrid, dt)
+                eval.creature.update(dt)
             }
-            totalFitness += eval.creature.totalFood
+            totalFitness += eval.creature.getFitness()
         }
 
         eval.fitness = totalFitness / samples
@@ -222,15 +226,13 @@ class FoodSim(networkBuilder: NetworkBuilder, populationSize: Int,
 
     private fun evaluateMedian(eval: Eval) {
         val fitness = mutableListOf<Float>()
-        val foodGrid = FoodGrid(rand)
         for (i in 0 until samples) {
             eval.creature.reset()
-            foodGrid.reset()
-//            foodGrid.setSeed(i)
+            eval.creature.environment.resetAndRandomize()
             for (j in 0 until steps) {
-                eval.creature.update(foodGrid, dt)
+                eval.creature.update(dt)
             }
-            fitness += eval.creature.totalFood
+            fitness += eval.creature.getFitness()
         }
         fitness.sort()
         eval.fitness = fitness[fitness.size/2]
