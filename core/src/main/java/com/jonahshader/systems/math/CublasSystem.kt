@@ -11,4 +11,11 @@ object CublasSystem {
             initialized = true
         }
     }
+
+    fun cublasShutdown() {
+        if (initialized) {
+            JCublas.cublasShutdown()
+            initialized = false
+        }
+    }
 }

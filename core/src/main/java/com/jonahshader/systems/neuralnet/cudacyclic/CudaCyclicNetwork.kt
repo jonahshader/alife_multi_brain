@@ -9,6 +9,7 @@ import com.jonahshader.systems.utils.Rand
 import org.jetbrains.kotlinx.multik.ndarray.data.set
 import org.jetbrains.kotlinx.multik.ndarray.operations.toList
 import java.util.*
+import kotlin.math.tanh
 
 class CudaCyclicNetwork : Network {
     companion object {
@@ -149,8 +150,12 @@ class CudaCyclicNetwork : Network {
         outputVector.copyFrom(outputBias)
         hiddenToOutputWeights.multiply(hiddenOut, outputVector, 1f)
         inputToOutputWeights.multiply(inputVector, outputVector, 1f)
+        outputDirty = true
 
-        // TODO: activate
+        // TODO: activate on gpu
+        hiddenBuffer.download()
+        hiddenOut.array.forEachIndexed { index, _ -> hiddenOut[index] = tanh(hiddenBuffer[index]) }
+        hiddenOut.upload()
     }
 
     override fun clone() = CudaCyclicNetwork(this)

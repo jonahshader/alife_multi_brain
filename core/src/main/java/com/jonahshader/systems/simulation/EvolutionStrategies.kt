@@ -1,6 +1,7 @@
 package com.jonahshader.systems.simulation
 
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Disposable
 import com.jonahshader.systems.creatureparts.Creature
 import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.NetworkBuilder
@@ -19,7 +20,7 @@ class Eval(var creature: Creature, var fitness: Float = 0f)
 class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: CreatureBuilder, populationSize: Int,
               private val samples: Int, val steps: Int, val dt: Float,
               private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
-              private val logging: Boolean = false, private val printFitness: Boolean = false) {
+              private val logging: Boolean = false, private val printFitness: Boolean = false) : Disposable {
     enum class Algo {
         EsPickBest,
         EsGD,
@@ -39,6 +40,9 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     private var running = false
     private val fitnessLog = mutableListOf<Float>()
     private val fitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
+
+    private var disposeQueued = false
+    private var computeThreadRunning = false
 
     init {
         for (i in 0 until populationSize) {
@@ -79,9 +83,16 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         if (!running) {
             running = true
             thread {
+                computeThreadRunning = true
                 while (running) {
                     runAlgo()
                 }
+                if (disposeQueued) {
+                    population.forEach {
+                        it.creature.network.dispose()
+                    }
+                }
+                computeThreadRunning = false
             }
         }
     }
@@ -255,5 +266,15 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
     fun addFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
         fitnessCallbacks += fitnessCallback
+    }
+
+    override fun dispose() {
+        if (!computeThreadRunning) {
+            population.forEach {
+                it.creature.network.dispose()
+            }
+        } else {
+            disposeQueued = true
+        }
     }
 }

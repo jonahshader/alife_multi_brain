@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FillViewport
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.math.CublasSystem
 import com.jonahshader.systems.neuralnet.cudacyclic.CudaCyclicNetwork
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.screen.ScreenManager
@@ -19,6 +20,7 @@ import com.jonahshader.systems.simulation.foodgrid.SimViewer
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
 import com.jonahshader.systems.ui.Window
+import jcuda.jcublas.JCublas
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
@@ -31,7 +33,7 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = EvolutionStrategies(CudaCyclicNetwork.makeBuilder(60), FoodCreature.builder, 20, 40, 500, 1/15f, algo = EvolutionStrategies.Algo.EsGDM)
+    private val sim = EvolutionStrategies(CudaCyclicNetwork.makeBuilder(512), FoodCreature.builder, 20, 10, 500, 1/15f, algo = EvolutionStrategies.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false
@@ -56,6 +58,8 @@ class FoodCreatureTestScreen : KtxScreen {
         if (Gdx.input.isKeyPressed(Input.Keys.D)) simCam.translate(speed, 0f)
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             sim.stop()
+            sim.dispose()
+            CublasSystem.cublasShutdown()
             ScreenManager.switchTo(FoodCreatureTestScreen())
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) simCam.zoom /= 1.5f
@@ -63,6 +67,8 @@ class FoodCreatureTestScreen : KtxScreen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.V)) visEnabled = !visEnabled
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             sim.stop()
+            sim.dispose()
+            CublasSystem.cublasShutdown()
             ScreenManager.pop()
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) following = !following

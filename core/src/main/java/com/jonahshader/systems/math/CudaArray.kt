@@ -14,11 +14,11 @@ open class CudaArray(val array: FloatArray) : Disposable {
     }
 
     fun upload() {
-        JCublas.cublasSetVector(array.size, Float.SIZE_BYTES, Pointer.to(pointer), 1, pointer, 1)
+        JCublas.cublasSetVector(array.size, Float.SIZE_BYTES, Pointer.to(array), 1, pointer, 1)
     }
 
     fun download() {
-        JCublas.cublasGetVector(array.size, Float.SIZE_BYTES, pointer, 1, Pointer.to(pointer), 1)
+        JCublas.cublasGetVector(array.size, Float.SIZE_BYTES, pointer, 1, Pointer.to(array), 1)
     }
 
     override fun dispose() {
