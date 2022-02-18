@@ -98,7 +98,7 @@ dependencies {
 //	implementation "org.jcuda:jcublas:11.4.1"
 
 	def classifier = getOsString() + "-" + getArchString()
-	def jCudaVersion = "10.2.0" // 11.2.0
+	def jCudaVersion = "11.2.0" // 11.2.0 10.2.0
 	implementation(group: 'org.jcuda', name: 'jcuda', version: jCudaVersion) {
 		transitive = false
 	}
