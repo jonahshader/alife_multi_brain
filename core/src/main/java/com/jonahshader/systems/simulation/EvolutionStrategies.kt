@@ -131,7 +131,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         }
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
-        val mutationRate = 0.015f
+        val mutationRate = 0.01f
         val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.08f * mutationRate, 0.92f)
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
         pUpdate = update
