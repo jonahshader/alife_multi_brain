@@ -16,7 +16,7 @@ class WashboardNeuron : Neuron() {
         // exchange frequency(THz) * 2pi
         const val w_ex = (27.5 * 2 * PI).toFloat()
         // effective damping
-        const val a = 0.0001f // 0.0001 or 0.1
+        const val a = 0.01f // 0.0001 or 0.1
         // easy axis anisotropy(GHz) * 2pi
         const val w_e = (1.75 * 2 * PI).toFloat()
         // spin-torque efficiency (THz/A)
@@ -68,8 +68,10 @@ class WashboardNeuron : Neuron() {
     }
 
     private fun updateDp() {
-        val dt = 10e-16 // 1 picoseconds?? idk was 10e-15
-        val inputCurrent = inputSum + bias * 10e-6 // TODO: multiply by B here instead of at the output
+        val dt = 10e-15 // 10e-15
+//        val dt = 10e-16 // 1 picoseconds?? idk was 10e-15
+//        val inputCurrent = inputSum + bias * 10e-6 // TODO: multiply by B here instead of at the output
+        val inputCurrent = inputSum + bias
 //        val inputCurrent = (inputSum + bias) * B * FEMTO
 //        val inputCurrent = inputSum
 

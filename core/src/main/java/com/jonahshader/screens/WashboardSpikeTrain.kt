@@ -11,32 +11,48 @@ import ktx.app.clearScreen
 
 class WashboardSpikeTrain : KtxScreen {
     private val window = ScreenWindow(Vector2(1280f, 720f))
+    private val neurons = mutableListOf<WashboardNeuron>()
 
     companion object {
-        private const val SIM_STEPS = 20000
+        private const val SIM_STEPS = 300
     }
 
     init {
-        val plot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(300f, 200f))
-        val trend = Plot.Trend("asdf", Color.WHITE, true, Plot.Mode.LINE)
-        val trend2 = Plot.Trend("phase", Color.GREEN, true, Plot.Mode.LINE)
+        for (i in 0 until 7) {
+            neurons += WashboardNeuron()
+//            neurons.last().bias = (198 * 10e-6).toFloat()
+            neurons.last().bias = (198 * 10e-6).toFloat()
+//            neurons.last().bias = 0f
+//            neurons.last().angleD = Math.PI / 4
+            neurons.last().angleD = 0.4453125
+        }
+
+        val plot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, 720f))
         val inputCurrentTrend = Plot.Trend("Input Current", Color.BLUE, true, Plot.Mode.LINE)
         window.addChildWindow(plot)
-        plot.addTrend(trend)
-        plot.addTrend(trend2)
         plot.addTrend(inputCurrentTrend)
-        // configure window contents
-        val washboardNeuron = WashboardNeuron()
+        neurons.forEachIndexed { index, it ->
+            plot.addTrend(Plot.Trend("Voltage $index", Color(1f, 1f, 1f, 1f).fromHsv(index.toFloat() * 360f / neurons.size, 1f, 1f), true, Plot.Mode.LINE))
+        }
 
         for (i in 0 until SIM_STEPS) {
-            var inputCurrent = .002f
-            if (i > 333) inputCurrent = 0f
-            washboardNeuron.addWeightedOutput(inputCurrent)
-            washboardNeuron.update(0f)
-            washboardNeuron.updateOutput()
-            plot.addDatum("asdf", Vector2(i.toFloat(), washboardNeuron.out))
-            plot.addDatum("phase", Vector2(i.toFloat(), washboardNeuron.angleD.toFloat() / (2 * Math.PI.toFloat())))
+//            val inputCurrent = 0f
+            var inputCurrent = 0.0065f // 0.0065f
+            if (i > 6) inputCurrent = 0f
+
             plot.addDatum("Input Current", Vector2(i.toFloat(), inputCurrent))
+            neurons[0].addWeightedOutput(inputCurrent)
+            neurons[0].update(1/1000f)
+            neurons[0].updateOutput()
+            for (j in 1 until neurons.size) {
+                neurons[j].addWeightedOutput(neurons[j-1].out * .25f) // .25f
+                neurons[j].update(1/1000f)
+                neurons[j].updateOutput()
+            }
+
+            neurons.forEachIndexed { index, it ->
+                plot.addDatum("Voltage $index", Vector2(i.toFloat(), it.out))
+            }
         }
     }
 
