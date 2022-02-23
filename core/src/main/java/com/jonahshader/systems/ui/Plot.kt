@@ -22,10 +22,12 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
         private const val Y_MIN_INTERVAL_SIZE = 12f
         private const val X_MIN_INTERVAL_SIZE = 24f
     }
+
     enum class Mode {
         POINT,
         LINE
     }
+
     class Trend(val label: String, private val color: Color, private val sortData: Boolean, private val mode: Mode = Mode.POINT) {
         companion object {
             private const val LINE_THICKNESS = 1f
@@ -75,6 +77,12 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
                 val yMapped2 = map(data[i + 1].y, minVals.y, maxVals.y, minRender.y, maxRender.y)
                 MultiBrain.shapeDrawer.line(xMapped, yMapped, xMapped2, yMapped2, LINE_THICKNESS)
             }
+        }
+
+        fun clear() {
+            dataMin = null
+            dataMax = null
+            data.clear()
         }
     }
 
@@ -224,6 +232,12 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
                     1f
                 )
             }
+        }
+    }
+
+    fun clearData() {
+        trends.values.forEach {
+            it.clear()
         }
     }
 }

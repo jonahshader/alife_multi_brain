@@ -6,7 +6,9 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-class WashboardNeuron : Neuron() {
+class WashboardNeuron(
+    // effective dampening
+    private val a: Float = 0.01f) : Neuron() {
     companion object {
         // metric units
         const val TERA = 10e12
@@ -15,8 +17,6 @@ class WashboardNeuron : Neuron() {
 
         // exchange frequency(THz) * 2pi
         const val w_ex = (27.5 * 2 * PI).toFloat()
-        // effective damping
-        const val a = 0.01f // 0.0001 or 0.1
         // easy axis anisotropy(GHz) * 2pi
         const val w_e = (1.75 * 2 * PI).toFloat()
         // spin-torque efficiency (THz/A)
@@ -27,9 +27,8 @@ class WashboardNeuron : Neuron() {
         const val USE_D = true
     }
 
-    private var angle = 0f
+    var angle = 0f
     private var angularVel = 0f
-    private var angularAccel = 0f
 
     var angleD = 0.0
     private var angularVelD = 0.0
@@ -41,11 +40,12 @@ class WashboardNeuron : Neuron() {
     }
 
     override fun update(dt: Float) {
-        if (USE_D) {
-            updateDp()
-        } else {
-            updateFp()
-        }
+//        if (USE_D) {
+//            updateDp()
+//        } else {
+//            updateFp()
+//        }
+        updateFpClean()
 
     }
 
@@ -54,7 +54,7 @@ class WashboardNeuron : Neuron() {
         val inputCurrent = inputSum + bias
 
         // compute angular acceleration
-        angularAccel = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2 * angle)) * w_ex
+        val angularAccel = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2 * angle)) * w_ex
 
         // integrate angular acceleration
         angularVel += angularAccel * dt
@@ -67,8 +67,24 @@ class WashboardNeuron : Neuron() {
         outputBuffer = angularVel * B
     }
 
+    private fun updateFpClean() {
+        val dt = 2e-14.toFloat() // DON'T CHANGE
+        val inputCurrent = inputSum + bias
+
+        // compute angular acceleration (pre multiplied by dt)
+        val angularAccel: Float = 7.464424E12F * inputCurrent - 3.455752f * a * angularVel - 1.89989888E10f * sin(2*angle)
+
+        // integrate angular acceleration
+        angularVel += angularAccel
+
+        // integrate angular vel
+        angle += angularVel * dt
+
+        outputBuffer = angularVel * B * 10e-15f
+    }
+
     private fun updateDp() {
-        val dt = 10e-15 // 10e-15
+        val dt = 2e-14 // 10e-15
 //        val dt = 10e-16 // 1 picoseconds?? idk was 10e-15
 //        val inputCurrent = inputSum + bias * 10e-6 // TODO: multiply by B here instead of at the output
         val inputCurrent = inputSum + bias
