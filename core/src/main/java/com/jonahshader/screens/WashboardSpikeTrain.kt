@@ -15,7 +15,8 @@ import ktx.app.clearScreen
 
 class WashboardSpikeTrain : KtxScreen {
     private val window = ScreenWindow(Vector2(1280f, 720f))
-    private val plot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, 320f))
+    private val voltagePlot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, 320f))
+    private val // TODO: phase, current
     private val neurons = mutableListOf<WashboardNeuron>()
 
 //    private var bias = 198 * 10e-6f
@@ -29,10 +30,11 @@ class WashboardSpikeTrain : KtxScreen {
     }
 
     init {
-        window.addChildWindow(plot)
-        plot.addTrend(Plot.Trend("Input Current", Color.BLUE, true, Plot.Mode.LINE))
+        window.addChildWindow(voltagePlot)
+        voltagePlot.addTrend(Plot.Trend("Input Current", Color.BLUE, true, Plot.Mode.LINE))
+
         (0 until NEURON_COUNT).forEachIndexed{ index, _ ->
-            plot.addTrend(Plot.Trend("Voltage $index", Color(1f, 1f, 1f, 1f).fromHsv(index.toFloat() * 360f / NEURON_COUNT, 1f, 1f), true, Plot.Mode.LINE))
+            voltagePlot.addTrend(Plot.Trend("Voltage $index", Color(1f, 1f, 1f, 1f).fromHsv(index.toFloat() * 360f / NEURON_COUNT, 1f, 1f), true, Plot.Mode.LINE))
         }
 
         window += Slider("Bias", 0f, 900e-6f, bias, Vector2(0f, 680f), size = Vector2(1280f, 40f)) { bias = it; generate() }
@@ -45,7 +47,7 @@ class WashboardSpikeTrain : KtxScreen {
 
     private fun generate() {
         neurons.clear()
-        plot.clearData()
+        voltagePlot.clearData()
         for (i in 0 until 15) {
             neurons += WashboardNeuron(a)
 //            neurons.last().bias = (198 * 10e-6).toFloat()
@@ -57,24 +59,24 @@ class WashboardSpikeTrain : KtxScreen {
         }
 
         for (i in 0 until SIM_STEPS) {
-            val p = (i - 50).toFloat() / (170)
+            val p = (i - 50).toFloat() / (50)
             val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 30 * MICRO.toFloat() * 100
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
 //            if (i > 12) inputCurrent = 0f
 
-            plot.addDatum("Input Current", Vector2(i.toFloat(), inputCurrent))
+            voltagePlot.addDatum("Input Current", Vector2(i.toFloat(), inputCurrent))
             neurons[0].addWeightedOutput(inputCurrent)
             neurons[0].update(1/1000f)
             neurons[0].updateOutput()
             for (j in 1 until neurons.size) {
-                neurons[j].addWeightedOutput(neurons[j-1].out * 16f) // .25f
+                neurons[j].addWeightedOutput(neurons[j-1].out * 64f) // .25f
                 neurons[j].update(1/1000f)
                 neurons[j].updateOutput()
             }
 
             neurons.forEachIndexed { index, it ->
-                plot.addDatum("Voltage $index", Vector2(i.toFloat(), it.out))
+                voltagePlot.addDatum("Voltage $index", Vector2(i.toFloat(), it.out))
             }
         }
     }
