@@ -13,16 +13,17 @@ class Slider(private val label: String, private val min: Float, private val max:
     init {
         callback(current)
         draggingEnabled = false
+        resizingEnabled = false
     }
     override fun render(cam: OrthographicCamera, viewport: ScalingViewport) {
         drawContainer()
-        MultiBrain.shapeDrawer.setColor(1f, 1f, 1f, 1f)
+        MultiBrain.shapeDrawer.setColor(.5f + (1-p) * .1f, .5f + p * .1f, .5f, 1f)
         MultiBrain.shapeDrawer.filledRectangle(globalPosition.x, globalPosition.y, size.x * p, size.y)
 
         with(TextRenderer) {
-            begin(MultiBrain.batch, viewport, TextRenderer.Font.NORMAL, size.y / 3f, 0f, cam.zoom)
-            color.set(.5f, .5f, .5f, 1f)
-            drawTextCentered(globalPosition.x + size.x/2, globalPosition.y + size.y/2, "$label: $current")
+            begin(MultiBrain.batch, viewport, TextRenderer.Font.NORMAL, size.y / 1.5f, 0f, cam.zoom)
+            color.set(1f, 1f, 1f, 1f)
+            drawTextCentered(globalPosition.x + size.x/2, globalPosition.y + size.y/2, "$label: $current", size.y/24f, 1f)
             end()
         }
 

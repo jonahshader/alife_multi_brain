@@ -35,7 +35,7 @@ class WashboardSpikeTrain : KtxScreen {
             plot.addTrend(Plot.Trend("Voltage $index", Color(1f, 1f, 1f, 1f).fromHsv(index.toFloat() * 360f / NEURON_COUNT, 1f, 1f), true, Plot.Mode.LINE))
         }
 
-        window += Slider("Bias", 10 * 10e-6f, 900 * 10e-6f, bias, Vector2(0f, 680f), size = Vector2(1280f, 40f)) { bias = it; generate() }
+        window += Slider("Bias", 0f, 900e-6f, bias, Vector2(0f, 680f), size = Vector2(1280f, 40f)) { bias = it; generate() }
         window += Slider("Dampening (a)", 0.0f, 0.1f, a, Vector2(0f, 640f), size = Vector2(1280f, 40f)) { a = it; generate() }
 
 
@@ -58,7 +58,7 @@ class WashboardSpikeTrain : KtxScreen {
 
         for (i in 0 until SIM_STEPS) {
             val p = (i - 50).toFloat() / (170)
-            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 30 * MICRO.toFloat()
+            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 30 * MICRO.toFloat() * 100
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
 //            if (i > 12) inputCurrent = 0f
@@ -68,7 +68,7 @@ class WashboardSpikeTrain : KtxScreen {
             neurons[0].update(1/1000f)
             neurons[0].updateOutput()
             for (j in 1 until neurons.size) {
-                neurons[j].addWeightedOutput(neurons[j-1].out * 4f) // .25f
+                neurons[j].addWeightedOutput(neurons[j-1].out * 16f) // .25f
                 neurons[j].update(1/1000f)
                 neurons[j].updateOutput()
             }
