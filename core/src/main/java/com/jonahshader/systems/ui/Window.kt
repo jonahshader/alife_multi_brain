@@ -128,14 +128,14 @@ open class Window {
                     pDragPos.set(mousePos)
                     return true
                 }
-                if (customMouseHandle(mousePos)) return true
+
             } else {
                 pDragPos.set(mousePos)
                 return true
             }
-
-
         }
+
+        if (customMouseHandle(mouseStateChange, mouseDown, mousePos)) return true
 
         if (!mouseDown) {
             dragging = false
@@ -202,7 +202,7 @@ open class Window {
         return false
     }
 
-    open fun customMouseHandle(mousePos: Vector2): Boolean = false
+    open fun customMouseHandle(mouseStateChange: Boolean, mouseDown: Boolean, mousePos: Vector2): Boolean = false
 
     private fun updateGlobalPosition() {
         globalPosition.set(localPosition)

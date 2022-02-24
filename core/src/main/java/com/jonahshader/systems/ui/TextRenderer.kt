@@ -10,6 +10,9 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.jonahshader.systems.assets.Assets
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 object TextRenderer {
     private var batch: Batch? = null
@@ -71,6 +74,15 @@ object TextRenderer {
     fun end() {
         batch!!.shader = null
     }
+
+//    @OptIn(ExperimentalContracts::class)
+//    inline fun <B : TextRenderer> B.use(batch: Batch, viewport: ScalingViewport, font: Font, size: Float,
+//            boldness: Float, cameraZoom: Float = 1f, rotation: Float = 0f, action: (B) -> Unit) {
+//        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+//        begin(batch, viewport, font, size, boldness, cameraZoom, rotation)
+//        action(this)
+//        end()
+//    }
 
     fun drawTextCentered(x: Float, y: Float, text: String, shadowDistance: Float, shadowOpacity: Float) {
         Assets.dffShader.setUniform3fv("p_origin", floatArrayOf(x, y, 0f), 0, 3)

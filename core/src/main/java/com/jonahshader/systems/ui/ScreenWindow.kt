@@ -40,6 +40,10 @@ class ScreenWindow(viewportSize: Vector2) {
         window.addChildWindow(childWindow)
     }
 
+    operator fun plusAssign(childWindow: Window) {
+        addChildWindow(childWindow)
+    }
+
     fun show() {
         resize(Gdx.graphics.width, Gdx.graphics.height)
     }

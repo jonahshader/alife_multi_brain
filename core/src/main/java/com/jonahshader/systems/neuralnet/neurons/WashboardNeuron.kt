@@ -2,33 +2,27 @@ package com.jonahshader.systems.neuralnet.neurons
 
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.math.Metric.FEMTO
+import com.jonahshader.systems.math.Metric.GIGA
+import com.jonahshader.systems.math.Metric.PICO
+import com.jonahshader.systems.math.Metric.TERA
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 class WashboardNeuron(
     // effective dampening
-    private val a: Float = 0.01f) : Neuron() {
+    private val a: Float = 0.0000f) : Neuron() {
     companion object {
-        // metric units
-        const val TERA = 1e12
-        const val GIGA = 1e9
-        const val FEMTO = 1e-15
-
         // exchange frequency(THz) * 2pi
-        const val w_ex = (27.5 * 2 * PI).toFloat()
+        const val w_ex = (27.5 * 2 * PI) * TERA
         // easy axis anisotropy(GHz) * 2pi
-        const val w_e = (1.75 * 2 * PI).toFloat()
+        const val w_e = (1.75 * 2 * PI) * GIGA
         // spin-torque efficiency (THz/A)
-        const val lSigma = 2.16f
+        const val lSigma = 2.16 * TERA
         // spin pumping efficiency (fVs)
-        const val B = 0.11f
-
-        const val USE_D = true
+        const val B = 0.11
     }
-
-    var angle = 0f
-    private var angularVel = 0f
 
     var angleD = 0.0
     private var angularVelD = 0.0
@@ -40,51 +34,13 @@ class WashboardNeuron(
     }
 
     override fun update(dt: Float) {
-        if (USE_D) {
-            updateDp()
-        } else {
-            updateFp()
-        }
-//        updateFpClean()
-
-    }
-
-    private fun updateFp() {
-        val dt = 1/1000f
-        val inputCurrent = inputSum + bias
-
-        // compute angular acceleration
-        val angularAccel = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2 * angle)) * w_ex
-
-        // integrate angular acceleration
-        angularVel += angularAccel * dt
-
-        // integrate angular vel
-        angle += angularVel * dt
-
-        angle = angle.mod(2* PI.toFloat())
-
-        outputBuffer = angularVel * B
-    }
-
-    private fun updateFpClean() {
-        val dt = 2e-14.toFloat() // DON'T CHANGE
-        val inputCurrent = inputSum + bias
-
-        // compute angular acceleration (pre multiplied by dt)
-        val angularAccel: Float = 7.464424E12F * inputCurrent - 3.455752f * a * angularVel - 1.89989888E10f * sin(2*angle)
-
-        // integrate angular acceleration
-        angularVel += angularAccel
-
-        // integrate angular vel
-        angle += angularVel * dt
-
-        outputBuffer = angularVel * B * 10e-15f
+        updateDp()
     }
 
     private fun updateDp() {
-        val dt = 2e-14 // 10e-15
+        // 1 pico second
+//        val dt = 2e-14 // 10e-15
+        val dt = PICO * 1e-1
 //        val dt = 10e-16 // 1 picoseconds?? idk was 10e-15
 //        val inputCurrent = inputSum + bias * 10e-6 // TODO: multiply by B here instead of at the output
         val inputCurrent = inputSum + bias
@@ -92,7 +48,7 @@ class WashboardNeuron(
 //        val inputCurrent = inputSum
 
         // compute angular acceleration
-        angularAccelD = (lSigma * TERA * inputCurrent - a*angularVelD - (w_e * GIGA/2)*sin(2*angleD)) * w_ex * TERA
+        angularAccelD = (lSigma * inputCurrent - a*angularVelD - (w_e/2)*sin(2*angleD)) * w_ex
 
         // integrate angular acceleration
         angularVelD += angularAccelD * dt
@@ -107,7 +63,7 @@ class WashboardNeuron(
     override fun render(pos: Vector2) {
         super.render(pos)
 
-        val ang = if (USE_D) angleD.toFloat() else angle
+        val ang = angleD.toFloat()
         // red positive, blue negative
         MultiBrain.shapeDrawer.setColor(1f, 1f, 1f, 1f)
         MultiBrain.shapeDrawer.line(pos.x, pos.y, pos.x + cos(ang) * 5f, pos.y + sin(ang) * 5f, 2f)

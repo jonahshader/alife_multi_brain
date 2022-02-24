@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.math.Metric.MICRO
 import com.jonahshader.systems.neuralnet.neurons.WashboardNeuron
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
@@ -14,7 +15,7 @@ import ktx.app.clearScreen
 
 class WashboardSpikeTrain : KtxScreen {
     private val window = ScreenWindow(Vector2(1280f, 720f))
-    private val plot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, 640f))
+    private val plot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, 320f))
     private val neurons = mutableListOf<WashboardNeuron>()
 
 //    private var bias = 198 * 10e-6f
@@ -23,7 +24,7 @@ class WashboardSpikeTrain : KtxScreen {
 
 
     companion object {
-        private const val SIM_STEPS = 2000
+        private const val SIM_STEPS = 400
         private const val NEURON_COUNT = 8
     }
 
@@ -34,8 +35,9 @@ class WashboardSpikeTrain : KtxScreen {
             plot.addTrend(Plot.Trend("Voltage $index", Color(1f, 1f, 1f, 1f).fromHsv(index.toFloat() * 360f / NEURON_COUNT, 1f, 1f), true, Plot.Mode.LINE))
         }
 
-        val biasSlider = Slider(10 * 10e-6f, 900 * 10e-6f, bias, Vector2(0f, 640f)) { bias = it }
-        window.addChildWindow(biasSlider)
+        window += Slider("Bias", 10 * 10e-6f, 900 * 10e-6f, bias, Vector2(0f, 680f), size = Vector2(1280f, 40f)) { bias = it; generate() }
+        window += Slider("Dampening (a)", 0.0f, 0.1f, a, Vector2(0f, 640f), size = Vector2(1280f, 40f)) { a = it; generate() }
+
 
 
         generate()
@@ -50,13 +52,13 @@ class WashboardSpikeTrain : KtxScreen {
             neurons.last().bias = bias
 //            neurons.last().bias = 0f
 //            neurons.last().angleD = Math.PI / 4
-            neurons.last().angleD = 0.4453125
-            neurons.last().angle = 0.4453125f
+            neurons.last().angleD = .55
+//            neurons.last().angleD = 0.4453125
         }
 
         for (i in 0 until SIM_STEPS) {
-            val p = i.toFloat() / (170)
-            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 2e-5f
+            val p = (i - 50).toFloat() / (170)
+            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 30 * MICRO.toFloat()
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
 //            if (i > 12) inputCurrent = 0f
