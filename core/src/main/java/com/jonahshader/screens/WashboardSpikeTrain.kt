@@ -25,9 +25,13 @@ class WashboardSpikeTrain : KtxScreen {
     private var bias = 198e-6f
     private var a = 0.01f
 
+    private var currentPeak = 30 * MICRO.toFloat() * 100
+    private var currentPeakDuration = 50f
+    private var weight = 32f
+
 
     companion object {
-        private const val SIM_STEPS = 400
+        private const val SIM_STEPS = 800
         private const val NEURON_COUNT = 8
         private const val PLOT_HEIGHT = 200f
     }
@@ -45,8 +49,11 @@ class WashboardSpikeTrain : KtxScreen {
             phasePlot.addTrend(Plot.Trend("Phase $index", Color(1f, 1f, 1f, 1f).fromHsv(index.toFloat() * 360f / NEURON_COUNT, 1f, 1f), true, Plot.Mode.LINE))
         }
 
-        window += Slider("Bias", 0f, 900e-6f, bias, Vector2(0f, 680f), size = Vector2(1280f, 40f)) { bias = it; generate() }
+        window += Slider("Weight", 0f, weight * 3, weight, Vector2(0f, 680f), size = Vector2(640f, 40f)) { weight = it; generate() }
+        window += Slider("Bias", 0f, 250e-5f, bias, Vector2(640f, 680f), size = Vector2(640f, 40f)) { bias = it; generate() }
         window += Slider("Dampening (a)", 0.0f, 0.1f, a, Vector2(0f, 640f), size = Vector2(1280f, 40f)) { a = it; generate() }
+        window += Slider("Current Peak (a)", 0.0f, currentPeak * 3, currentPeak, Vector2(0f, 600f), size = Vector2(640f, 40f)) { currentPeak = it; generate() }
+        window += Slider("Current Peak Duration (time unit)", currentPeakDuration/2f, currentPeakDuration*2f, currentPeakDuration, Vector2(640f, 600f), size = Vector2(640f, 40f)) { currentPeakDuration = it; generate() }
 
 
 
@@ -70,8 +77,8 @@ class WashboardSpikeTrain : KtxScreen {
         }
 
         for (i in 0 until SIM_STEPS) {
-            val p = (i - 50).toFloat() / (50)
-            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 30 * MICRO.toFloat() * 100
+            val p = (i - 50).toFloat() / (currentPeakDuration)
+            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * currentPeak
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
 //            if (i > 12) inputCurrent = 0f
@@ -81,7 +88,7 @@ class WashboardSpikeTrain : KtxScreen {
             neurons[0].update(1/1000f)
             neurons[0].updateOutput()
             for (j in 1 until neurons.size) {
-                neurons[j].addWeightedOutput(neurons[j-1].out * 64f) // .25f
+                neurons[j].addWeightedOutput(neurons[j-1].out * weight) // .25f
                 neurons[j].update(1/1000f)
                 neurons[j].updateOutput()
             }

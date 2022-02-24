@@ -8,6 +8,7 @@ import org.jetbrains.kotlinx.multik.api.linalg.dot
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.util.*
+import kotlin.math.sqrt
 import kotlin.math.tanh
 
 class DenseCyclicNetwork : Network {
@@ -29,17 +30,24 @@ class DenseCyclicNetwork : Network {
     private val hiddenToOutputWeights: NDArray<Float, D2>
 
     constructor(inputSize: Int, hiddenSize: Int, outputSize: Int, rand: Random = Rand.randx) {
+        val sqrt6 = sqrt(6f)
+        val inputToHiddenRange = sqrt6 / sqrt(1f + inputSize + hiddenSize)
+        val inputToOutputRange = sqrt6 / sqrt(1f + inputSize + outputSize)
+        val hiddenToHiddenRange = sqrt6 / sqrt(1f + hiddenSize * 2)
+        val hiddenToOutputRange = sqrt6 / sqrt(1f + hiddenSize + outputSize)
+
+
         this.rand = rand
         this.inputVector = mk.zeros(inputSize)
         this.outputVector = mk.zeros(outputSize)
         this.hiddenBuffer = mk.zeros(hiddenSize)
         this.hiddenOut = mk.zeros(hiddenSize)
-        this.hiddenBias = mk.d1array(hiddenSize) { rand.nextGaussian().toFloat() }
-        this.outputBias = mk.d1array(outputSize) { rand.nextGaussian().toFloat() }
-        this.inputToHiddenWeights = mk.d2arrayIndices(hiddenSize, inputSize) { _, _ -> rand.nextGaussian().toFloat() }
-        this.hiddenToHiddenWeights = mk.d2arrayIndices(hiddenSize, hiddenSize) { _, _ -> rand.nextGaussian().toFloat() }
-        this.inputToOutputWeights = mk.d2arrayIndices(outputSize, inputSize) { _, _ -> rand.nextGaussian().toFloat() }
-        this.hiddenToOutputWeights = mk.d2arrayIndices(outputSize, hiddenSize) { _, _ -> rand.nextGaussian().toFloat() }
+        this.hiddenBias = mk.d1array(hiddenSize) { rand.nextGaussian().toFloat() * hiddenToHiddenRange }
+        this.outputBias = mk.d1array(outputSize) { rand.nextGaussian().toFloat() * hiddenToOutputRange }
+        this.inputToHiddenWeights = mk.d2arrayIndices(hiddenSize, inputSize) { _, _ -> rand.nextGaussian().toFloat() * inputToHiddenRange }
+        this.hiddenToHiddenWeights = mk.d2arrayIndices(hiddenSize, hiddenSize) { _, _ -> rand.nextGaussian().toFloat() * hiddenToHiddenRange }
+        this.inputToOutputWeights = mk.d2arrayIndices(outputSize, inputSize) { _, _ -> rand.nextGaussian().toFloat() * inputToOutputRange }
+        this.hiddenToOutputWeights = mk.d2arrayIndices(outputSize, hiddenSize) { _, _ -> rand.nextGaussian().toFloat() * hiddenToOutputRange}
     }
 
     constructor(toCopy: DenseCyclicNetwork) {

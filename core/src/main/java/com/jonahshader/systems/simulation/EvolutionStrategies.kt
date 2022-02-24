@@ -120,15 +120,18 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         }
 
         // build lists for algo function
-        val paramsList = mutableListOf<List<Float>>()
-        population.forEach {
-            paramsList += it.creature.network.getParameters()
-        }
+//        val paramsList = mutableListOf<List<Float>>()
+//        population.forEach {
+//            paramsList += it.creature.network.getParameters()
+//        }
+        // build list for algo function
+        val paramsList = population.map { it.creature.network.getParameters() }
 
-        val evals = mutableListOf<Float>()
-        population.forEach {
-            evals += it.fitness
-        }
+//        val evals = mutableListOf<Float>()
+//        population.forEach {
+//            evals += it.fitness
+//        }
+        val evals = population.map { it.fitness }
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val mutationRate = 0.01f
@@ -140,7 +143,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 //        gdCreatureCurrent = population[population.size/2]
         val newParams = medianParams.zip(update) { base, u -> base + u }
 
-        population.forEachIndexed { index, it ->
+        population.parallelStream().forEach {
             it.fitness = 0f
             it.creature.reset()
             it.creature.network.setParameters(newParams)
