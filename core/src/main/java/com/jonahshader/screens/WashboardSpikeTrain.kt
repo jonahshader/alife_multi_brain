@@ -56,7 +56,7 @@ class WashboardSpikeTrain : KtxScreen {
 
         for (i in 0 until SIM_STEPS) {
             val p = i.toFloat() / (170)
-            val inputCurrent = (p * (1-p)).coerceAtLeast(0f) * .08f
+            val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * 2e-5f
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
 //            if (i > 12) inputCurrent = 0f

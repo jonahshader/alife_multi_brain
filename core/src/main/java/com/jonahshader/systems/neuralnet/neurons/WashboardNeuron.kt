@@ -11,9 +11,9 @@ class WashboardNeuron(
     private val a: Float = 0.01f) : Neuron() {
     companion object {
         // metric units
-        const val TERA = 10e12
-        const val GIGA = 10e9
-        const val FEMTO = 10e-15
+        const val TERA = 1e12
+        const val GIGA = 1e9
+        const val FEMTO = 1e-15
 
         // exchange frequency(THz) * 2pi
         const val w_ex = (27.5 * 2 * PI).toFloat()
@@ -40,12 +40,12 @@ class WashboardNeuron(
     }
 
     override fun update(dt: Float) {
-//        if (USE_D) {
-//            updateDp()
-//        } else {
-//            updateFp()
-//        }
-        updateFpClean()
+        if (USE_D) {
+            updateDp()
+        } else {
+            updateFp()
+        }
+//        updateFpClean()
 
     }
 
