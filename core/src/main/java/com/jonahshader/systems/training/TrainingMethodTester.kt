@@ -2,7 +2,6 @@ package com.jonahshader.systems.training
 
 import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.simulation.EvolutionStrategies
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import kotlin.system.measureTimeMillis
 

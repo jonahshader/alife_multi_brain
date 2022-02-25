@@ -43,7 +43,6 @@ class Slider(private val label: String, private val min: Float, private val max:
                 val newMousePosScreen = viewport!!.project(Vector2(mousePos.x, -(globalPosition.y + size.y/2)))
                 Gdx.input.setCursorPosition(newMousePosScreen.x.roundToInt(), newMousePosScreen.y.toInt())
             }
-
             true
         } else {
             false

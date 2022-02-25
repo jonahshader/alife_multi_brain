@@ -28,19 +28,31 @@ class WashboardNeuron(
     private var angularVelD = 0.0
     private var angularAccelD = 0.0
 
+    var angle = 0.0f
+    private var angularVel = 0.0f
+
     init {
         neuronName = NeuronName.Washboard
         color.set(.0f, .8f, 1f, 1f)
     }
 
     override fun update(dt: Float) {
-        updateDp()
+//        testFp(dt)
+        updateDp(dt)
     }
 
-    private fun updateDp() {
+    private fun testFp(dt: Float) {
+        val inputCurrent = inputSum + bias
+        val angularAccel = (lSigma.toFloat() * inputCurrent - a*angularVel - (w_e.toFloat()/2)*sin(2*angle)) * w_ex.toFloat()
+        angularVel += angularAccel * dt
+        angle += angularVel * dt
+        outputBuffer = (angularVel * B.toFloat() * FEMTO.toFloat())
+    }
+
+    private fun updateDp(dt: Float) {
         // 1 pico second
 //        val dt = 2e-14 // 10e-15
-        val dt = PICO * 1e-1
+//        val dt = PICO * 1e-1
 //        val dt = 10e-16 // 1 picoseconds?? idk was 10e-15
 //        val inputCurrent = inputSum + bias * 10e-6 // TODO: multiply by B here instead of at the output
         val inputCurrent = inputSum + bias

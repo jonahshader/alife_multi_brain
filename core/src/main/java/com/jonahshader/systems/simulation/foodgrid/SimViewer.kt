@@ -3,7 +3,7 @@ package com.jonahshader.systems.simulation.foodgrid
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.utils.Disposable
 import com.jonahshader.systems.creatureparts.Creature
-import com.jonahshader.systems.simulation.EvolutionStrategies
+import com.jonahshader.systems.training.EvolutionStrategies
 
 class SimViewer(private val sim: EvolutionStrategies) : Disposable {
     private var creature: Creature? = null

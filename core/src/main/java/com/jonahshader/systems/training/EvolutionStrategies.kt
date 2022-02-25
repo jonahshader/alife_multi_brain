@@ -1,13 +1,10 @@
-package com.jonahshader.systems.simulation
+package com.jonahshader.systems.training
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Disposable
 import com.jonahshader.systems.creatureparts.Creature
 import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.NetworkBuilder
-import com.jonahshader.systems.training.computeGradientsFromParamEvals
-import com.jonahshader.systems.training.esGradientDescent
-import com.jonahshader.systems.training.gradientDescentUpdateMomentum
 import com.jonahshader.systems.utils.Rand
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
@@ -18,9 +15,9 @@ import kotlin.math.pow
 class Eval(var creature: Creature, var fitness: Float = 0f)
 
 class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: CreatureBuilder, populationSize: Int,
-              private val samples: Int, val steps: Int, val dt: Float,
-              private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
-              private val logging: Boolean = false, private val printFitness: Boolean = false) : Disposable {
+                          private val samples: Int, val steps: Int, val dt: Float,
+                          private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
+                          private val logging: Boolean = false, private val printFitness: Boolean = false) : Disposable {
     enum class Algo {
         EsPickBest,
         EsGD,
@@ -103,9 +100,14 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         else
             population.forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
+        println(population.map { it.fitness })
         if (gdCreatureCurrent == null) {
 //            gdCreatureCurrent = population[(population.size*.80f).toInt()]
             gdCreatureCurrent = population.last()
+            var checkingNotNanIndex = population.size - 1
+            while (gdCreatureCurrent!!.fitness.isNaN()) {
+                gdCreatureCurrent = population[--checkingNotNanIndex]
+            }
         }
 
         logFitness(gdCreatureCurrent!!.fitness)
@@ -135,7 +137,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val mutationRate = 0.01f
-        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.08f * mutationRate, 0.92f)
+        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.01f * mutationRate, 0.92f)
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
         pUpdate = update
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()

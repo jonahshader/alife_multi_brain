@@ -1,7 +1,7 @@
 package com.jonahshader.data
 
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.simulation.EvolutionStrategies
+import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.utils.Rand
 import kotlin.system.measureTimeMillis

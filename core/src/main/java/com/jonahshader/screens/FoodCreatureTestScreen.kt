@@ -5,22 +5,17 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FillViewport
-import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.math.CublasSystem
-import com.jonahshader.systems.neuralnet.cudacyclic.CudaCyclicNetwork
-import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
+import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.simulation.EvolutionStrategies
+import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
-import com.jonahshader.systems.ui.Window
-import jcuda.jcublas.JCublas
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
@@ -33,7 +28,7 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(64), FoodCreature.builder, 1000, 3, 500, 1/15f, algo = EvolutionStrategies.Algo.EsGDM)
+    private val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(40), FoodCreature.builder, 150, 30, 800, 1/30f, algo = EvolutionStrategies.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false
