@@ -2,7 +2,7 @@ package com.jonahshader.systems.training
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Disposable
-import com.jonahshader.systems.creatureparts.Creature
+import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.utils.Rand
@@ -12,7 +12,7 @@ import kotlin.concurrent.thread
 import kotlin.concurrent.withLock
 import kotlin.math.pow
 
-class Eval(var creature: Creature, var fitness: Float = 0f)
+class Eval(var creature: ReinforcementTask, var fitness: Float = 0f)
 
 class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: CreatureBuilder, populationSize: Int,
                           private val samples: Int, val steps: Int, val dt: Float,
@@ -28,7 +28,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     private val population = mutableListOf<Eval>()
 
     private var bestLock = ReentrantLock()
-    private var bestCreature: Creature? = null
+    private var bestCreature: ReinforcementTask? = null
 
     private var gdCreatureCurrent: Eval? = null
     private var pUpdate: List<Float>
@@ -227,7 +227,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     /**
      * whoever gets this must dispose it after using it (right now thats just the network)
      */
-    fun getBestCopy() : Creature? {
+    fun getBestCopy() : ReinforcementTask? {
         bestLock.withLock {
             return if (bestCreature != null) {
                 bestCreature!!.cloneAndReset()

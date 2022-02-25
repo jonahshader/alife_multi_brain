@@ -2,15 +2,14 @@ package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.creatureparts.Creature
+import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.Network
-import com.jonahshader.systems.simulation.Environment
 import com.jonahshader.systems.simulation.foodgrid.FoodGrid.Companion.CELL_SIZE
 import ktx.math.plusAssign
 import kotlin.math.pow
 
-class FoodCreature(networkBuilder: (Int, Int) -> Network) : Creature {
+class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
     companion object {
         private const val FOOD_SENSOR_GRID_WIDTH = 5
         private const val FOOD_SENSOR_GRID_HEIGHT = 5
@@ -121,7 +120,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : Creature {
         totalFood = 0f
     }
 
-    override fun cloneAndReset() : Creature {
+    override fun cloneAndReset() : ReinforcementTask {
         val newCreature = FoodCreature { _, _ -> network.clone() }
         newCreature.reset()
         return newCreature
