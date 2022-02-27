@@ -147,7 +147,6 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
         population.parallelStream().forEach {
             it.fitness = 0f
-            it.creature.reset()
             it.creature.network.setParameters(newParams)
             if (it != gdCreatureCurrent!!) {
 //                it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
@@ -194,7 +193,6 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         val newParams = esGradientDescent(gdCreatureCurrent!!.creature.network.getParameters(), paramsList, evals, 0.1f)
         population.forEachIndexed { index, it ->
             it.fitness = 0f
-            it.creature.reset()
             it.creature.network.setParameters(newParams)
             if (it != gdCreatureCurrent!!) {
                 it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
@@ -216,7 +214,6 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         }
         population.forEachIndexed { index, it ->
             it.fitness = 0f
-            it.creature.reset()
             if (it != best) {
                 it.creature.network.setParameters(best.creature.network.getParameters())
                 it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
@@ -244,8 +241,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     private fun evaluateAverage(eval: Eval) {
         var totalFitness = 0f
         for (i in 0 until samples) {
-            eval.creature.reset()
-            eval.creature.environment.resetAndRandomize()
+            eval.creature.restartAndRandomize()
             for (j in 0 until steps) {
                 eval.creature.update(dt)
             }
@@ -258,8 +254,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     private fun evaluateMedian(eval: Eval) {
         val fitness = mutableListOf<Float>()
         for (i in 0 until samples) {
-            eval.creature.reset()
-            eval.creature.environment.resetAndRandomize()
+            eval.creature.restartAndRandomize()
             for (j in 0 until steps) {
                 eval.creature.update(dt)
             }

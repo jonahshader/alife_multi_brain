@@ -32,7 +32,6 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
 
     override val network = networkBuilder(FOOD_SENSOR_GRID_WIDTH * FOOD_SENSOR_GRID_HEIGHT, 4)
     private val foodGrid = FoodGrid()
-    override val environment = foodGrid
 
     init {
         for (y in 0 until FOOD_SENSOR_GRID_HEIGHT) for (x in 0 until FOOD_SENSOR_GRID_WIDTH) {
@@ -94,6 +93,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
     }
 
     override fun render() {
+        foodGrid.render()
         MultiBrain.shapeDrawer.setColor(.5f, .5f, .5f, 1f)
         foodSensorPos.forEach {
             tempSensor.set(pos).add(it)
@@ -112,7 +112,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         MultiBrain.shapeDrawer.filledCircle(pos, GRAPHIC_BODY_RADIUS)
     }
 
-    override fun reset() {
+    private fun reset() {
         pos.setZero()
         vel.setZero()
         tempSensor.setZero()
@@ -124,5 +124,9 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         val newCreature = FoodCreature { _, _ -> network.clone() }
         newCreature.reset()
         return newCreature
+    }
+
+    override fun restartAndRandomize() {
+        foodGrid.resetAndRandomize()
     }
 }

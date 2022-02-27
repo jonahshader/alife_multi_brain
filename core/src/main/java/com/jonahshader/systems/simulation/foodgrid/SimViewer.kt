@@ -11,7 +11,6 @@ class SimViewer(private val sim: EvolutionStrategies) : Disposable {
     private var disposed = false
 
     fun render() {
-        creature?.environment?.render()
         creature?.render()
     }
 
@@ -27,7 +26,7 @@ class SimViewer(private val sim: EvolutionStrategies) : Disposable {
         if (!disposed) {
             if (timestep > sim.steps) {
                 timestep = 0
-                creature?.environment?.resetAndRandomize()
+                creature?.restartAndRandomize()
                 creature?.network?.dispose()
                 creature = sim.getBestCopy()
             }

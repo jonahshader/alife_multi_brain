@@ -10,9 +10,9 @@ typealias CreatureBuilder = (networkBuilder: NetworkBuilder) -> ReinforcementTas
 interface ReinforcementTask {
     val network: Network
     val pos: Vector2
-    val environment: Environment
     fun cloneAndReset() : ReinforcementTask
-    fun reset()
+    fun restartAndRandomize()
+//    fun reset()
     fun render()
     fun update(dt: Float)
     fun getFitness() : Float
