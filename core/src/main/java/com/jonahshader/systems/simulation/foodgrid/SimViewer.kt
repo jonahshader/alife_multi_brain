@@ -16,10 +16,8 @@ class SimViewer(private val sim: EvolutionStrategies) : Disposable {
 
     fun follow(cam: Camera) {
         if (creature != null) {
-            cam.position.x = creature!!.pos.x
-            cam.position.y = creature!!.pos.y
+            creature!!.spectate(cam)
         }
-        cam.update()
     }
 
     fun update() {

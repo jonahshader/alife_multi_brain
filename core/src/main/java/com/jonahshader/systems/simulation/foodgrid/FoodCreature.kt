@@ -1,5 +1,6 @@
 package com.jonahshader.systems.simulation.foodgrid
 
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.creatureparts.ReinforcementTask
@@ -26,7 +27,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
     private val foodSensorPos = mutableListOf<Vector2>()
     var totalFood = 0f
 
-    override val pos = Vector2()
+    val pos = Vector2()
     private val vel = Vector2()
     private val tempSensor = Vector2()
 
@@ -90,6 +91,12 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
 
     override fun getFitness(): Float {
         return totalFood
+    }
+
+    override fun spectate(cam: Camera) {
+        cam.position.x = pos.x
+        cam.position.y = pos.y
+        cam.update()
     }
 
     override fun render() {

@@ -11,15 +11,15 @@ import com.jonahshader.MultiBrain
 import com.jonahshader.systems.math.CublasSystem
 import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
+import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class FoodCreatureTestScreen : KtxScreen {
+class SimViewerScreen(private val sim: EvolutionStrategies, private val fps: Int) : KtxScreen {
     private val simCam = OrthographicCamera()
     private val simViewport = FillViewport(1920.0f, 1080.0f, simCam)
 
@@ -28,7 +28,6 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(48), FoodCreature.builder, 150, 30, 800, 1/30f, algo = EvolutionStrategies.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false
@@ -43,6 +42,7 @@ class FoodCreatureTestScreen : KtxScreen {
             plot.addDatum("todo: autogen from foodsim params", it)
         }
         sim.start()
+        Gdx.graphics.setForegroundFPS(fps)
     }
 
     override fun render(delta: Float) {

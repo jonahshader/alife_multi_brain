@@ -6,30 +6,32 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.settings.Settings
+import com.jonahshader.systems.simulation.selectmove.SelectMove
+import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class MenuScreen : KtxScreen {
+class SimulationMenuScreen : KtxScreen {
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(800f, 1500f, camera)
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(0f, 180f), Vector2(500f, 90f))
 
     init {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
-        menu.addMenuItem("Simulation Viewers") { ScreenManager.push(SimulationMenuScreen()) }
-        menu.addMenuItem("UI Demo") { ScreenManager.push(UIDemoScreen()) }
-//        menu.addMenuItem("Food Creature") { ScreenManager.push(FoodCreatureTestScreen()) }
-        menu.addMenuItem("Visualizer") { ScreenManager.push(NetworkVisualTestScreen()) }
-//        menu.addMenuItem("SB Creature") { ScreenManager.push(SBCreatureTestScreen()) }
-        menu.addMenuItem("Performance Tests") { ScreenManager.push(PerformanceMenuScreen()) }
-        menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
-        menu.addMenuItem("Exit") { Gdx.app.exit() }
+        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
+        menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
+        menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
+            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(40),
+                SelectMove.defaultBuilder, 150, 100, 50, 1/30f,
+                algo = EvolutionStrategies.Algo.EsGDM), 5)) }
+        menu.addMenuItem("Back") { ScreenManager.pop() }
 
-        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+//        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
     }
 
     override fun show() {
