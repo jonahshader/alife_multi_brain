@@ -26,9 +26,9 @@ class SimulationMenuScreen : KtxScreen {
         menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
         menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
-            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(40),
-                SelectMove.defaultBuilder, 150, 100, 50, 1/30f,
-                algo = EvolutionStrategies.Algo.EsGDM), 5)) }
+            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(60),
+                SelectMove.defaultBuilder, 300, 500, 50, 1/30f,
+                algo = EvolutionStrategies.Algo.EsGDM), 20)) }
         menu.addMenuItem("Back") { ScreenManager.pop() }
 
 //        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)

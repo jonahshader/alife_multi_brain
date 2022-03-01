@@ -9,9 +9,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FillViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.math.CublasSystem
-import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.foodgrid.SimViewer
 import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.ui.Plot
@@ -19,7 +17,7 @@ import com.jonahshader.systems.ui.ScreenWindow
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class SimViewerScreen(private val sim: EvolutionStrategies, private val fps: Int) : KtxScreen {
+class SimViewerScreen(private val sim: EvolutionStrategies, private val framesPerStep: Int) : KtxScreen {
     private val simCam = OrthographicCamera()
     private val simViewport = FillViewport(1920.0f, 1080.0f, simCam)
 
@@ -32,6 +30,7 @@ class SimViewerScreen(private val sim: EvolutionStrategies, private val fps: Int
 
     private var visEnabled = false
     private var following = false
+    private var currFrame = 0
 
     init {
         //TODO: compare dense to cuda. should be 1 to 1 identical (after tanh is solved or removed temporarily)
@@ -42,7 +41,6 @@ class SimViewerScreen(private val sim: EvolutionStrategies, private val fps: Int
             plot.addDatum("todo: autogen from foodsim params", it)
         }
         sim.start()
-        Gdx.graphics.setForegroundFPS(fps)
     }
 
     override fun render(delta: Float) {
@@ -72,7 +70,10 @@ class SimViewerScreen(private val sim: EvolutionStrategies, private val fps: Int
         visCam.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
 
-        simViewer.update()
+        if (currFrame == 0) {
+            currFrame += framesPerStep
+            simViewer.update()
+        }
         window.update(delta)
         if (following)
             simViewer.follow(simCam)
@@ -84,6 +85,7 @@ class SimViewerScreen(private val sim: EvolutionStrategies, private val fps: Int
         }
 
         window.render(MultiBrain.batch)
+        currFrame--
     }
 
     override fun show() {

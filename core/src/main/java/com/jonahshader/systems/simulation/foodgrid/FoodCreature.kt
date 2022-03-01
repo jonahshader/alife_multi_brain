@@ -21,7 +21,6 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         private const val GRAPHIC_BODY_RADIUS = 3f
 
         val builder: CreatureBuilder = { FoodCreature(it) }
-
     }
 
     private val foodSensorPos = mutableListOf<Vector2>()

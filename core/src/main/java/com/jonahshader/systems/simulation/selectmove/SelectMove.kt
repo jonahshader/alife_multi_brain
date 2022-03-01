@@ -23,7 +23,7 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
         fun makeBuilder(worldSize: Int, numBalls: Int): CreatureBuilder = {
             SelectMove(worldSize, numBalls, networkBuilder = it)
         }
-        val defaultBuilder: CreatureBuilder = { SelectMove(4, 4, networkBuilder = it) }
+        val defaultBuilder: CreatureBuilder = { SelectMove(5, 4, networkBuilder = it) }
     }
 
     enum class CellEntity {
@@ -40,13 +40,12 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
             override fun getColor() = cursorColor
         };
         companion object {
-            private val nothingColor = Color(.1f, .1f, .1f, 1f)
+            private val nothingColor = Color.BLACK
             private val ballColor = Color(0f, 1f, 1f, 1f)
             private val holeColor = Color(0f, 0f, 1f, 1f)
             private val cursorColor = Color(1f, 1f, 1f, 1f)
         }
         abstract fun getColor() : Color
-
     }
 
     init {
@@ -240,5 +239,4 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
             false
         }
     }
-
 }
