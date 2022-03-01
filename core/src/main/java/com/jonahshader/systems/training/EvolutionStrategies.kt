@@ -21,7 +21,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
     enum class Algo {
         EsPickBest,
         EsGD,
-        EsGDM
+        EsGDM,
+        EsAdam
     }
 
 
@@ -102,8 +103,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         population.sortBy { it.fitness }
         println(population.map { it.fitness })
         if (gdCreatureCurrent == null) {
-//            gdCreatureCurrent = population[(population.size*.80f).toInt()]
-            gdCreatureCurrent = population.last()
+            gdCreatureCurrent = population[(population.size*.75f).toInt()]
+//            gdCreatureCurrent = population.last()
             var checkingNotNanIndex = population.size - 1
             while (gdCreatureCurrent!!.fitness.isNaN()) {
                 gdCreatureCurrent = population[--checkingNotNanIndex]

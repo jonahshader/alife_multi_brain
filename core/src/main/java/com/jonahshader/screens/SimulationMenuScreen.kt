@@ -9,10 +9,12 @@ import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.settings.Settings
+import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.selectmove.SelectMove
 import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
+import com.jonahshader.systems.utils.Rand
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
@@ -23,7 +25,13 @@ class SimulationMenuScreen : KtxScreen {
 
     init {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
-        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
+//        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
+        menu.addMenuItem("Food Task") {
+            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(40), FoodCreature.builder,
+                150, 100, 600, 1/30f,
+                algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
+            ScreenManager.push(SimViewerScreen(sim, 1))
+        }
         menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
             EvolutionStrategies(DenseCyclicNetwork.makeBuilder(60),

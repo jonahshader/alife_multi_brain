@@ -33,6 +33,10 @@ fun gradientDescentUpdate(gradients: List<Float>, learningRate: Float) : List<Fl
 fun gradientDescentUpdateMomentum(gradients: List<Float>, pUpdate: List<Float>, learningRate: Float, momentum: Float) : List<Float> =
     gradients.mapIndexed { index, it -> it * learningRate + momentum * pUpdate[index] }
 
+//fun gradientDescentUpdateAdam(gradients: List<Float>, firstMoment: MutableList<Float>, secondMoment: MutableList<Float>, timestep: Int) : List<Float> {
+//
+//}
+
 // for now, input should be sorted and evals should be mapped to rank
 fun esGradientDescent(baseParams: List<Float>, paramsList: List<List<Float>>, evals: List<Float>, learningRate: Float) : List<Float> {
     val grads = computeGradientsFromParamEvals(paramsList, evals)

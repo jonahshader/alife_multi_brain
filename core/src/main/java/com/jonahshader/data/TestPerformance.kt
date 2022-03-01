@@ -8,12 +8,12 @@ import kotlin.system.measureTimeMillis
 
 object TestPerformance {
     fun testPerformance() {
-        Rand.randx.setSeed(0)
-        val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(60), FoodCreature.builder,
-            100, 100, 600, 1/20f,
+        Rand.randx.setSeed(2513)
+        val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(40), FoodCreature.builder,
+            150, 100, 600, 1/30f,
             algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
         val time = measureTimeMillis {
-            sim.runIterations(10)
+            sim.runIterations(4)
         }
         println("Performance (lower is better): $time")
     }

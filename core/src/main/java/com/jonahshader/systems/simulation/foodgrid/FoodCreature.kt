@@ -57,24 +57,10 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         vel.scl(dt)
 
         // move or eat
-//        if (network.getOutput(3) < 0) {
-//            pos += vel
-//            totalFood -= .5f * ((targetSpeed / CELL_SIZE).pow(2) * EAT_PER_SECOND) * dt
-//        } else {
-//            val toEat = EAT_PER_SECOND * dt
-//            val foodAtBody = foodGrid.getFood(pos)
-//            if (foodAtBody > toEat) {
-//                totalFood += toEat
-//                foodGrid.setFood(pos, foodAtBody - toEat)
-//            } else if (foodAtBody > 0) {
-//                totalFood += foodAtBody
-//                foodGrid.setFood(pos, 0f)
-//            }
-//            totalFood -= EAT_DRAIN_PER_SECOND * dt
-//        }
-        pos += vel
-        totalFood -= .5f * ((targetSpeed / CELL_SIZE).pow(2) * EAT_PER_SECOND) * dt
-        totalFood -= ((pos.len() / CELL_SIZE).pow(2)*.001f) * dt
+        if (network.getOutput(3) < 0) {
+            pos += vel
+            totalFood -= .5f * ((targetSpeed / CELL_SIZE).pow(2) * EAT_PER_SECOND) * dt
+        } else {
             val toEat = EAT_PER_SECOND * dt
             val foodAtBody = foodGrid.getFood(pos)
             if (foodAtBody > toEat) {
@@ -85,6 +71,19 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
                 foodGrid.setFood(pos, 0f)
             }
 //            totalFood -= EAT_DRAIN_PER_SECOND * dt
+        }
+//        pos += vel
+//        totalFood -= .5f * ((targetSpeed / CELL_SIZE).pow(2) * EAT_PER_SECOND) * dt
+//        totalFood -= ((pos.len() / CELL_SIZE).pow(2)*.001f) * dt
+//            val toEat = EAT_PER_SECOND * dt
+//            val foodAtBody = foodGrid.getFood(pos)
+//            if (foodAtBody > toEat) {
+//                totalFood += toEat
+//                foodGrid.setFood(pos, foodAtBody - toEat)
+//            } else if (foodAtBody > 0) {
+//                totalFood += foodAtBody
+//                foodGrid.setFood(pos, 0f)
+//            }
 
     }
 
@@ -133,6 +132,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
     }
 
     override fun restartAndRandomize() {
+        reset()
         foodGrid.resetAndRandomize()
     }
 }
