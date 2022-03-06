@@ -1,10 +1,10 @@
 package com.jonahshader.systems.training
 
-import org.jetbrains.kotlinx.multik.api.linalg.dot
-import org.jetbrains.kotlinx.multik.api.math.exp
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.ndarray
+import org.jetbrains.kotlinx.multik.ndarray.data.get
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -40,20 +40,31 @@ fun gradientDescentUpdateMomentum(gradients: List<Float>, pUpdate: List<Float>, 
     gradients.mapIndexed { index, it -> it * learningRate + momentum * pUpdate[index] }
 
 // moment1 and moment2 will be changed, so expect that when calling this
-fun sgdAdamUpdate(gradients: List<Float>, moment1: MutableList<Float>, moment2: MutableList<Float>, timestep: Int,
+fun sgdAdamUpdate(gradients: List<Float>, moment: MutableList<Float>, variance: MutableList<Float>, timestep: Int,
                   a: Float = 0.001f, b1: Float = 0.9f, b2: Float = 0.999f, e: Float = 1e-8f) : List<Float> {
     val gt = mk.ndarray(gradients)
-    val mt = mk.ndarray(moment1) * b1 + gt * (1-b1) * gt
-    val vt = mk.ndarray(moment2) * b2 + (1-b2) * gt.map { it * it }
+    val mt = mk.ndarray(moment) * b1 + (1-b1) * gt
+    val vt = mk.ndarray(variance) * b2 + (1-b2) * gt.map { it * it }
     // store back into moment1 and moment2
-    mt.forEachIndexed{ index, fl -> moment1[index] = fl }
-    vt.forEachIndexed{ index, fl -> moment2[index] = fl }
+    mt.forEachIndexed{ index, fl -> moment[index] = fl }
+    vt.forEachIndexed{ index, fl -> variance[index] = fl }
     // compute bias corrected first and second moment estimates
     val mth = mt/(1-b1.pow(timestep+1))
     val vth = vt/(1-b2.pow(timestep+1))
     // compute weight update
-    return ((mth * -a)/(vth.map{sqrt(it) + e})).toList()
+    return ((mth * a)/(vth.map{sqrt(it) + e})).toList()
+}
 
+fun sgdAdaMaxUpdate(gradients: List<Float>,  moment: MutableList<Float>, infNorm: MutableList<Float>, timestep: Int,
+                    a: Float = 0.001f, b1: Float = 0.9f, b2: Float = 0.999f, e: Float = 1e-8f) : List<Float> {
+    val gt = mk.ndarray(gradients)
+    val mt = b1 * mk.ndarray(moment) + (1-b1)*gt
+    val utp = mk.ndarray(infNorm)
+    val ut = b2*utp.mapIndexed { index, fl ->  max(fl, gt[index]) }
+    mt.forEachIndexed{ index, fl -> moment[index] = fl }
+    ut.forEachIndexed{ index, fl -> infNorm[index] = fl }
+    val update = (a/(1-b1.pow(timestep + 1)))*(mt / ut)
+    return update.toList()
 }
 
 //fun gradientDescentUpdateAdam(gradients: List<Float>, firstMoment: MutableList<Float>, secondMoment: MutableList<Float>, timestep: Int) : List<Float> {

@@ -145,6 +145,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.01f * mutationRate, 0.92f)
 //        pUpdate = update
         val update = sgdAdamUpdate(grads, moment1, moment2, currentIteration,a = mutationRate * 1f)
+//        val update = sgdAdaMaxUpdate(grads, moment1, moment2, currentIteration, a = mutationRate * 1f)
         println(moment1)
         println(moment2)
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
