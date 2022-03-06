@@ -33,6 +33,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
     private var gdCreatureCurrent: Eval? = null
     private var pUpdate: List<Float>
+    private val moment1: MutableList<Float>
+    private val moment2: MutableList<Float>
     private var currentIteration = 0
 
     private var running = false
@@ -49,6 +51,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
         // initialize pUpdate for gd with momentum
         pUpdate = List(population[0].creature.network.getParameters().size) { 0f }
+        moment1 = MutableList(population[0].creature.network.getParameters().size) { 0f }
+        moment2 = MutableList(population[0].creature.network.getParameters().size) { 0f }
     }
 
     private fun runAlgo() {
@@ -101,7 +105,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         else
             population.forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
-        println(population.map { it.fitness })
+//        println(population.map { it.fitness })
         if (gdCreatureCurrent == null) {
             gdCreatureCurrent = population[(population.size*.75f).toInt()]
 //            gdCreatureCurrent = population.last()
@@ -138,9 +142,11 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val mutationRate = 0.01f
-        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.01f * mutationRate, 0.92f)
-//        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.00f, 0.9f)
-        pUpdate = update
+//        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.01f * mutationRate, 0.92f)
+//        pUpdate = update
+        val update = sgdAdamUpdate(grads, moment1, moment2, currentIteration,a = mutationRate * 1f)
+        println(moment1)
+        println(moment2)
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
 //        val medianParams = population[population.size/2].creature.network.getParameters()
 //        gdCreatureCurrent = population[population.size/2]

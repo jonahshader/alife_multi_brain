@@ -27,8 +27,8 @@ class SimulationMenuScreen : KtxScreen {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
 //        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
         menu.addMenuItem("Food Task") {
-            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(40), FoodCreature.builder,
-                150, 100, 600, 1/30f,
+            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(45), FoodCreature.builder,
+                200, 25, 600, 1/30f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
             ScreenManager.push(SimViewerScreen(sim, 1))
         }
