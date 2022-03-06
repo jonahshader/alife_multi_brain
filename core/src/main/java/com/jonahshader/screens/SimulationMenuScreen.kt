@@ -27,15 +27,15 @@ class SimulationMenuScreen : KtxScreen {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
 //        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
         menu.addMenuItem("Food Task") {
-            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(45), FoodCreature.builder,
-                200, 25, 600, 1/30f,
+            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(55), FoodCreature.builder,
+                200, 50, 700, 1/20f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
             ScreenManager.push(SimViewerScreen(sim, 1))
         }
         menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
             EvolutionStrategies(DenseCyclicNetwork.makeBuilder(60),
-                SelectMove.defaultBuilder, 300, 500, 50, 1/30f,
+                SelectMove.defaultBuilder, 400, 100, 50, 1/30f,
                 algo = EvolutionStrategies.Algo.EsGDM), 20)) }
         menu.addMenuItem("Back") { ScreenManager.pop() }
 

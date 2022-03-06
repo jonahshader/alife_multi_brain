@@ -34,12 +34,16 @@ class SimViewerScreen(private val sim: EvolutionStrategies, private val framesPe
 
     init {
         //TODO: compare dense to cuda. should be 1 to 1 identical (after tanh is solved or removed temporarily)
-        val plot = Plot("Iteration", "Fitness", "Food Creature Fitness", Vector2())
+        val plot = Plot("Iteration", "Fitness", "Agent Fitness", Vector2())
         window.addChildWindow(plot)
-        plot.addTrend(Plot.Trend("todo: autogen from foodsim params", Color.BLUE, false, mode = Plot.Mode.LINE))
-        sim.addFitnessCallback {
-            plot.addDatum("todo: autogen from foodsim params", it)
-        }
+        plot.addTrend(Plot.Trend("Center Fitness", Color.BLUE, false, mode = Plot.Mode.LINE))
+        plot.addTrend(Plot.Trend("Mean Fitness", Color.GREEN, false, mode = Plot.Mode.LINE))
+        plot.addTrend(Plot.Trend("Max Fitness", Color.RED, false, mode = Plot.Mode.LINE))
+        plot.addTrend(Plot.Trend("Min Fitness", Color.ORANGE, false, mode = Plot.Mode.LINE))
+        sim.addMeanFitnessCallback { plot.addDatum("Mean Fitness", it) }
+        sim.addCenterFitnessCallback { plot.addDatum("Center Fitness", it) }
+        sim.addMaxFitnessCallback { plot.addDatum("Max Fitness", it) }
+        sim.addMinFitnessCallback { plot.addDatum("Min Fitness", it) }
         sim.start()
     }
 

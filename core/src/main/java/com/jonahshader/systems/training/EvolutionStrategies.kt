@@ -39,7 +39,10 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
 
     private var running = false
     private val fitnessLog = mutableListOf<Float>()
-    private val fitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
+    private val meanFitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
+    private val centerFitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
+    private val maxFitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
+    private val minFitnessCallbacks = mutableListOf<(Vector2) -> Unit>()
 
     private var disposeQueued = false
     private var computeThreadRunning = false
@@ -65,12 +68,19 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         currentIteration++
     }
 
-    private fun logFitness(fitness: Float) {
+    private fun logFitness(centerFitness: Float, population: List<Eval>) {
         if (logging)
-            fitnessLog += fitness
+            fitnessLog += centerFitness
         if (printFitness)
-            println("current fitness: $fitness")
-        fitnessCallbacks.forEach { it(Vector2(currentIteration.toFloat(), fitness)) }
+            println("current fitness: $centerFitness")
+        val fitnesses = population.map{it.fitness}
+        val meanFitness = fitnesses.average().toFloat()
+        val maxFitness = fitnesses.maxOrNull()!!
+        val minFitness = fitnesses.minOrNull()!!
+        centerFitnessCallbacks.forEach { it(Vector2(currentIteration.toFloat(), centerFitness)) }
+        meanFitnessCallbacks.forEach { it(Vector2(currentIteration.toFloat(), meanFitness)) }
+        maxFitnessCallbacks.forEach { it(Vector2(currentIteration.toFloat(), maxFitness)) }
+        minFitnessCallbacks.forEach { it(Vector2(currentIteration.toFloat(), minFitness)) }
     }
 
     fun getLog() : List<Float> = fitnessLog
@@ -99,6 +109,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         }
     }
 
+    //TODO: pull out optimizer from algo
+    //TODO: log average fitness of population instead of current or best
     private fun esGdMovementAlgo() {
         if (population[0].creature.network.multithreadable)
             population.parallelStream().forEach { evaluateAverage(it) }
@@ -115,7 +127,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
             }
         }
 
-        logFitness(gdCreatureCurrent!!.fitness)
+//        logFitness(gdCreatureCurrent!!.fitness)
+        logFitness(gdCreatureCurrent!!.fitness, population)
         bestLock.withLock {
             bestCreature?.network?.dispose()
             bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
@@ -176,7 +189,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
             gdCreatureCurrent = population[population.size/2]
         }
 
-        logFitness(gdCreatureCurrent!!.fitness)
+        logFitness(gdCreatureCurrent!!.fitness, population)
         bestLock.withLock {
             bestCreature?.network?.dispose()
             bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
@@ -215,7 +228,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
             population.forEach { evaluateAverage(it) }
         population.sortBy { it.fitness }
         val best = population.last()
-        logFitness(best.fitness)
+        logFitness(best.fitness, population)
         bestLock.withLock {
             bestCreature?.network?.dispose()
             bestCreature = best.creature.cloneAndReset()
@@ -272,8 +285,20 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         eval.fitness = fitness[fitness.size/2]
     }
 
-    fun addFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
-        fitnessCallbacks += fitnessCallback
+    fun addMeanFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
+        meanFitnessCallbacks += fitnessCallback
+    }
+
+    fun addCenterFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
+        centerFitnessCallbacks += fitnessCallback
+    }
+
+    fun addMaxFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
+        maxFitnessCallbacks += fitnessCallback
+    }
+
+    fun addMinFitnessCallback(fitnessCallback: (Vector2) -> Unit) {
+        minFitnessCallbacks += fitnessCallback
     }
 
     override fun dispose() {

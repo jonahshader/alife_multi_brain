@@ -39,7 +39,7 @@ class FoodCreatureTestScreen : KtxScreen {
         val plot = Plot("Iteration", "Fitness", "Food Creature Fitness", Vector2())
         window.addChildWindow(plot)
         plot.addTrend(Plot.Trend("todo: autogen from foodsim params", Color.BLUE, false, mode = Plot.Mode.LINE))
-        sim.addFitnessCallback {
+        sim.addMeanFitnessCallback {
             plot.addDatum("todo: autogen from foodsim params", it)
         }
         sim.start()
