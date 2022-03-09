@@ -34,7 +34,7 @@ class SimulationMenuScreen : KtxScreen {
         }
         menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
-            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(60),
+            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(120),
                 SelectMove.defaultBuilder, 400, 100, 50, 1/30f,
                 algo = EvolutionStrategies.Algo.EsGDM), 20)) }
         menu.addMenuItem("Back") { ScreenManager.pop() }
