@@ -8,7 +8,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.settings.Settings
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.selectmove.SelectMove
 import com.jonahshader.systems.training.EvolutionStrategies
@@ -34,8 +33,8 @@ class SimulationMenuScreen : KtxScreen {
         }
         menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
-            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(120),
-                SelectMove.defaultBuilder, 400, 100, 50, 1/30f,
+            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(75),
+                SelectMove.defaultBuilder, 400, 100, 40, 1/30f,
                 algo = EvolutionStrategies.Algo.EsGDM), 20)) }
         menu.addMenuItem("Back") { ScreenManager.pop() }
 

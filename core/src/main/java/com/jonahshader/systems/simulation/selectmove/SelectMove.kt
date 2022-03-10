@@ -10,20 +10,44 @@ import com.jonahshader.systems.utils.Rand
 import java.util.*
 import kotlin.math.absoluteValue
 
-class SelectMove(private val worldSize: Int, private val numBalls: Int, private val rand: Random = Rand.randx, networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
-    override val network = networkBuilder(worldSize * worldSize * 3, 2)
+class SelectMove(
+    private val worldSize: Int,
+    private val numBalls: Int,
+    private val visionKernelRadius: Int,
+    private val rand: Random = Rand.randx,
+    networkBuilder: (Int, Int) -> Network
+) : ReinforcementTask {
 
-    private val world = Array(worldSize * worldSize) { CellEntity.NOTHING }
-    private var xCursor = worldSize/2
-    private var yCursor = worldSize/2
+    override val network: Network
+
+    private val world: Array<CellEntity>
+    private var xCursor: Int
+    private var yCursor: Int
     private var fitness = 0
+
+    init {
+        if (visionKernelRadius > 0) {
+            // in this configuration, the network needs 3 layers for hole, ball, and walls
+            this.network = networkBuilder((visionKernelRadius*2+1) * (visionKernelRadius*2+1) * 3, 2)
+        } else {
+            // in this configuration, the network needs 3 layers for hole, ball, and cursor
+            this.network = networkBuilder(worldSize * worldSize * 3, 2)
+        }
+
+        this.world = Array(worldSize * worldSize) { CellEntity.NOTHING }
+        this.xCursor = worldSize / 2
+        this.yCursor = worldSize / 2
+        initEnv()
+    }
+
+
 
     companion object {
         private const val CELL_SIZE = 32f
-        fun makeBuilder(worldSize: Int, numBalls: Int): CreatureBuilder = {
-            SelectMove(worldSize, numBalls, networkBuilder = it)
+        fun makeBuilder(worldSize: Int, numBalls: Int, visionKernelRadius: Int = 0): CreatureBuilder = {
+            SelectMove(worldSize, numBalls, visionKernelRadius = visionKernelRadius, networkBuilder = it)
         }
-        val defaultBuilder: CreatureBuilder = { SelectMove(5, 4, networkBuilder = it) }
+        val defaultBuilder: CreatureBuilder = { SelectMove(6, 4, 2, networkBuilder = it) }
     }
 
     enum class CellEntity {
@@ -38,22 +62,22 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
         },
         CURSOR {
             override fun getColor() = cursorColor
+        },
+        WALL {
+            override fun getColor() = wallColor
         };
         companion object {
             private val nothingColor = Color.BLACK
             private val ballColor = Color(0f, 1f, 1f, 1f)
             private val holeColor = Color(0f, 0f, 1f, 1f)
             private val cursorColor = Color(1f, 1f, 1f, 1f)
+            private val wallColor = Color(.8f, .6f, .5f, 1f)
         }
         abstract fun getColor() : Color
     }
 
-    init {
-        initEnv()
-    }
-
     override fun cloneAndReset(): ReinforcementTask {
-        val newTask = SelectMove(worldSize, numBalls, rand = rand) { _, _ -> network.clone() }
+        val newTask = SelectMove(worldSize, numBalls, visionKernelRadius = visionKernelRadius, rand = rand) { _, _ -> network.clone() }
         newTask.network.reset()
         return newTask
     }
@@ -74,14 +98,24 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
         for (i in 1..numBalls) {
             // spawn hole
             var spawnPos = rand.nextInt(world.size)
-            while (world[spawnPos] != CellEntity.NOTHING) { // keep looking for a free spot
+            var xSpawnPos = spawnPos % worldSize
+            var ySpawnPos = spawnPos / worldSize
+            while (world[spawnPos] != CellEntity.NOTHING ||
+                xSpawnPos !in (1 until worldSize - 1) ||
+                ySpawnPos !in (1 until worldSize - 1)) { // keep looking for a free spot
                 spawnPos = rand.nextInt(world.size)
+                xSpawnPos = spawnPos % worldSize
+                ySpawnPos = spawnPos / worldSize
             }
             world[spawnPos] = CellEntity.HOLE
 
             // spawn ball
-            while (world[spawnPos] != CellEntity.NOTHING) { // keep looking for a free spot
+            while (world[spawnPos] != CellEntity.NOTHING ||
+                xSpawnPos !in (1 until worldSize - 1) ||
+                ySpawnPos !in (1 until worldSize - 1)) { // keep looking for a free spot
                 spawnPos = rand.nextInt(world.size)
+                xSpawnPos = spawnPos % worldSize
+                ySpawnPos = spawnPos / worldSize
             }
             world[spawnPos] = CellEntity.BALL
         }
@@ -104,7 +138,7 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
 
     override fun update(dt: Float) {
         val worldCells = worldSize * worldSize
-        val inputSize = worldCells * 3
+        val inputSize = if (visionKernelRadius > 0) (visionKernelRadius*2+1)*(visionKernelRadius*2+1)*3 else worldCells * 3
 
         // reset network inputs
         for (i in 0 until inputSize) {
@@ -112,14 +146,30 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
         }
 
         // set network inputs
-        for (i in 0 until worldCells) {
-            when (posToCellEntity(i)) {
-                CellEntity.HOLE -> network.setInput(i, 1f)
-                CellEntity.BALL -> network.setInput(i + worldCells, 1f)
-                CellEntity.CURSOR -> network.setInput(i + worldCells * 2, 1f)
-                else -> {}
+        if (visionKernelRadius > 0) {
+            var i = 0
+            for (y in (-visionKernelRadius + yCursor)..(visionKernelRadius + yCursor)) {
+                for (x in (-visionKernelRadius + xCursor)..(visionKernelRadius + xCursor)) {
+                    when (posToCellEntityBounded(x, y)) {
+                        CellEntity.HOLE -> network.setInput(i, 1f)
+                        CellEntity.BALL -> network.setInput(i + (visionKernelRadius*2+1) * (visionKernelRadius*2+1), 1f)
+                        CellEntity.WALL -> network.setInput(i + (visionKernelRadius*2+1) * (visionKernelRadius*2+1) * 2, 1f)
+                        else -> {}
+                    }
+                    i++
+                }
+            }
+        } else {
+            for (i in 0 until worldCells) {
+                when (posToCellEntity(i)) {
+                    CellEntity.HOLE -> network.setInput(i, 1f)
+                    CellEntity.BALL -> network.setInput(i + worldCells, 1f)
+                    CellEntity.CURSOR -> network.setInput(i + worldCells * 2, 1f)
+                    else -> {}
+                }
             }
         }
+
 
         // get outputs
         network.update(dt)
@@ -156,6 +206,10 @@ class SelectMove(private val worldSize: Int, private val numBalls: Int, private 
         if (x == xCursor && y == yCursor) {
             CellEntity.CURSOR
         } else { world[x + y * worldSize] }
+
+    private fun posToCellEntityBounded(x: Int, y: Int) =
+        if (x in 0 until worldSize && y in 0 until worldSize)
+            posToCellEntity(x, y) else CellEntity.WALL
 
     private fun posToCellEntity(index: Int) : CellEntity {
         val x = index % worldSize
