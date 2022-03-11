@@ -56,7 +56,7 @@ class WashboardSpikeTrain : KtxScreen {
         window += Slider("Dampening (a)", 0.0f, 0.1f, a, Vector2(0f, 640f), size = Vector2(640f, 40f)) { a = it; generate() }
         window += Slider("dt", dt * .1f, dt * 10f, dt, Vector2(640f, 640f), size = Vector2(640f, 40f)) { dt = it; generate() }
         window += Slider("Current Peak (a)", 0.0f, currentPeak * 3, currentPeak, Vector2(0f, 600f), size = Vector2(640f, 40f)) { currentPeak = it; generate() }
-        window += Slider("Current Peak Duration (time unit)", currentPeakDuration/2f, currentPeakDuration*2f, currentPeakDuration, Vector2(640f, 600f), size = Vector2(640f, 40f)) { currentPeakDuration = it; generate() }
+        window += Slider("Current Peak Duration (time unit)", currentPeakDuration/6f, currentPeakDuration*2f, currentPeakDuration, Vector2(640f, 600f), size = Vector2(640f, 40f)) { currentPeakDuration = it; generate() }
 
 
 

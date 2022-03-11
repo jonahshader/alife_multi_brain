@@ -19,7 +19,7 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.util.Random
 import kotlin.math.sqrt
 
-class DenseWashboardCyclic : Network {
+open class DenseWashboardCyclic : Network {
     /* this network will not have direct connections from input to output because
     this would allow the network to skip the washboard neurons which defeats the purpose*/
 
@@ -28,7 +28,7 @@ class DenseWashboardCyclic : Network {
         private const val BIAS_MEAN = 0.002f // 0.0024722111f
         private const val BIAS_SD = 0.0003f
         private const val DAMPENING = 0.01f
-        private const val INPUT_SCALING = .05f // 0.001
+        const val INPUT_SCALING = .05f // 0.001
         private const val OUTPUT_SCALING = 1000f
         private const val DT = 3.979e-13f
         private const val ANGLE_INIT = .55f
@@ -38,8 +38,8 @@ class DenseWashboardCyclic : Network {
 
     private val rand: Random
 
-    private val inputVector: NDArray<Float, D1>
-    private var outputVector: NDArray<Float, D1>
+    protected var inputVector: NDArray<Float, D1>
+    protected var outputVector: NDArray<Float, D1>
     private var hiddenBuffer: NDArray<Float, D1>
     private var hiddenOut: NDArray<Float, D1>
     private var hiddenAngle: NDArray<Float, D1>

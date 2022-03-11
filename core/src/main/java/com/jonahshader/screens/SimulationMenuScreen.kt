@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
+import com.jonahshader.systems.neuralnet.washboard.DenseWBPeriodCyclic
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.selectmove.SelectMove
@@ -29,6 +30,9 @@ class SimulationMenuScreen : KtxScreen {
             val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(55), FoodCreature.builder,
                 200, 50, 700, 1/20f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
+//            val sim = EvolutionStrategies(DenseWBPeriodCyclic.makeBuilder(20), FoodCreature.builder,
+//                50, 20, 300, 1/20f,
+//                algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
             ScreenManager.push(SimViewerScreen(sim, 1))
         }
         menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
