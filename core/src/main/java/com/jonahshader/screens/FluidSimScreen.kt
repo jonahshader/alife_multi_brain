@@ -2,20 +2,16 @@ package com.jonahshader.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.Circle
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FillViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.math.CublasSystem
-import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.fluidsim.FluidSimParticles
-import com.jonahshader.systems.training.EvolutionStrategies
-import com.jonahshader.systems.simulation.foodgrid.FoodCreature
-import com.jonahshader.systems.simulation.foodgrid.SimViewer
-import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
 import ktx.app.KtxScreen
 import ktx.graphics.use
@@ -32,22 +28,17 @@ class FluidSimScreen : KtxScreen {
     private var visEnabled = false
     private var following = false
 
-    private val fluidSim = FluidSimParticles(32)
+    private val fluidSim = FluidSimParticles(48)
 
     init {
         simCam.zoom = .08f
         simCam.position.x = fluidSim.worldSize/2f
         simCam.position.y = fluidSim.worldSize/2f
-        fluidSim.fillWorld(5)
-        fluidSim.addVelocityToAll(Vector2(0f, 3f))
-//        //TODO: compare dense to cuda. should be 1 to 1 identical (after tanh is solved or removed temporarily)
-//        val plot = Plot("Iteration", "Fitness", "Food Creature Fitness", Vector2())
-//        window.addChildWindow(plot)
-//        plot.addTrend(Plot.Trend("todo: autogen from foodsim params", Color.BLUE, false, mode = Plot.Mode.LINE))
-//        sim.addMeanFitnessCallback {
-//            plot.addDatum("todo: autogen from foodsim params", it)
-//        }
-//        sim.start()
+        fluidSim.addWall(Rectangle(fluidSim.worldSize/2f, 0f, 1f, fluidSim.worldSize.toFloat()))
+        fluidSim.addWall(Rectangle(fluidSim.worldSize/2f - 3f, fluidSim.worldSize/2f - 1f, 3f, 1f))
+        fluidSim.addWall(Rectangle(fluidSim.worldSize/2f - 3f, fluidSim.worldSize/2f + 1f, 3f, 1f))
+        fluidSim.fill(15, 1f, Rectangle(fluidSim.worldSize/2f, 0f, fluidSim.worldSize/2f, fluidSim.worldSize.toFloat()))
+        fluidSim.removeWall(fluidSim.worldSize/2, fluidSim.worldSize/2)
     }
 
     override fun render(delta: Float) {
@@ -73,7 +64,8 @@ class FluidSimScreen : KtxScreen {
         visCam.update()
         ScreenUtils.clear(.1f, .1f, .1f, 1f)
 
-        fluidSim.update(1/60f)
+        fluidSim.update(1/45f)
+        println(1/delta)
         window.update(delta)
 //        if (following)
 //            simViewer.follow(simCam)
@@ -85,7 +77,8 @@ class FluidSimScreen : KtxScreen {
         }
 
         MultiBrain.shapeRenderer.projectionMatrix = simCam.combined
-        fluidSim.renderParticles()
+        fluidSim.renderFields()
+//        fluidSim.renderParticles()
 
         window.render(MultiBrain.batch)
     }

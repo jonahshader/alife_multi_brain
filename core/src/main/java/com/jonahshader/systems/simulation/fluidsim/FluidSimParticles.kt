@@ -2,6 +2,8 @@ package com.jonahshader.systems.simulation.fluidsim
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Circle
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.simulation.fluidsim.Particle.Companion.PARTICLE_RADIUS
@@ -10,13 +12,15 @@ import ktx.graphics.circle
 import ktx.math.minusAssign
 import ktx.math.plusAssign
 import kotlin.math.floor
+import kotlin.math.sqrt
+import kotlin.math.tanh
 
 class Particle(val pos: Vector2, val vel: Vector2) {
     companion object {
-        const val PARTICLE_RADIUS = 0.1f
+        const val PARTICLE_RADIUS = 0.125f
     }
     private val temp = Vector2()
-    private val inTiles = mutableListOf<MutableSet<Particle>>()
+    private val inTiles = mutableListOf<MutableList<Particle>>()
 //    fun updatePTile() {
 //        pTileX = floor(pos.x).toInt()
 //        pTileY = floor(pos.y).toInt()
@@ -78,63 +82,28 @@ class Particle(val pos: Vector2, val vel: Vector2) {
                 }
             }
         }
-
-
-//        if (dtx in -1..1 && dty in -1..1) {
-//            for (y in -1..1) for (x in -1..1)
-//                sim.tileAtPos(x + pTileX, y + pTileY) -= this
-//            for (y in -1..1) for (x in -1..1)
-//                sim.tileAtPos(x + tileX, y + tileY) += this
-//        } else {
-//            error("Ball moved too fast! Velocity of ${vel.len()}, $vel")
-//        }
-
-//        pTileX = tileX
-//        pTileY = tileY
-
-//        if (dtx == 1) {
-//            if (dty == 1) {
-//
-//            } else if (dty == -1) {
-//
-//            } else if (dty == 0) {
-//
-//            } else {
-//                error("Ball moved too fast! Velocity of ${vel.len()}, $vel")
-//            }
-//
-//        } else if (dtx == -1) {
-//
-//        } else if (dtx == 0) {
-//
-//        } else {
-//            error("Ball moved too fast! Velocity of ${vel.len()}, $vel")
-//        }
-    }
-
-    fun render() {
-        MultiBrain.shapeDrawer.circle(pos.x, pos.y, PARTICLE_RADIUS)
     }
 
     fun renderParticle() {
 //        temp.set(pos).scl(1/ PARTICLE_RADIUS)
-        MultiBrain.shapeRenderer.circle(pos, PARTICLE_RADIUS, 12)
+        MultiBrain.shapeRenderer.circle(pos, PARTICLE_RADIUS, 3)
     }
 }
 
 class FluidSimParticles(internal val worldSize: Int) {
     private val particles = mutableListOf<Particle>()
-    private val world = mutableListOf<MutableSet<Particle>>()
+    private val world = mutableListOf<MutableList<Particle>>()
     val walls = mutableListOf<Boolean>()
     private val temp = Vector2()
     private val temp2 = Vector2()
     private val temp3 = Vector2()
     private val vt1 = Vector2()
     private val vt2 = Vector2()
+    private val tmpColor = Color()
 
     init {
         for (i in 0 until worldSize * worldSize) {
-            world += mutableSetOf<Particle>()
+            world += mutableListOf<Particle>()
             walls += false
         }
 
@@ -147,6 +116,7 @@ class FluidSimParticles(internal val worldSize: Int) {
     }
 
     fun update(dt: Float) {
+
         particles.forEach { it.move(dt) }
         particles.forEach { it.handleWallCollision(this, dt) }
         particles.forEach { it.updateTilePresence(this) }
@@ -160,47 +130,46 @@ class FluidSimParticles(internal val worldSize: Int) {
         }
     }
 
-    fun render() {
-        MultiBrain.shapeDrawer.setColor(Color.WHITE)
-        particles.forEach { it.render() }
-    }
-
     fun renderParticles() {
-        // TODO: render fields ;)
-        MultiBrain.shapeRenderer.color = Color.BROWN
         MultiBrain.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-        for (y in 0 until worldSize) for (x in 0 until worldSize) {
-            if (walls[x + y * worldSize]) {
-                MultiBrain.shapeRenderer.rect(x.toFloat(), y.toFloat(), 1f, 1f)
-            }
-        }
-        MultiBrain.shapeRenderer.end()
-
         MultiBrain.shapeRenderer.color = Color.WHITE
-        MultiBrain.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
         particles.forEach { it.renderParticle() }
         MultiBrain.shapeRenderer.end()
     }
 
-//    public double TimeToCollision(Ball other)
-//    {
-//        double distance = (Radius + other.Radius) * (Radius + other.Radius);
-//        double a = (Xvel - other.Xvel) * (Xvel - other.Xvel) + (Yvel - other.Yvel) * (Yvel - other.Yvel);
-//        double b = 2 * ((X - other.X) * (Xvel - other.Xvel) + (Y - other.Y) * (Yvel - other.Yvel));
-//        double c = (X - other.X) * (X - other.X) + (Y - other.Y) * (Y - other.Y) - distance;
-//        double d = b * b - 4 * a * c;
-//        // Ignore glancing collisions that may not cause a response due to limited precision and lead to an infinite loop
-//        if (b > -1e-6 || d <= 0)
-//            return double.NaN;
-//        double e = Math.Sqrt(d);
-//        double t1 = (-b - e) / (2 * a);    // Collison time, +ve or -ve
-//        double t2 = (-b + e) / (2 * a);    // Exit time, +ve or -ve
-//        // b < 0 => Getting closer
-//        // If we are overlapping and moving closer, collide now
-//        if (t1 < 0 && t2 > 0 && b <= -1e-6)
-//            return 0;
-//        return t1;
-//    }
+    fun renderFields() {
+        // TODO: render fields ;)
+
+        MultiBrain.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+
+        for (y in 0 until worldSize) for (x in 0 until worldSize) {
+            if (walls[x + y * worldSize]) {
+                MultiBrain.shapeRenderer.color = Color.BROWN
+                MultiBrain.shapeRenderer.rect(x.toFloat(), y.toFloat(), 1f, 1f)
+            } else {
+                var averageKe = 0f
+                var numParticles = 0
+                var averageXVel = 0f
+                var averageYVel = 0f
+                world[x + y * worldSize].filter { it.pos.x >= x && it.pos.x < x+1 && it.pos.y >= y && it.pos.y < y+1 } .forEach {
+                    numParticles++
+                    averageKe += it.vel.len2()
+                    averageXVel += it.vel.x
+                    averageYVel += it.vel.y
+                }
+                val brightness = tanh(sqrt(averageKe / 20)) * numParticles / 10
+                tmpColor.set(sigmoid(averageXVel / 20) * brightness, sigmoid(averageYVel / 20) * brightness, brightness * .5f, 1f)
+                MultiBrain.shapeRenderer.color = tmpColor
+                MultiBrain.shapeRenderer.rect(x.toFloat(), y.toFloat(), 1f, 1f)
+            }
+        }
+
+//        MultiBrain.shapeRenderer.color = Color.RED
+//        particles.forEach { it.renderParticle() }
+        MultiBrain.shapeRenderer.end()
+    }
+
+    private fun sigmoid(x: Float) = tanh(x) * .5f + .5f
 
     private fun checkAndHandleCollision(p1: Particle, p2: Particle, dt: Float) {
         temp.set(p1.pos).sub(p2.pos)
@@ -261,18 +230,68 @@ class FluidSimParticles(internal val worldSize: Int) {
     }
 
     fun tileAtPos(xTile: Int, yTile: Int) = world[xTile + yTile * worldSize]
-    fun fillWorld(particlesPerTile: Int) {
-        for (y in 0 until worldSize) for (x in 0 until worldSize) {
+    fun fillWorld(particlesPerTile: Int, velSd: Float) {
+        fill(particlesPerTile, velSd, Rectangle(0f, 0f, worldSize.toFloat(), worldSize.toFloat()))
+    }
+    fun fill(particlesPerTile: Int, velSd: Float, rect: Rectangle) {
+        for (y in rect.y.toInt() until rect.y.toInt() + rect.height.toInt()) for (x in rect.x.toInt() until rect.x.toInt() + rect.width.toInt()) {
             for (i in 0 until particlesPerTile)
-                if (!walls[x + y * worldSize])
-                    addParticle(Particle(Vector2(x + .5f, y + .5f), Vector2(Rand.randx.nextGaussian().toFloat(), Rand.randx.nextGaussian().toFloat())))
-        }
+                if (!walls[x + y * worldSize]) {
+                    val xVariance = Rand.randx.nextFloat()
+                    val yVariance = Rand.randx.nextFloat()
+                    addParticle(
+                        Particle(
+                            Vector2(x + xVariance, y + yVariance),
+                            Vector2(
+                                Rand.randx.nextGaussian().toFloat() * velSd,
+                                Rand.randx.nextGaussian().toFloat() * velSd
+                            )
+                        )
+                    )
+                }
+            }
     }
 
     fun addVelocityToAll(vel: Vector2) {
         particles.forEach {
             it.vel += vel
         }
+    }
+
+    fun addVelocityToRange(vel: Vector2, rect: Rectangle) {
+        particles.forEach {
+            if (rect.contains(it.pos)) {
+                it.vel += vel
+            }
+        }
+    }
+
+    fun addVelocitySpiral(vel: Vector2, circle: Circle) {
+        particles.forEach {
+            if (circle.contains(it.pos)) {
+                it.vel.set(it.pos).sub(circle.x, circle.y).rotateRad(vel.angleRad()).setLength(vel.len())
+            }
+        }
+    }
+
+    fun addWall(wallRange: Rectangle) {
+        for (y in wallRange.y.toInt() until wallRange.y.toInt() + wallRange.height.toInt()) {
+            for (x in wallRange.x.toInt() until wallRange.x.toInt() + wallRange.width.toInt()) {
+                walls[x + y * worldSize] = true
+            }
+        }
+    }
+
+    fun removeWall(wallRange: Rectangle) {
+        for (y in wallRange.y.toInt() until wallRange.y.toInt() + wallRange.height.toInt()) {
+            for (x in wallRange.x.toInt() until wallRange.x.toInt() + wallRange.width.toInt()) {
+                walls[x + y * worldSize] = false
+            }
+        }
+    }
+
+    fun removeWall(x: Int, y: Int) {
+        walls[x + y * worldSize] = false
     }
 //    fun tileAtPosWrapped(xTile: Int, yTile: Int) = world[wrap(xTile) + wrap(yTile) * worldSize]
 }
