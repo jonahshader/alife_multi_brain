@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
-import com.jonahshader.systems.neuralnet.washboard.DenseWBPeriodCyclic
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.selectmove.SelectMove
@@ -18,7 +17,7 @@ import com.jonahshader.systems.utils.Rand
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class SimulationMenuScreen : KtxScreen {
+class TaskMenuScreen : KtxScreen {
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(800f, 1500f, camera)
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(0f, 180f), Vector2(500f, 90f))

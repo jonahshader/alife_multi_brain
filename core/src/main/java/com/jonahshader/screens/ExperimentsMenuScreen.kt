@@ -6,25 +6,31 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.settings.Settings
+import com.jonahshader.systems.simulation.foodgrid.FoodCreature
+import com.jonahshader.systems.simulation.selectmove.SelectMove
+import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
+import com.jonahshader.systems.utils.Rand
 import ktx.app.KtxScreen
 import ktx.graphics.use
 
-class MenuScreen : KtxScreen {
+class ExperimentsMenuScreen : KtxScreen {
     private val camera = OrthographicCamera()
     private val viewport = FitViewport(800f, 1500f, camera)
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(0f, 180f), Vector2(500f, 90f))
 
     init {
-        menu.addMenuItem("Simulation Viewers") { ScreenManager.push(TaskMenuScreen()) }
-        menu.addMenuItem("Experiments") { ScreenManager.push(ExperimentsMenuScreen()) }
-        menu.addMenuItem("Settings") { ScreenManager.push(SettingsScreen()) }
-        menu.addMenuItem("Exit") { Gdx.app.exit() }
+        menu.addMenuItem("Fluid Sim") { ScreenManager.push(FluidSimScreen()) }
+        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
+        menu.addMenuItem("UI Demo") { ScreenManager.push(UIDemoScreen()) }
+        menu.addMenuItem("Visualizer") { ScreenManager.push(NetworkVisualTestScreen()) }
+        menu.addMenuItem("Performance Tests") { ScreenManager.push(PerformanceMenuScreen()) }
+        menu.addMenuItem("Back") { ScreenManager.pop() }
 
-        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+//        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
     }
 
     override fun show() {
