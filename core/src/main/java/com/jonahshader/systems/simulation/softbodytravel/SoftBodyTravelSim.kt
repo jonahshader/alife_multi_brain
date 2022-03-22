@@ -2,6 +2,7 @@ package com.jonahshader.systems.simulation.softbodytravel
 
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.IntSet
+import com.jonahshader.systems.creatureparts.CreatureBuilder
 import com.jonahshader.systems.neuralnet.cyclic.CyclicNetworkParams
 import com.jonahshader.systems.creatureparts.softbody.BrainSoftBody
 import com.jonahshader.systems.creatureparts.softbody.SoftBodyParams
@@ -20,6 +21,10 @@ class SoftBodyTravelSim(private val popSize: Int, private val steps: Int, privat
     val bodyParams = SoftBodyParams()
     private val bestLock = ReentrantLock()
     private var best: BrainSoftBody? = null
+
+    companion object {
+//        val defaultBuilder: CreatureBuilder =
+    }
 
 
     fun setup() {

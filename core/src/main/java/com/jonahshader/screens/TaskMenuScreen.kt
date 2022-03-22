@@ -7,9 +7,11 @@ import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
+import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.selectmove.SelectMove
+import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
 import com.jonahshader.systems.training.EvolutionStrategies
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
@@ -26,7 +28,7 @@ class TaskMenuScreen : KtxScreen {
 //        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
 //        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
         menu.addMenuItem("Food Task") {
-            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(55), FoodCreature.builder,
+            val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(35), FoodCreature.builder,
                 200, 50, 700, 1/20f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
 //            val sim = EvolutionStrategies(DenseWBPeriodCyclic.makeBuilder(20), FoodCreature.builder,
@@ -34,7 +36,10 @@ class TaskMenuScreen : KtxScreen {
 //                algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
             ScreenManager.push(SimViewerScreen(sim, 1))
         }
-        menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
+//        menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
+//        menu.addMenuItem("SB Task") { ScreenManager.push(SimViewerScreen(
+//            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(30), SoftBodyTravelSim.defaultBuilder,
+//                100, 1, 40, 1/30f, algo = EvolutionStrategies.Algo.EsGDM), 1))) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
             EvolutionStrategies(DenseCyclicNetwork.makeBuilder(75),
                 SelectMove.defaultBuilder, 400, 100, 40, 1/30f,
