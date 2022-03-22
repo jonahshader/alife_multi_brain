@@ -157,8 +157,10 @@ class FluidSimParticles(internal val worldSize: Int) {
                     averageXVel += it.vel.x
                     averageYVel += it.vel.y
                 }
-                val brightness = tanh(sqrt(averageKe / 20)) * numParticles / 10
-                tmpColor.set(sigmoid(averageXVel / 20) * brightness, sigmoid(averageYVel / 20) * brightness, brightness * .5f, 1f)
+//                val brightness = tanh(sqrt(averageKe / 20)) * numParticles / 10
+                val brightness = numParticles / 10f
+//                tmpColor.set(sigmoid(averageXVel / 20) * brightness, sigmoid(averageYVel / 20) * brightness, brightness * .5f, 1f)
+                tmpColor.set(averageXVel / 20 + .5f, averageYVel / 20 + .5f, averageKe / 20, 1f).mul(brightness)
                 MultiBrain.shapeRenderer.color = tmpColor
                 MultiBrain.shapeRenderer.rect(x.toFloat(), y.toFloat(), 1f, 1f)
             }
@@ -202,11 +204,15 @@ class FluidSimParticles(internal val worldSize: Int) {
 //            p1.vel.setZero()
 //            p2.vel.setZero()
             val len2 = temp3.set(p1.pos).sub(p2.pos).len2()
+            val dotp = temp.set(p1.vel).sub(p2.vel).dot(temp2.set(p1.pos).sub(p2.pos))
+            val dotpOverLen2 = dotp / len2
             vt1.set(p1.vel)
-            vt1 -= temp2.set(p1.pos).sub(p2.pos).scl(temp.set(p1.vel).sub(p2.vel).dot(temp2.set(p1.pos).sub(p2.pos)) / len2)
+//            vt1 -= temp2.set(p1.pos).sub(p2.pos).scl(temp.set(p1.vel).sub(p2.vel).dot(temp2.set(p1.pos).sub(p2.pos)) / len2)
+            vt1 -= temp2.set(p1.pos).sub(p2.pos).scl(dotpOverLen2)
 
             vt2.set(p2.vel)
-            vt2 -= temp2.set(p2.pos).sub(p1.pos).scl(temp.set(p2.vel).sub(p1.vel).dot(temp2.set(p2.pos).sub(p1.pos)) / len2)
+//            vt2 -= temp2.set(p2.pos).sub(p1.pos).scl(temp.set(p2.vel).sub(p1.vel).dot(temp2.set(p2.pos).sub(p1.pos)) / len2)
+            vt2 -= temp2.set(p2.pos).sub(p1.pos).scl(dotpOverLen2)
 
             p1.vel.set(vt1)
             p2.vel.set(vt2)

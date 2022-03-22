@@ -17,6 +17,7 @@ import org.jetbrains.kotlinx.multik.api.zeros
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import java.util.Random
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 open class DenseWashboardCyclic : Network {
@@ -25,8 +26,8 @@ open class DenseWashboardCyclic : Network {
 
     companion object {
         fun makeBuilder(hiddenSize: Int) : NetworkBuilder = { input, output -> DenseWashboardCyclic(input, hiddenSize, output) }
-        private const val BIAS_MEAN = 0.002f // 0.0024722111f
-        private const val BIAS_SD = 0.0003f
+//        private const val BIAS_MEAN = 0.002f // 0.0024722111f
+//        private const val BIAS_SD = 0.0003f
         private const val DAMPENING = 0.01f
         const val INPUT_SCALING = .05f // 0.001
         private const val OUTPUT_SCALING = 1000f
@@ -44,8 +45,9 @@ open class DenseWashboardCyclic : Network {
     private var hiddenOut: NDArray<Float, D1>
     private var hiddenAngle: NDArray<Float, D1>
     private var hiddenAngleVel: NDArray<Float, D1>
-    private val hiddenBias: NDArray<Float, D1>
-    private val outputBias: NDArray<Float, D1>
+//    private val hiddenBias: NDArray<Float, D1>
+//    private val outputBias: NDArray<Float, D1>
+    private var globalBias = 0.0017219135f
 
     private val inputToHiddenWeights: NDArray<Float, D2>
     private val hiddenToHiddenWeights: NDArray<Float, D2>
@@ -67,8 +69,8 @@ open class DenseWashboardCyclic : Network {
         this.hiddenOut = mk.zeros(hiddenSize)
         this.hiddenAngle = mk.d1array(hiddenSize) { ANGLE_INIT }
         this.hiddenAngleVel = mk.zeros(hiddenSize)
-        this.hiddenBias = mk.d1array(hiddenSize) { ((BIAS_MEAN - BIAS_SD + rand.nextGaussian() * hiddenToHiddenRange * BIAS_SD) / WEIGHT_SCALE).toFloat() }
-        this.outputBias = mk.d1array(outputSize) { rand.nextGaussian().toFloat() * hiddenToOutputRange / WEIGHT_SCALE }
+//        this.hiddenBias = mk.d1array(hiddenSize) { ((BIAS_MEAN - BIAS_SD + rand.nextGaussian() * hiddenToHiddenRange * BIAS_SD) / WEIGHT_SCALE).toFloat() }
+//        this.outputBias = mk.d1array(outputSize) { rand.nextGaussian().toFloat() * hiddenToOutputRange / WEIGHT_SCALE }
         this.inputToHiddenWeights = mk.d2arrayIndices(hiddenSize, inputSize) { _, _ -> rand.nextGaussian().toFloat() * inputToHiddenRange }
         this.hiddenToHiddenWeights = mk.d2arrayIndices(hiddenSize, hiddenSize) { _, _ -> rand.nextGaussian().toFloat() * hiddenToHiddenRange }
         this.hiddenToOutputWeights = mk.d2arrayIndices(outputSize, hiddenSize) { _, _ -> rand.nextGaussian().toFloat() * hiddenToOutputRange}
@@ -82,11 +84,18 @@ open class DenseWashboardCyclic : Network {
         this.hiddenOut = toCopy.hiddenOut.deepCopy()
         this.hiddenAngle = toCopy.hiddenAngle.deepCopy()
         this.hiddenAngleVel = toCopy.hiddenAngleVel.deepCopy()
-        this.hiddenBias = toCopy.hiddenBias.deepCopy()
-        this.outputBias = toCopy.outputBias.deepCopy()
+//        this.hiddenBias = toCopy.hiddenBias.deepCopy()
+//        this.outputBias = toCopy.outputBias.deepCopy()
         this.inputToHiddenWeights = toCopy.inputToHiddenWeights.deepCopy()
         this.hiddenToHiddenWeights = toCopy.hiddenToHiddenWeights.deepCopy()
         this.hiddenToOutputWeights = toCopy.hiddenToOutputWeights.deepCopy()
+    }
+
+    fun setGlobalBias(bias: Float) {
+//        hiddenBias.data.forEachIndexed { index, _ ->
+//            hiddenBias[index] = bias
+//        }
+        globalBias = bias
     }
 
     override fun setInput(index: Int, value: Float) {
@@ -107,10 +116,10 @@ open class DenseWashboardCyclic : Network {
 
     override fun mutateParameters(amount: Float) {
         // mutate bias and weights
-        for (i in hiddenBias.indices)
-            hiddenBias.data[i] += rand.nextGaussian().toFloat() * amount
-        for (i in outputBias.indices)
-            outputBias.data[i] += rand.nextGaussian().toFloat() * amount
+//        for (i in hiddenBias.indices)
+//            hiddenBias.data[i] += rand.nextGaussian().toFloat() * amount
+//        for (i in outputBias.indices)
+//            outputBias.data[i] += rand.nextGaussian().toFloat() * amount
         for (i in inputToHiddenWeights.indices)
             inputToHiddenWeights.data[i] += rand.nextGaussian().toFloat() * amount
         for (i in hiddenToHiddenWeights.indices)
@@ -119,16 +128,19 @@ open class DenseWashboardCyclic : Network {
             hiddenToOutputWeights.data[i] += rand.nextGaussian().toFloat() * amount
     }
 
-    override fun getParameters(): List<Float> = hiddenBias.toList() + outputBias.toList() +
-            inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
-            hiddenToOutputWeights.toList()
+//    override fun getParameters(): List<Float> = hiddenBias.toList() + outputBias.toList() +
+//            inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
+//            hiddenToOutputWeights.toList()
+override fun getParameters(): List<Float> =
+        inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
+        hiddenToOutputWeights.toList()
 
     override fun setParameters(params: List<Float>) {
         var index = 0
-        for (i in hiddenBias.indices)
-            hiddenBias.data[i] = params[index++]
-        for (i in outputBias.indices)
-            outputBias.data[i] = params[index++]
+//        for (i in hiddenBias.indices)
+//            hiddenBias.data[i] = params[index++]
+//        for (i in outputBias.indices)
+//            outputBias.data[i] = params[index++]
         for (i in inputToHiddenWeights.indices)
             inputToHiddenWeights.data[i] = params[index++]
         for (i in hiddenToHiddenWeights.indices)
@@ -138,7 +150,7 @@ open class DenseWashboardCyclic : Network {
     }
 
     override fun update(dt: Float) {
-        hiddenBuffer = ((hiddenToHiddenWeights dot hiddenOut) + (inputToHiddenWeights dot inputVector) * INPUT_SCALING + hiddenBias) * WEIGHT_SCALE
+        hiddenBuffer = ((hiddenToHiddenWeights dot hiddenOut) + (inputToHiddenWeights dot inputVector) * INPUT_SCALING + globalBias) * WEIGHT_SCALE
 //        outputVector = ((hiddenToOutputWeights dot hiddenOut) + outputBias) * (OUTPUT_SCALING) // scale here? might need custom scale?
         outputVector = ((hiddenToOutputWeights dot hiddenOut)) * (OUTPUT_SCALING) // scale here? might need custom scale?
         hiddenAngleVel = hiddenAngleVel + (hiddenBuffer * lSigma.toFloat() - DAMPENING*hiddenAngleVel - (w_e.toFloat()/2) * (hiddenAngle*2f).sin()) * w_ex.toFloat() * DT

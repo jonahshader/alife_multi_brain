@@ -77,8 +77,8 @@ class FluidSimScreen : KtxScreen {
         }
 
         MultiBrain.shapeRenderer.projectionMatrix = simCam.combined
-        fluidSim.renderFields()
-//        fluidSim.renderParticles()
+//        fluidSim.renderFields()
+        fluidSim.renderParticles()
 
         window.render(MultiBrain.batch)
     }

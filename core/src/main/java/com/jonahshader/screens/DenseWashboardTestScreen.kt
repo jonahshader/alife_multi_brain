@@ -18,7 +18,7 @@ class DenseWashboardTestScreen : KtxScreen {
     private val voltagePlot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, PLOT_HEIGHT))
     private val phasePlot = Plot("Time (unit)", "Phase Degrees", "Washboard Phase", Vector2(0f, PLOT_HEIGHT), Vector2(1280f, PLOT_HEIGHT))
     private val currentPlot = Plot("Time (unit)", "Current", "Washboard Current", Vector2(0f, PLOT_HEIGHT * 2), Vector2(1280f, PLOT_HEIGHT))
-    private val network: Network = DenseWashboardCyclic(1, 50, OUTPUT_COUNT)
+    private val network = DenseWashboardCyclic(1, 50, OUTPUT_COUNT)
 
     //    private var bias = 198 * 10e-6f
     private var bias = 0.0024722111f // 198e-6f
@@ -63,9 +63,11 @@ class DenseWashboardTestScreen : KtxScreen {
 
     private fun generate() {
         network.reset()
+        network.setGlobalBias(bias)
         voltagePlot.clearData()
         phasePlot.clearData()
         currentPlot.clearData()
+
 
         for (i in 0 until SIM_STEPS) {
             val p = (i - 50).toFloat() / (currentPeakDuration)
