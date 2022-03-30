@@ -8,91 +8,14 @@ import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.simulation.fluidsim.Particle.Companion.PARTICLE_RADIUS
 import com.jonahshader.systems.utils.Rand
-import ktx.graphics.circle
 import ktx.math.minusAssign
 import ktx.math.plusAssign
-import kotlin.math.floor
-import kotlin.math.sqrt
 import kotlin.math.tanh
 
-class Particle(val pos: Vector2, val vel: Vector2) {
-    companion object {
-        const val PARTICLE_RADIUS = 0.125f
-    }
-    private val temp = Vector2()
-    private val inTiles = mutableListOf<MutableList<Particle>>()
-//    fun updatePTile() {
-//        pTileX = floor(pos.x).toInt()
-//        pTileY = floor(pos.y).toInt()
-//    }
 
-    fun move(dt: Float) {
-        temp.set(vel).scl(dt)
-        pos += temp
-    }
-
-    fun moveBackward(dt: Float) {
-        temp.set(vel).scl(dt)
-        pos -= temp
-    }
-
-    fun handleWallCollision(sim: FluidSimParticles, dt: Float) {
-        var tileX = floor(pos.x).toInt()
-        var tileY = floor(pos.y).toInt()
-        while (tileX !in 0 until sim.worldSize || tileY !in 0 until sim.worldSize) {
-            moveBackward(dt)
-            tileX = floor(pos.x).toInt()
-            tileY = floor(pos.y).toInt()
-            println("moved backward to undo clipping through wall i guess")
-        }
-        if (sim.walls[tileX + tileY * sim.worldSize]) {
-            moveBackward(dt)
-            val pTileX = floor(pos.x).toInt()
-            val pTileY = floor(pos.y).toInt()
-//            move(dt/2)
-            if (pTileX != tileX)
-                vel.x = -vel.x
-            if (pTileY != tileY)
-                vel.y = -vel.y
-//            move(dt/2)
-        }
-    }
-
-    fun updateTilePresence(sim: FluidSimParticles) {
-//        val tileX = floor(pos.x).toInt()
-//        val tileY = floor(pos.y).toInt()
-//
-//        val dtx = tileX - pTileX
-//        val dty = tileY - pTileY
-
-        inTiles.forEach { it -= this }
-        inTiles.clear()
-
-        val tileXMin = floor(pos.x - PARTICLE_RADIUS).toInt()
-        val tileXMax = floor(pos.x + PARTICLE_RADIUS).toInt()
-        val tileYMin = floor(pos.y - PARTICLE_RADIUS).toInt()
-        val tileYMax = floor(pos.y + PARTICLE_RADIUS).toInt()
-
-        for (y in tileYMin..tileYMax) {
-            for (x in tileXMin..tileXMax) {
-                if (x in 0 until sim.worldSize && y in 0 until sim.worldSize) {
-                    val tileAtPos = sim.tileAtPos(x, y)
-                    inTiles += tileAtPos
-                    tileAtPos += this
-                }
-            }
-        }
-    }
-
-    fun renderParticle() {
-//        temp.set(pos).scl(1/ PARTICLE_RADIUS)
-        MultiBrain.shapeRenderer.circle(pos, PARTICLE_RADIUS, 3)
-    }
-}
-
-class FluidSimParticles(internal val worldSize: Int) {
-    private val particles = mutableListOf<Particle>()
-    private val world = mutableListOf<MutableList<Particle>>()
+class FluidSimGrid(internal val worldSize: Int) {
+    private val particles = mutableListOf<TileParticle>()
+    private val world = mutableListOf<MutableList<TileParticle>>()
     val walls = mutableListOf<Boolean>()
     private val temp = Vector2()
     private val temp2 = Vector2()
@@ -103,7 +26,7 @@ class FluidSimParticles(internal val worldSize: Int) {
 
     init {
         for (i in 0 until worldSize * worldSize) {
-            world += mutableListOf<Particle>()
+            world += mutableListOf<TileParticle>()
             walls += false
         }
 
@@ -173,7 +96,7 @@ class FluidSimParticles(internal val worldSize: Int) {
 
     private fun sigmoid(x: Float) = tanh(x) * .5f + .5f
 
-    private fun checkAndHandleCollision(p1: Particle, p2: Particle, dt: Float) {
+    private fun checkAndHandleCollision(p1: TileParticle, p2: TileParticle, dt: Float) {
         temp.set(p1.pos).sub(p2.pos)
         if (temp.len2() < PARTICLE_RADIUS * 2 * PARTICLE_RADIUS * 2) {
             p1.moveBackward(dt / 2)
@@ -223,7 +146,7 @@ class FluidSimParticles(internal val worldSize: Int) {
         }
     }
 
-    private fun addParticle(p: Particle) {
+    private fun addParticle(p: TileParticle) {
 //        p.updatePTile()
         particles += p
         p.updateTilePresence(this)
@@ -246,7 +169,7 @@ class FluidSimParticles(internal val worldSize: Int) {
                     val xVariance = Rand.randx.nextFloat()
                     val yVariance = Rand.randx.nextFloat()
                     addParticle(
-                        Particle(
+                        TileParticle(
                             Vector2(x + xVariance, y + yVariance),
                             Vector2(
                                 Rand.randx.nextGaussian().toFloat() * velSd,

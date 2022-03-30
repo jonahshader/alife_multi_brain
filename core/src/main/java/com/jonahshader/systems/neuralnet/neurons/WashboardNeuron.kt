@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.math.Metric.FEMTO
 import com.jonahshader.systems.math.Metric.GIGA
-import com.jonahshader.systems.math.Metric.PICO
 import com.jonahshader.systems.math.Metric.TERA
 import kotlin.math.PI
 import kotlin.math.cos
@@ -24,12 +23,20 @@ class WashboardNeuron(
         const val B = 0.11
     }
 
-    var angleD = 0.0
+    var thetaD = 0.0
     private var angularVelD = 0.0
     private var angularAccelD = 0.0
 
-    var angle = 0.0f
+    var theta = 0.0f
     private var angularVel = 0.0f
+
+
+    enum class IntegrationMode {
+        EULER,
+        TRAP_EULER,
+        RK4
+    }
+    var integrationMode = IntegrationMode.EULER
 
     init {
         neuronName = NeuronName.Washboard
@@ -38,14 +45,20 @@ class WashboardNeuron(
 
     override fun update(dt: Float) {
 //        testFp(dt)
-        updateDp(dt)
+        when (integrationMode) {
+            IntegrationMode.EULER -> updateDp(dt)
+            IntegrationMode.TRAP_EULER -> updateDpTrap(dt)
+            IntegrationMode.RK4 -> updateDpRK4(dt)
+        }
     }
+
+    private fun accel(inputCurrent: Float, theta: Double, angularVel: Double) = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2*theta)) * w_ex
 
     private fun testFp(dt: Float) {
         val inputCurrent = inputSum + bias
-        val angularAccel = (lSigma.toFloat() * inputCurrent - a*angularVel - (w_e.toFloat()/2)*sin(2*angle)) * w_ex.toFloat()
+        val angularAccel = (lSigma.toFloat() * inputCurrent - a*angularVel - (w_e.toFloat()/2)*sin(2*theta)) * w_ex.toFloat()
         angularVel += angularAccel * dt
-        angle += angularVel * dt
+        theta += angularVel * dt
         outputBuffer = (angularVel * B.toFloat() * FEMTO.toFloat())
     }
 
@@ -60,22 +73,64 @@ class WashboardNeuron(
 //        val inputCurrent = inputSum
 
         // compute angular acceleration
-        angularAccelD = (lSigma * inputCurrent - a*angularVelD - (w_e/2)*sin(2*angleD)) * w_ex
+//        angularAccelD = (lSigma * inputCurrent - a*angularVelD - (w_e/2)*sin(2*angleD)) * w_ex
+        angularAccelD = accel(inputCurrent, thetaD, angularVelD)
 
         // integrate angular acceleration
         angularVelD += angularAccelD * dt
 
         // integrate angular vel
-        angleD += angularVelD * dt
+        thetaD += angularVelD * dt
 
         outputBuffer = (angularVelD * B * FEMTO).toFloat()
 //        outputBuffer = angularVelD.toFloat()
     }
 
+    private fun updateDpTrap(dt: Float) {
+        val inputCurrent = inputSum + bias
+        val newAngularAccelD = (lSigma * inputCurrent - a*angularVelD - (w_e/2)*sin(2*thetaD)) * w_ex
+        val newAngularVelD = (angularAccelD + newAngularAccelD) * .5 * dt
+
+        thetaD += (angularVelD + newAngularVelD) * .5 * dt
+
+        angularAccelD = newAngularAccelD
+        angularVelD = newAngularVelD
+
+        outputBuffer = (angularVelD * B * FEMTO).toFloat()
+
+    }
+
+
+    // https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
+    // https://scicomp.stackexchange.com/questions/26766/4th-order-runge-kutta-method-for-driven-damped-pendulum
+    // https://stackoverflow.com/questions/52985027/runge-kutta-4-and-pendulum-simulation-in-python
+
+    private fun updateDpRK4(dt: Float) {
+        val inputCurrent = inputSum + bias
+
+        val k1y = dt * angularVelD
+        val k1v = dt * accel(inputCurrent, thetaD, angularVelD)
+
+        val k2y = dt * (angularVelD + .5 * k1v)
+        val k2v = dt * accel(inputCurrent, thetaD + .5 * k1y, angularVelD + .5 * k1v)
+
+        val k3y = dt * (angularVelD + .5 * k2v)
+        val k3v = dt * accel(inputCurrent, thetaD + .5 * k2y, angularVelD + .5 * k2v)
+
+        val k4y = dt * (angularVelD + k3v)
+        val k4v = dt * accel(inputCurrent, thetaD + k3y, angularVelD + k3v)
+
+        thetaD += (k1y + 2 * k2y + 2 * k3y + k4y) / 6.0
+        angularVelD += (k1v + 2 * k2v + 2 * k3v + k4v) / 6.0
+
+
+        outputBuffer = (angularVelD * B * FEMTO).toFloat()
+    }
+
     override fun render(pos: Vector2) {
         super.render(pos)
 
-        val ang = angleD.toFloat()
+        val ang = thetaD.toFloat()
         // red positive, blue negative
         MultiBrain.shapeDrawer.setColor(1f, 1f, 1f, 1f)
         MultiBrain.shapeDrawer.line(pos.x, pos.y, pos.x + cos(ang) * 5f, pos.y + sin(ang) * 5f, 2f)

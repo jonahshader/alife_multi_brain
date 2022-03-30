@@ -5,8 +5,6 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.math.Metric
-import com.jonahshader.systems.math.Metric.MICRO
 import com.jonahshader.systems.neuralnet.neurons.WashboardNeuron
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
@@ -30,6 +28,8 @@ class WashboardSpikeTrain : KtxScreen {
     private var currentPeakDuration = 25f
     private var weight = 24.467f
     private var dt = 3.979e-13f
+
+    private var integrationMode = WashboardNeuron.IntegrationMode.EULER
 
 
     companion object {
@@ -75,13 +75,17 @@ class WashboardSpikeTrain : KtxScreen {
             neurons.last().bias = bias
 //            neurons.last().bias = 0f
 //            neurons.last().angleD = Math.PI / 4
-            neurons.last().angleD = .55
-            neurons.last().angle = .55f
+            neurons.last().thetaD = .55
+            neurons.last().theta = .55f
+
+            neurons.last().integrationMode = integrationMode
 //            neurons.last().angleD = 0.4453125
         }
 
         for (i in 0 until SIM_STEPS) {
-            val p = (i - 50).toFloat() / (currentPeakDuration)
+            val scl = (dt * 2.51319419E12f)
+            val invscl = 1/scl
+            val p = (i - 10 * invscl) / (currentPeakDuration * invscl)
             val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * currentPeak
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
@@ -99,7 +103,7 @@ class WashboardSpikeTrain : KtxScreen {
 
             neurons.forEachIndexed { index, it ->
                 voltagePlot.addDatum("Voltage $index", Vector2(i.toFloat(), it.out))
-                phasePlot.addDatum("Phase $index", Vector2(i.toFloat(), (it.angleD * 360 / (2 * PI)).toFloat()))
+                phasePlot.addDatum("Phase $index", Vector2(i.toFloat(), (it.thetaD * 360 / (2 * PI)).toFloat()))
             }
         }
     }
@@ -108,6 +112,18 @@ class WashboardSpikeTrain : KtxScreen {
         clearScreen(0f, 0f, 0f)
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { generate() }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+            integrationMode = WashboardNeuron.IntegrationMode.TRAP_EULER
+            generate()
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            integrationMode = WashboardNeuron.IntegrationMode.EULER
+            generate()
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            integrationMode = WashboardNeuron.IntegrationMode.RK4
+            generate()
+        }
 
         window.update(delta)
         window.render(MultiBrain.batch)

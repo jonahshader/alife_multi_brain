@@ -3,7 +3,6 @@ package com.jonahshader.screens
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ScreenUtils
@@ -11,7 +10,7 @@ import com.badlogic.gdx.utils.viewport.FillViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.math.CublasSystem
 import com.jonahshader.systems.screen.ScreenManager
-import com.jonahshader.systems.simulation.fluidsim.FluidSimParticles
+import com.jonahshader.systems.simulation.fluidsim.FluidSimGrid
 import com.jonahshader.systems.ui.ScreenWindow
 import ktx.app.KtxScreen
 import ktx.graphics.use
@@ -28,7 +27,7 @@ class FluidSimScreen : KtxScreen {
     private var visEnabled = false
     private var following = false
 
-    private val fluidSim = FluidSimParticles(48)
+    private val fluidSim = FluidSimGrid(48)
 
     init {
         simCam.zoom = .08f
