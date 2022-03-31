@@ -10,7 +10,7 @@ object TestPerformance {
     fun testPerformance() {
         Rand.randx.setSeed(2513)
         val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(40), FoodCreature.builder,
-            150, 100, 600, 1/30f,
+            150, 100, 1/30f,
             algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
         val time = measureTimeMillis {
             sim.runIterations(4)

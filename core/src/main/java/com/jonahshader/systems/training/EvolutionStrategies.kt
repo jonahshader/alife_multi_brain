@@ -3,7 +3,7 @@ package com.jonahshader.systems.training
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Disposable
 import com.jonahshader.systems.creatureparts.ReinforcementTask
-import com.jonahshader.systems.creatureparts.CreatureBuilder
+import com.jonahshader.systems.creatureparts.TaskBuilder
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.utils.Rand
 import java.util.*
@@ -14,8 +14,8 @@ import kotlin.math.pow
 
 class Eval(var creature: ReinforcementTask, var fitness: Float = 0f)
 
-class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: CreatureBuilder, populationSize: Int,
-                          private val samples: Int, val steps: Int, val dt: Float,
+class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskBuilder, populationSize: Int,
+                          private val samples: Int, val dt: Float,
                           private val rand: Random = Rand.randx, private val algo: Algo = Algo.EsPickBest,
                           private val logging: Boolean = false, private val printFitness: Boolean = false) : Disposable {
     enum class Algo {
@@ -263,9 +263,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         var totalFitness = 0f
         for (i in 0 until samples) {
             eval.creature.restartAndRandomize()
-            for (j in 0 until steps) {
+            while (!eval.creature.done())
                 eval.creature.update(dt)
-            }
             totalFitness += eval.creature.getFitness()
         }
 
@@ -276,9 +275,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: Creat
         val fitness = mutableListOf<Float>()
         for (i in 0 until samples) {
             eval.creature.restartAndRandomize()
-            for (j in 0 until steps) {
+            while (!eval.creature.done())
                 eval.creature.update(dt)
-            }
             fitness += eval.creature.getFitness()
         }
         fitness.sort()

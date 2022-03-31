@@ -22,7 +22,7 @@ class SimViewer(private val sim: EvolutionStrategies) : Disposable {
 
     fun update() {
         if (!disposed) {
-            if (timestep > sim.steps) {
+            if (creature?.done() == true) {
                 timestep = 0
                 creature?.restartAndRandomize()
                 creature?.network?.dispose()

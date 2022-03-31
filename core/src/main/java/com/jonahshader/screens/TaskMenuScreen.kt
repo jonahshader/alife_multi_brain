@@ -10,6 +10,7 @@ import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
+import com.jonahshader.systems.simulation.mnist.SpikingClassifier
 import com.jonahshader.systems.simulation.selectmove.SelectMove
 import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
 import com.jonahshader.systems.training.EvolutionStrategies
@@ -25,25 +26,27 @@ class TaskMenuScreen : KtxScreen {
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(0f, 180f), Vector2(500f, 90f))
 
     init {
-//        menu.addMenuItem("Box2D Test") { ScreenManager.push(Box2DTestScreen()) }
-//        menu.addMenuItem("Food Task") { ScreenManager.push(FoodCreatureTestScreen()) }
         menu.addMenuItem("Food Task") {
             val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(35), FoodCreature.builder,
-                200, 50, 700, 1/20f,
+                200, 50, 1/20f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
 //            val sim = EvolutionStrategies(DenseWBPeriodCyclic.makeBuilder(20), FoodCreature.builder,
 //                50, 20, 300, 1/20f,
 //                algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
             ScreenManager.push(SimViewerScreen(sim, 1))
         }
-//        menu.addMenuItem("SB Task") { ScreenManager.push(SBCreatureTestScreen()) }
-//        menu.addMenuItem("SB Task") { ScreenManager.push(SimViewerScreen(
-//            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(30), SoftBodyTravelSim.defaultBuilder,
-//                100, 1, 40, 1/30f, algo = EvolutionStrategies.Algo.EsGDM), 1))) }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(
             EvolutionStrategies(DenseCyclicNetwork.makeBuilder(75),
-                SelectMove.defaultBuilder, 400, 100, 40, 1/30f,
+                SelectMove.defaultBuilder, 400, 100, 1/30f,
                 algo = EvolutionStrategies.Algo.EsGDM), 20)) }
+
+        menu.addMenuItem("Spiking Classifier") { ScreenManager.push(SimViewerScreen(
+            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(10),
+            SpikingClassifier.defaultBuilder, 10, 10, 1f, algo = EvolutionStrategies.Algo.EsGDM),
+            60))
+
+        }
+
         menu.addMenuItem("Back") { ScreenManager.pop() }
 
 //        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)

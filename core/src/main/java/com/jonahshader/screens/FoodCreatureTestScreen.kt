@@ -28,7 +28,7 @@ class FoodCreatureTestScreen : KtxScreen {
 
     private val window = ScreenWindow(Vector2(1280f, 720f))
 
-    private val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(48), FoodCreature.builder, 150, 30, 800, 1/30f, algo = EvolutionStrategies.Algo.EsGDM)
+    private val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(48), FoodCreature.builder, 150, 30, 1/30f, algo = EvolutionStrategies.Algo.EsGDM)
     private val simViewer = SimViewer(sim)
 
     private var visEnabled = false

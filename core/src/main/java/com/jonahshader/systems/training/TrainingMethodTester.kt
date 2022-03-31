@@ -9,11 +9,10 @@ fun main() {
     val hiddenSize = 35
     val popSize = 100
     val samples = 10
-    val steps = 500
     val dt = 1/20f
-    val sim1 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsPickBest, logging = true)
-    val sim2 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsGD, logging = true)
-    val sim3 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, steps, dt, algo = EvolutionStrategies.Algo.EsGDM, logging = true)
+    val sim1 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, dt, algo = EvolutionStrategies.Algo.EsPickBest, logging = true)
+    val sim2 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, dt, algo = EvolutionStrategies.Algo.EsGD, logging = true)
+    val sim3 = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(hiddenSize), FoodCreature.builder, popSize, samples, dt, algo = EvolutionStrategies.Algo.EsGDM, logging = true)
 
     val iterations = 30
     val sim1time = measureTimeMillis { sim1.runIterations(iterations) }
@@ -28,7 +27,7 @@ fun main() {
     csvWriter().writeAll(listOf(sim1.getLog(), sim2.getLog(), sim3.getLog()), "data.csv")
 
     csvWriter().open("data.csv") {
-        writeRow("hiddenSize $hiddenSize, popSize $popSize, samples $samples, steps $steps, dt $dt")
+        writeRow("hiddenSize $hiddenSize, popSize $popSize, samples $samples, dt $dt")
         writeRow(sim1time, sim2time, sim3time)
         writeRow("EsPickBest", "EsGD", "EsGDM")
         for (i in sim1.getLog().indices) {

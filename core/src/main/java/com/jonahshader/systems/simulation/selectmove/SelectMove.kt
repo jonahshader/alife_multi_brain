@@ -3,7 +3,7 @@ package com.jonahshader.systems.simulation.selectmove
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.creatureparts.CreatureBuilder
+import com.jonahshader.systems.creatureparts.TaskBuilder
 import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.neuralnet.Network
 import com.jonahshader.systems.utils.Rand
@@ -15,7 +15,8 @@ class SelectMove(
     private val numBalls: Int,
     private val visionKernelRadius: Int,
     private val rand: Random = Rand.randx,
-    networkBuilder: (Int, Int) -> Network
+    override var maxIterations: Int,
+    networkBuilder: (Int, Int) -> Network,
 ) : ReinforcementTask {
 
     override val network: Network
@@ -24,6 +25,8 @@ class SelectMove(
     private var xCursor: Int
     private var yCursor: Int
     private var fitness = 0
+
+    override var currentIteration = 0
 
     init {
         if (visionKernelRadius > 0) {
@@ -44,10 +47,10 @@ class SelectMove(
 
     companion object {
         private const val CELL_SIZE = 32f
-        fun makeBuilder(worldSize: Int, numBalls: Int, visionKernelRadius: Int = 0): CreatureBuilder = {
-            SelectMove(worldSize, numBalls, visionKernelRadius = visionKernelRadius, networkBuilder = it)
+        fun makeBuilder(worldSize: Int, numBalls: Int, visionKernelRadius: Int = 0, maxIterations: Int = 50): TaskBuilder = {
+            SelectMove(worldSize, numBalls, visionKernelRadius = visionKernelRadius, networkBuilder = it, maxIterations = maxIterations)
         }
-        val defaultBuilder: CreatureBuilder = { SelectMove(6, 4, 2, networkBuilder = it) }
+        val defaultBuilder: TaskBuilder = { SelectMove(6, 4, 2, networkBuilder = it, maxIterations = 50) }
     }
 
     enum class CellEntity {
@@ -77,7 +80,7 @@ class SelectMove(
     }
 
     override fun cloneAndReset(): ReinforcementTask {
-        val newTask = SelectMove(worldSize, numBalls, visionKernelRadius = visionKernelRadius, rand = rand) { _, _ -> network.clone() }
+        val newTask = SelectMove(worldSize, numBalls, visionKernelRadius = visionKernelRadius, maxIterations = maxIterations, rand = rand) { _, _ -> network.clone() }
         newTask.network.reset()
         return newTask
     }

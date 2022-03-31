@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.creatureparts.ReinforcementTask
-import com.jonahshader.systems.creatureparts.CreatureBuilder
+import com.jonahshader.systems.creatureparts.TaskBuilder
 import com.jonahshader.systems.neuralnet.Network
 import com.jonahshader.systems.simulation.foodgrid.FoodGrid.Companion.CELL_SIZE
 import ktx.math.plusAssign
@@ -20,11 +20,18 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         private const val GRAPHIC_SENSOR_RADIUS = 2f
         private const val GRAPHIC_BODY_RADIUS = 3f
 
-        val builder: CreatureBuilder = { FoodCreature(it) }
+        val builder: TaskBuilder = { FoodCreature(it) }
+        fun makeBuilder(iterations: Int): TaskBuilder = {
+            val newCreature = FoodCreature(it)
+            newCreature.maxIterations = iterations
+            newCreature
+        }
     }
 
     private val foodSensorPos = mutableListOf<Vector2>()
     var totalFood = 0f
+    override var maxIterations = 600
+    override var currentIteration = 0
 
     val pos = Vector2()
     private val vel = Vector2()
@@ -84,7 +91,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
 //                totalFood += foodAtBody
 //                foodGrid.setFood(pos, 0f)
 //            }
-
+        currentIteration++
     }
 
     override fun getFitness(): Float {
@@ -123,6 +130,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         tempSensor.setZero()
         network.reset()
         totalFood = 0f
+        currentIteration = 0
     }
 
     override fun cloneAndReset() : ReinforcementTask {

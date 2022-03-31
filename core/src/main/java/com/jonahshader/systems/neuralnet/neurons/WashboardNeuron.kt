@@ -54,13 +54,13 @@ class WashboardNeuron(
 
     private fun accel(inputCurrent: Float, theta: Double, angularVel: Double) = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2*theta)) * w_ex
 
-    private fun testFp(dt: Float) {
-        val inputCurrent = inputSum + bias
-        val angularAccel = (lSigma.toFloat() * inputCurrent - a*angularVel - (w_e.toFloat()/2)*sin(2*theta)) * w_ex.toFloat()
-        angularVel += angularAccel * dt
-        theta += angularVel * dt
-        outputBuffer = (angularVel * B.toFloat() * FEMTO.toFloat())
-    }
+//    private fun testFp(dt: Float) {
+//        val inputCurrent = inputSum + bias
+//        val angularAccel = (lSigma.toFloat() * inputCurrent - a*angularVel - (w_e.toFloat()/2)*sin(2*theta)) * w_ex.toFloat()
+//        angularVel += angularAccel * dt
+//        theta += angularVel * dt
+//        outputBuffer = (angularVel * B.toFloat() * FEMTO.toFloat())
+//    }
 
     private fun updateDp(dt: Float) {
         // 1 pico second
@@ -73,7 +73,6 @@ class WashboardNeuron(
 //        val inputCurrent = inputSum
 
         // compute angular acceleration
-//        angularAccelD = (lSigma * inputCurrent - a*angularVelD - (w_e/2)*sin(2*angleD)) * w_ex
         angularAccelD = accel(inputCurrent, thetaD, angularVelD)
 
         // integrate angular acceleration
@@ -104,7 +103,6 @@ class WashboardNeuron(
     // https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods
     // https://scicomp.stackexchange.com/questions/26766/4th-order-runge-kutta-method-for-driven-damped-pendulum
     // https://stackoverflow.com/questions/52985027/runge-kutta-4-and-pendulum-simulation-in-python
-
     private fun updateDpRK4(dt: Float) {
         val inputCurrent = inputSum + bias
 
@@ -123,9 +121,9 @@ class WashboardNeuron(
         thetaD += (k1y + 2 * k2y + 2 * k3y + k4y) / 6.0
         angularVelD += (k1v + 2 * k2v + 2 * k3v + k4v) / 6.0
 
-
         outputBuffer = (angularVelD * B * FEMTO).toFloat()
     }
+
 
     override fun render(pos: Vector2) {
         super.render(pos)

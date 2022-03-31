@@ -3,25 +3,29 @@ package com.jonahshader.systems.simulation.mnist
 import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.FileInputStream
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 object MnistData {
     const val IMAGE_WIDTH_HEIGHT = 28
     private var train = listOf<Pair<IntArray, Int>>()
     private var test = listOf<Pair<IntArray, Int>>()
+    private var lock = ReentrantLock()
 
     // parts from https://github.com/turkdogan/mnist-data-reader/blob/master/MnistDataReader.java
     fun load() {
-        if (train.isNotEmpty()) return
-        println("Loading MNIST")
-        train = loadSet("data/mnist/train-images.idx3-ubyte", "data/mnist/train-labels.idx1-ubyte")
-        test = loadSet("data/mnist/t10k-images.idx3-ubyte", "data/mnist/t10k-labels.idx1-ubyte")
-        println("Done loading MNIST")
+        lock.withLock {
+            if (train.isEmpty()) {
+                println("Loading MNIST")
+                train = loadSet("data/mnist/train-images.idx3-ubyte", "data/mnist/train-labels.idx1-ubyte")
+                test = loadSet("data/mnist/t10k-images.idx3-ubyte", "data/mnist/t10k-labels.idx1-ubyte")
+                println("Done loading MNIST")
+            }
+        }
     }
 
     fun getRandomTrainingData() = train.random()
 
-
-    //"data/mnist/train-images-idx3-ubyte.gz"
     private fun loadSet(dataFilePath: String, labelFilePath: String) : List<Pair<IntArray, Int>> {
         val dataInputStream = DataInputStream(BufferedInputStream(FileInputStream(dataFilePath)))
         val magicNumber = dataInputStream.readInt()
