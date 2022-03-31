@@ -3,9 +3,14 @@ package com.jonahshader.systems.simulation.mnist
 import com.badlogic.gdx.graphics.Camera
 import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.neuralnet.Network
+import com.jonahshader.systems.simulation.mnist.MnistData.IMAGE_WIDTH_HEIGHT
 
-class WashboardClassifier : ReinforcementTask {
+class WashboardClassifier(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
     override val network: Network
+
+    init {
+        network = networkBuilder(IMAGE_WIDTH_HEIGHT * IMAGE_WIDTH_HEIGHT, 10)
+    }
     override fun cloneAndReset(): ReinforcementTask {
         TODO("Not yet implemented")
     }

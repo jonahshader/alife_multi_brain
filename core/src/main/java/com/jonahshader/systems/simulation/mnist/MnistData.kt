@@ -5,6 +5,7 @@ import java.io.DataInputStream
 import java.io.FileInputStream
 
 object MnistData {
+    const val IMAGE_WIDTH_HEIGHT = 28
     private var train = listOf<Pair<IntArray, Int>>()
     private var test = listOf<Pair<IntArray, Int>>()
 
@@ -18,6 +19,7 @@ object MnistData {
     }
 
     fun getRandomTrainingData() = train.random()
+
 
     //"data/mnist/train-images-idx3-ubyte.gz"
     private fun loadSet(dataFilePath: String, labelFilePath: String) : List<Pair<IntArray, Int>> {
