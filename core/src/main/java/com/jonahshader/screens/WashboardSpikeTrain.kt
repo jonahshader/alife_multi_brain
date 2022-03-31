@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.neuralnet.neurons.WashboardNeuron
+import com.jonahshader.systems.simulation.mnist.MnistData
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
 import com.jonahshader.systems.ui.Slider
@@ -39,6 +40,7 @@ class WashboardSpikeTrain : KtxScreen {
     }
 
     init {
+        MnistData.load()
         window += voltagePlot
         window += phasePlot
         window += currentPlot
