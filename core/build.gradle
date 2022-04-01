@@ -98,6 +98,8 @@ dependencies {
 //	implementation "org.jcuda:jcuda:11.2.0"
 	// https://mvnrepository.com/artifact/org.jcuda/jcublas
 //	implementation "org.jcuda:jcublas:11.4.1"
+	implementation 'com.aparapi:aparapi:3.0.0'
+
 
 	def classifier = getOsString() + "-" + getArchString()
 	def jCudaVersion = "11.2.0" // 11.2.0 10.2.0

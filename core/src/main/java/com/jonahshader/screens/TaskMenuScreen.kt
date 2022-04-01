@@ -43,7 +43,7 @@ class TaskMenuScreen : KtxScreen {
 
         menu.addMenuItem("Classifier") { ScreenManager.push(SimViewerScreen(
             EvolutionStrategies(DenseCyclicNetwork.makeBuilder(300),
-            NonSpikingClassifier.makeBuilder(2), 100, 100, 1f, algo = EvolutionStrategies.Algo.EsGDM),
+            NonSpikingClassifier.makeBuilder(2), 25, 200, 1f, algo = EvolutionStrategies.Algo.EsGDM),
             120))
 
         }
