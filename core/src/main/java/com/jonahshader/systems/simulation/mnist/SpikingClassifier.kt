@@ -2,6 +2,7 @@ package com.jonahshader.systems.simulation.mnist
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.creatureparts.TaskBuilder
 import com.jonahshader.systems.creatureparts.ReinforcementTask
@@ -44,7 +45,7 @@ class SpikingClassifier(private val dt: Float, private val maxTime: Float, netwo
         network.reset()
     }
 
-    override fun render() {
+    override fun render(viewport: ScalingViewport) {
         for (y in 0 until IMAGE_WIDTH_HEIGHT) {
             for (x in 0 until IMAGE_WIDTH_HEIGHT) {
                 val brightness = datum.first[x + y * IMAGE_WIDTH_HEIGHT] / 255f

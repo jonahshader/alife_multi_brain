@@ -10,6 +10,7 @@ import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
 import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
+import com.jonahshader.systems.simulation.mnist.NonSpikingClassifier
 import com.jonahshader.systems.simulation.mnist.SpikingClassifier
 import com.jonahshader.systems.simulation.selectmove.SelectMove
 import com.jonahshader.systems.simulation.softbodytravel.SoftBodyTravelSim
@@ -40,10 +41,10 @@ class TaskMenuScreen : KtxScreen {
                 SelectMove.defaultBuilder, 400, 100, 1/30f,
                 algo = EvolutionStrategies.Algo.EsGDM), 20)) }
 
-        menu.addMenuItem("Spiking Classifier") { ScreenManager.push(SimViewerScreen(
-            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(10),
-            SpikingClassifier.defaultBuilder, 10, 10, 1f, algo = EvolutionStrategies.Algo.EsGDM),
-            60))
+        menu.addMenuItem("Classifier") { ScreenManager.push(SimViewerScreen(
+            EvolutionStrategies(DenseCyclicNetwork.makeBuilder(300),
+            NonSpikingClassifier.makeBuilder(2), 100, 100, 1f, algo = EvolutionStrategies.Algo.EsGDM),
+            120))
 
         }
 

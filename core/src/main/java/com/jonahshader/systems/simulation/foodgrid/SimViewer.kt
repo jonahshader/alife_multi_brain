@@ -2,6 +2,7 @@ package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.utils.Disposable
+import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.training.EvolutionStrategies
 
@@ -10,8 +11,8 @@ class SimViewer(private val sim: EvolutionStrategies) : Disposable {
     private var timestep = 0
     private var disposed = false
 
-    fun render() {
-        creature?.render()
+    fun render(viewport: ScalingViewport) {
+        creature?.render(viewport)
     }
 
     fun follow(cam: Camera) {

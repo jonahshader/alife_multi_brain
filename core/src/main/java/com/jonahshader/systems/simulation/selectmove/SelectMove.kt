@@ -2,6 +2,7 @@ package com.jonahshader.systems.simulation.selectmove
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.creatureparts.TaskBuilder
 import com.jonahshader.systems.creatureparts.ReinforcementTask
@@ -131,7 +132,7 @@ class SelectMove(
         yCursor = spawnPos / worldSize
     }
 
-    override fun render() {
+    override fun render(viewport: ScalingViewport) {
         // render world
         for (y in 0 until worldSize) for (x in 0 until worldSize) {
             val color = posToCellEntity(x, y).getColor()

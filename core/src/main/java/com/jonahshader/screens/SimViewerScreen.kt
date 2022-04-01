@@ -85,7 +85,7 @@ class SimViewerScreen(private val sim: EvolutionStrategies, private val framesPe
         simViewport.apply()
         MultiBrain.batch.use(simCam) {
             MultiBrain.shapeDrawer.update()
-            simViewer.render()
+            simViewer.render(simViewport)
         }
 
         window.render(MultiBrain.batch)

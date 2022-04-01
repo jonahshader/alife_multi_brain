@@ -2,6 +2,7 @@ package com.jonahshader.systems.simulation.foodgrid
 
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.jonahshader.MultiBrain
 import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.creatureparts.TaskBuilder
@@ -104,7 +105,7 @@ class FoodCreature(networkBuilder: (Int, Int) -> Network) : ReinforcementTask {
         cam.update()
     }
 
-    override fun render() {
+    override fun render(viewport: ScalingViewport) {
         foodGrid.render()
         MultiBrain.shapeDrawer.setColor(.5f, .5f, .5f, 1f)
         foodSensorPos.forEach {

@@ -105,6 +105,7 @@ class Plot(private val xAxisLabel: String, private val yAxisLabel: String, priva
         size.x - BOX_RIGHT_PADDING - BOX_LEFT_PADDING, size.y - BOX_TOP_PADDING - BOX_BOTTOM_PADDING)
 
         // draw labels
+        TextRenderer.color.set(1f, 1f, 1f, 1f)
         TextRenderer.begin(MultiBrain.batch, viewport, TextRenderer.Font.NORMAL, TITLE_FONT_SIZE, 0.1f, cam.zoom)
         TextRenderer.drawTextCentered(globalPosition.x + size.x/2, globalPosition.y + size.y - BOX_TOP_PADDING/2, title)
         TextRenderer.end()

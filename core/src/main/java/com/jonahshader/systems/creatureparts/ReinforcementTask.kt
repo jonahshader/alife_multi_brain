@@ -1,6 +1,7 @@
 package com.jonahshader.systems.creatureparts
 
 import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.jonahshader.systems.neuralnet.Network
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 
@@ -10,7 +11,7 @@ interface ReinforcementTask {
     val network: Network
     fun cloneAndReset() : ReinforcementTask
     fun restartAndRandomize()
-    fun render()
+    fun render(viewport: ScalingViewport)
     fun update(dt: Float)
     fun getFitness() : Float
     fun spectate(cam: Camera)
