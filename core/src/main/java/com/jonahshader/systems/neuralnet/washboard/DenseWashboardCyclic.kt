@@ -53,6 +53,7 @@ open class DenseWashboardCyclic : Network {
     private val hiddenToHiddenWeights: NDArray<Float, D2>
     private val hiddenToOutputWeights: NDArray<Float, D2>
 
+    var useRK4 = true
     override val multithreadable = true
 
     constructor(inputSize: Int, hiddenSize: Int, outputSize: Int, rand: Random = Rand.randx) {
@@ -150,13 +151,18 @@ override fun getParameters(): List<Float> =
     }
 
     override fun update(dt: Float) {
-        hiddenBuffer = ((hiddenToHiddenWeights dot hiddenOut) + (inputToHiddenWeights dot inputVector) * INPUT_SCALING + globalBias) * WEIGHT_SCALE
-//        outputVector = ((hiddenToOutputWeights dot hiddenOut) + outputBias) * (OUTPUT_SCALING) // scale here? might need custom scale?
-        outputVector = ((hiddenToOutputWeights dot hiddenOut)) * (OUTPUT_SCALING) // scale here? might need custom scale?
-        hiddenAngleVel = hiddenAngleVel + (hiddenBuffer * lSigma.toFloat() - DAMPENING*hiddenAngleVel - (w_e.toFloat()/2) * (hiddenAngle*2f).sin()) * w_ex.toFloat() * DT
-        hiddenAngle = hiddenAngle + hiddenAngleVel * DT
+        if (useRK4) {
 
-        hiddenOut = hiddenAngleVel.map { it * B.toFloat() * FEMTO.toFloat() }
+        } else {
+            hiddenBuffer = ((hiddenToHiddenWeights dot hiddenOut) + (inputToHiddenWeights dot inputVector) * INPUT_SCALING + globalBias) * WEIGHT_SCALE
+//        outputVector = ((hiddenToOutputWeights dot hiddenOut) + outputBias) * (OUTPUT_SCALING) // scale here? might need custom scale?
+            outputVector = ((hiddenToOutputWeights dot hiddenOut)) * (OUTPUT_SCALING) // scale here? might need custom scale?
+            hiddenAngleVel = hiddenAngleVel + (hiddenBuffer * lSigma.toFloat() - DAMPENING*hiddenAngleVel - (w_e.toFloat()/2) * (hiddenAngle*2f).sin()) * w_ex.toFloat() * dt
+            hiddenAngle = hiddenAngle + hiddenAngleVel * dt
+
+            hiddenOut = hiddenAngleVel.map { it * B.toFloat() * FEMTO.toFloat() }
+        }
+
     }
 
     override fun clone() = DenseWashboardCyclic(this)
