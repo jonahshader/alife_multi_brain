@@ -1,9 +1,11 @@
 package com.jonahshader.systems.training
 
+import com.jonahshader.systems.math.times
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.ndarray
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
+import org.nd4j.linalg.api.ndarray.INDArray
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -26,14 +28,26 @@ fun computeGradientsFromParamEvals(paramsList: List<List<Float>>, evals: List<Fl
     val yMean = evals.average().toFloat()
 
     val gradients = paramsList[0].indices.map { singleParamIndex ->
-        paramsList.foldIndexed(0f) { pListIndex, acc, params -> acc + (params[singleParamIndex]-xMeans[singleParamIndex]) * (evals[pListIndex]-yMean) } /
-                paramsList.fold(0f) { acc, params -> acc + (params[singleParamIndex]-xMeans[singleParamIndex]).pow(2)}
+        paramsList.foldIndexed(0f) {
+                pListIndex, acc, params -> acc + (params[singleParamIndex]-xMeans[singleParamIndex]) * (evals[pListIndex]-yMean)
+        } / paramsList.fold(0f) { acc, params -> acc + (params[singleParamIndex]-xMeans[singleParamIndex]).pow(2)}
     }
     return gradients.toMutableList()
 }
 
+// todo evals should be a ROW vector
+fun computeGradientsFromParamEvals(params: INDArray, evals: INDArray) : INDArray {
+    val xMeans = params.mean(1) // TODO: verify correctness
+    val yMean = evals.mean(0).getFloat(0) // TODO: verify correctness
+
+
+
+}
+
 // returns weights update
 fun gradientDescentUpdate(gradients: List<Float>, learningRate: Float) : List<Float> = gradients.map { it * learningRate }
+
+fun gradientDescentUpdate(gradients: INDArray, learningRate: Float) : INDArray = gradients * learningRate
 
 // returns weights update
 fun gradientDescentUpdateMomentum(gradients: List<Float>, pUpdate: List<Float>, learningRate: Float, momentum: Float) : List<Float> =
@@ -67,9 +81,6 @@ fun sgdAdaMaxUpdate(gradients: List<Float>,  moment: MutableList<Float>, infNorm
     return update.toList()
 }
 
-//fun gradientDescentUpdateAdam(gradients: List<Float>, firstMoment: MutableList<Float>, secondMoment: MutableList<Float>, timestep: Int) : List<Float> {
-//
-//}
 
 // for now, input should be sorted and evals should be mapped to rank
 fun esGradientDescent(baseParams: List<Float>, paramsList: List<List<Float>>, evals: List<Float>, learningRate: Float) : List<Float> {
@@ -78,4 +89,8 @@ fun esGradientDescent(baseParams: List<Float>, paramsList: List<List<Float>>, ev
     val update = gradientDescentUpdate(grads, learningRate)
     return baseParams.zip(update) { base, u -> base + u }
 }
+
+//fun esGradientDescent(baseParams: INDArray, params: INDArray, evals: INDArray, learningRate: Float) : INDArray {
+//    val grads =
+//}
 
