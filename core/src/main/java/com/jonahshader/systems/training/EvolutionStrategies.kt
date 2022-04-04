@@ -53,9 +53,9 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
         }
 
         // initialize pUpdate for gd with momentum
-        pUpdate = List(population[0].creature.network.getParameters().size) { 0f }
-        moment1 = MutableList(population[0].creature.network.getParameters().size) { 0f }
-        moment2 = MutableList(population[0].creature.network.getParameters().size) { 0f }
+        pUpdate = List(population[0].creature.network.getParameters().rows()) { 0f }
+        moment1 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
+        moment2 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
     }
 
     private fun runAlgo() {

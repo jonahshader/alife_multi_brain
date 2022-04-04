@@ -26,7 +26,7 @@ class WashboardSpikeTrain : KtxScreen {
     private var a = 0.01f
 
     private var currentPeak = 0.001f
-    private var currentPeakDuration = 25f
+    private var currentPeakDuration = 9.9475e-12f
     private var weight = 24.467f
     private var dt = 3.979e-13f
 
@@ -85,9 +85,9 @@ class WashboardSpikeTrain : KtxScreen {
         }
 
         for (i in 0 until SIM_STEPS) {
-            val scl = (dt * 2.51319419E12f)
-            val invscl = 1/scl
-            val p = (i - 10 * invscl) / (currentPeakDuration * invscl)
+//            val scl = (dt * 2.51319419E12f)
+//            val invscl = 1/scl
+            val p = ((i - 10) * dt) / (currentPeakDuration)
             val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * currentPeak
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f

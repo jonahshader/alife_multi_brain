@@ -100,6 +100,9 @@ dependencies {
 //	implementation "org.jcuda:jcublas:11.4.1"
 	implementation 'com.aparapi:aparapi:3.0.0'
 
+	implementation "org.deeplearning4j:deeplearning4j-core:1.0.0-M2"
+	implementation "org.nd4j:nd4j-native-platform:1.0.0-M2"
+
 
 	def classifier = getOsString() + "-" + getArchString()
 	def jCudaVersion = "11.2.0" // 11.2.0 10.2.0

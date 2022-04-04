@@ -1,7 +1,7 @@
 package com.jonahshader.systems.neuralnet
 
 import com.badlogic.gdx.utils.Disposable
-import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
+import org.nd4j.linalg.api.ndarray.INDArray
 
 typealias NetworkBuilder = (Int, Int) -> Network
 
@@ -14,8 +14,8 @@ interface Network : Disposable {
     fun getOutputSize() : Int
 
     fun mutateParameters(amount: Float)
-    fun getParameters() : List<Float>
-    fun setParameters(params: List<Float>)
+    fun getParameters() : INDArray
+    fun setParameters(params: INDArray)
 
     fun update(dt: Float)
     fun clone() : Network

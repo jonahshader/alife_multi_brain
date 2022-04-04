@@ -5,6 +5,7 @@ import com.jonahshader.systems.neuralnet.neurons.*
 import com.jonahshader.systems.ga.NNGenes
 import com.jonahshader.systems.ga.WeightGene
 import com.jonahshader.systems.utils.Rand
+import org.nd4j.linalg.api.ndarray.INDArray
 import java.util.*
 import kotlin.math.roundToInt
 import kotlin.random.asKotlinRandom
@@ -137,21 +138,29 @@ class CyclicNetwork : Network {
         }
     }
 
-    override fun getParameters(): List<Float> = getAllNeurons().flatMap { neuron -> neuron.getParameters() } + weights.map { weight -> weight.weight }
-
-    override fun setParameters(params: List<Float>) {
-        var index = 0
-        for(n in getAllNeurons()) {
-            val size = n.getParameters().size
-            n.setParameters(params.subList(index, index + size))
-            index += size
-        }
-
-        for (w in weights) {
-            w.weight = params[index]
-            index++
-        }
+    override fun getParameters(): INDArray {
+        TODO("Not yet implemented")
     }
+
+    override fun setParameters(params: INDArray) {
+        TODO("Not yet implemented")
+    }
+
+//    override fun getParameters(): List<Float> = getAllNeurons().flatMap { neuron -> neuron.getParameters() } + weights.map { weight -> weight.weight }
+//
+//    override fun setParameters(params: List<Float>) {
+//        var index = 0
+//        for(n in getAllNeurons()) {
+//            val size = n.getParameters().size
+//            n.setParameters(params.subList(index, index + size))
+//            index += size
+//        }
+//
+//        for (w in weights) {
+//            w.weight = params[index]
+//            index++
+//        }
+//    }
 
     fun mutateTopology(amount: Float) {
         var addRemoveNeuronCount = (rand.nextGaussian() * networkParams.addRemoveNeuronSd * amount).roundToInt()

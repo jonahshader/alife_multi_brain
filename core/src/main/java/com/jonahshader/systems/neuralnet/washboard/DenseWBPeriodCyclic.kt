@@ -13,6 +13,7 @@ import org.jetbrains.kotlinx.multik.ndarray.operations.inplace
 import org.jetbrains.kotlinx.multik.ndarray.operations.map
 import org.jetbrains.kotlinx.multik.ndarray.operations.plusAssign
 import org.jetbrains.kotlinx.multik.ndarray.operations.times
+import org.nd4j.linalg.api.ndarray.INDArray
 import java.util.*
 
 class DenseWBPeriodCyclic : DenseWashboardCyclic
@@ -36,6 +37,10 @@ class DenseWBPeriodCyclic : DenseWashboardCyclic
 
     override fun setInput(index: Int, value: Float) {
         initialInputVector[index] = value
+    }
+
+    override fun setParameters(params: INDArray) {
+        TODO("Not yet implemented")
     }
 
     override fun update(dt: Float) {

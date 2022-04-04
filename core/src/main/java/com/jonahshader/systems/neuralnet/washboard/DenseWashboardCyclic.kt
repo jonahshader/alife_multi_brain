@@ -16,6 +16,7 @@ import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.zeros
 import org.jetbrains.kotlinx.multik.ndarray.data.*
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
+import org.nd4j.linalg.api.ndarray.INDArray
 import java.util.Random
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -129,26 +130,31 @@ open class DenseWashboardCyclic : Network {
             hiddenToOutputWeights.data[i] += rand.nextGaussian().toFloat() * amount
     }
 
-//    override fun getParameters(): List<Float> = hiddenBias.toList() + outputBias.toList() +
+    override fun getParameters(): INDArray {
+        TODO("Not yet implemented")
+    }
+
+    override fun setParameters(params: INDArray) {
+        TODO("Not yet implemented")
+    }
+
+//    override fun getParameters(): List<Float> =
 //            inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
 //            hiddenToOutputWeights.toList()
-override fun getParameters(): List<Float> =
-        inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
-        hiddenToOutputWeights.toList()
-
-    override fun setParameters(params: List<Float>) {
-        var index = 0
-//        for (i in hiddenBias.indices)
-//            hiddenBias.data[i] = params[index++]
-//        for (i in outputBias.indices)
-//            outputBias.data[i] = params[index++]
-        for (i in inputToHiddenWeights.indices)
-            inputToHiddenWeights.data[i] = params[index++]
-        for (i in hiddenToHiddenWeights.indices)
-            hiddenToHiddenWeights.data[i] = params[index++]
-        for (i in hiddenToOutputWeights.indices)
-            hiddenToOutputWeights.data[i] = params[index++]
-    }
+//
+//    override fun setParameters(params: List<Float>) {
+//        var index = 0
+////        for (i in hiddenBias.indices)
+////            hiddenBias.data[i] = params[index++]
+////        for (i in outputBias.indices)
+////            outputBias.data[i] = params[index++]
+//        for (i in inputToHiddenWeights.indices)
+//            inputToHiddenWeights.data[i] = params[index++]
+//        for (i in hiddenToHiddenWeights.indices)
+//            hiddenToHiddenWeights.data[i] = params[index++]
+//        for (i in hiddenToOutputWeights.indices)
+//            hiddenToOutputWeights.data[i] = params[index++]
+//    }
 
     override fun update(dt: Float) {
         if (useRK4) {
@@ -168,16 +174,21 @@ override fun getParameters(): List<Float> =
     override fun clone() = DenseWashboardCyclic(this)
 
     override fun reset() {
-        for (i in outputVector.indices)
-            outputVector[i] = 0f
-        for (i in hiddenBuffer.indices)
-            hiddenBuffer[i] = 0f
-        for (i in hiddenOut.indices)
-            hiddenOut[i] = 0f
-        for (i in hiddenAngle.indices)
-            hiddenAngle[i] = ANGLE_INIT
-        for (i in hiddenAngleVel.indices)
-            hiddenAngleVel[i] = 0f
+//        for (i in outputVector.indices)
+//            outputVector[i] = 0f
+//        for (i in hiddenBuffer.indices)
+//            hiddenBuffer[i] = 0f
+//        for (i in hiddenOut.indices)
+//            hiddenOut[i] = 0f
+//        for (i in hiddenAngle.indices)
+//            hiddenAngle[i] = ANGLE_INIT
+//        for (i in hiddenAngleVel.indices)
+//            hiddenAngleVel[i] = 0f
+
+        outputVector = mk.zeros(outputVector.size)
+        hiddenBuffer = mk.zeros(hiddenBuffer.size)
+        hiddenAngle = mk.d1array(hiddenAngle.size) { ANGLE_INIT }
+        hiddenAngleVel = mk.zeros(hiddenAngleVel.size)
 
     }
 

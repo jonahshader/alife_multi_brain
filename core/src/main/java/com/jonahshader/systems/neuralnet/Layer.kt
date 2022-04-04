@@ -1,13 +1,12 @@
 package com.jonahshader.systems.neuralnet
 
-import org.jetbrains.kotlinx.multik.ndarray.data.D1
-import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
+import org.nd4j.linalg.api.ndarray.INDArray
 
 interface Layer {
-    fun update(input: NDArray<Float, D1>, dt: Float) : NDArray<Float, D1>
+    fun update(input: INDArray, dt: Float) : INDArray
     fun mutateParameters(amount: Float)
-    fun getParameters() : NDArray<Float, D1>
-    fun setParameters(params: NDArray<Float, D1>)
+    fun getParameters() : INDArray
+    fun setParameters(params: INDArray)
     fun clone() : Layer
     fun reset()
 }
