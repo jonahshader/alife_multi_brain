@@ -37,6 +37,7 @@ fun computeGradientsFromParamEvals(paramsList: List<List<Float>>, evals: List<Fl
 
 // todo evals should be a ROW vector
 fun computeGradientsFromParamEvals(params: INDArray, evals: INDArray) : INDArray {
+    // TODO: use common linear algebra representation. should be easy to extend to multivariables by introducing them as columns
     val xMeans = params.mean(1) // TODO: verify correctness
     val yMean = evals.mean(0).getFloat(0) // TODO: verify correctness
 
