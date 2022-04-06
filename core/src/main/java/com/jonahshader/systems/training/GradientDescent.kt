@@ -6,6 +6,7 @@ import org.jetbrains.kotlinx.multik.api.ndarray
 import org.jetbrains.kotlinx.multik.ndarray.data.get
 import org.jetbrains.kotlinx.multik.ndarray.operations.*
 import org.nd4j.linalg.api.ndarray.INDArray
+import org.nd4j.linalg.factory.Nd4j
 import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -35,14 +36,17 @@ fun computeGradientsFromParamEvals(paramsList: List<List<Float>>, evals: List<Fl
     return gradients.toMutableList()
 }
 
-// todo evals should be a ROW vector
+// dim of params is param_count x pop_size, dim of evals is 1 x pop_size
 fun computeGradientsFromParamEvals(params: INDArray, evals: INDArray) : INDArray {
     // TODO: use common linear algebra representation. should be easy to extend to multivariables by introducing them as columns
     val xMeans = params.mean(1) // TODO: verify correctness
     val yMean = evals.mean(0).getFloat(0) // TODO: verify correctness
 
-
-
+//    params.reshape
+    (0 until params.rows()).forEach {
+        val xVals = params.getColumn(it.toLong())
+        val yVals = evals
+    }
 }
 
 // returns weights update
