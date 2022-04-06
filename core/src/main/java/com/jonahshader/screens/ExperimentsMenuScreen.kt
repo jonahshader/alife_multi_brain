@@ -11,11 +11,13 @@ import com.jonahshader.systems.screen.ScreenManager
 import com.jonahshader.systems.simulation.foodgrid.FoodCreature
 import com.jonahshader.systems.simulation.selectmove.SelectMove
 import com.jonahshader.systems.training.EvolutionStrategies
+import com.jonahshader.systems.training.computeGradientsFromParamEvals
 import com.jonahshader.systems.ui.TextRenderer
 import com.jonahshader.systems.ui.menu.Menu
 import com.jonahshader.systems.utils.Rand
 import ktx.app.KtxScreen
 import ktx.graphics.use
+import org.nd4j.linalg.factory.Nd4j
 
 class ExperimentsMenuScreen : KtxScreen {
     private val camera = OrthographicCamera()
@@ -28,6 +30,18 @@ class ExperimentsMenuScreen : KtxScreen {
         menu.addMenuItem("UI Demo") { ScreenManager.push(UIDemoScreen()) }
         menu.addMenuItem("Visualizer") { ScreenManager.push(NetworkVisualTestScreen()) }
         menu.addMenuItem("Performance Tests") { ScreenManager.push(PerformanceMenuScreen()) }
+        menu.addMenuItem("Nd4j Test") {
+            val params = Nd4j.rand(10, 3)
+            val evals = Nd4j.zeros(1, 3)
+            evals.putScalar(0, 0f)
+            evals.putScalar(1, 1f)
+            evals.putScalar(2, 2f)
+
+            println("params:\n$params")
+            println("evals:\n$evals")
+            val gradients = computeGradientsFromParamEvals(params, evals)
+            println("gradients:\n$gradients")
+        }
         menu.addMenuItem("Back") { ScreenManager.pop() }
 
 //        if((Settings.settings["fullscreen"] as String).toBoolean()) Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)

@@ -4,8 +4,11 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Disposable
 import com.jonahshader.systems.creatureparts.ReinforcementTask
 import com.jonahshader.systems.creatureparts.TaskBuilder
+import com.jonahshader.systems.math.plus
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.utils.Rand
+import org.nd4j.linalg.api.ndarray.INDArray
+import org.nd4j.linalg.factory.Nd4j
 import java.util.*
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
@@ -33,8 +36,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
 
     private var gdCreatureCurrent: Eval? = null
     private var pUpdate: List<Float>
-    private val moment1: MutableList<Float>
-    private val moment2: MutableList<Float>
+    private val moment1: INDArray
+    private val moment2: INDArray
     private var currentIteration = 0
 
     private var running = false
@@ -54,15 +57,18 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
 
         // initialize pUpdate for gd with momentum
         pUpdate = List(population[0].creature.network.getParameters().rows()) { 0f }
-        moment1 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
-        moment2 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
+//        moment1 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
+//        moment2 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
+        moment1 = Nd4j.zeros(population[0].creature.network.getParameters().rows())
+        moment2 = Nd4j.zeros(population[0].creature.network.getParameters().rows())
     }
 
     private fun runAlgo() {
         when (algo) {
             Algo.EsPickBest -> esPickBestAlgo()
-            Algo.EsGD -> esGdAlgo()
+//            Algo.EsGD -> esGdAlgo()
             Algo.EsGDM -> esGdMovementAlgo()
+            else -> esGdMovementAlgo()
         }
 
         currentIteration++
@@ -145,13 +151,18 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
 //            paramsList += it.creature.network.getParameters()
 //        }
         // build list for algo function
-        val paramsList = population.map { it.creature.network.getParameters() }
+        val paramsList = population.map { it.creature.network.getParameters() }.reduce { acc, indArray -> Nd4j.hstack(acc, indArray) }
 
 //        val evals = mutableListOf<Float>()
 //        population.forEach {
 //            evals += it.fitness
 //        }
-        val evals = population.map { it.fitness }
+        //population.map { it.fitness }.toFloatArray()
+        val evals = Nd4j.zeros(population.size)
+        population.forEachIndexed { index, eval ->
+            evals.putScalar(index.toLong(), eval.fitness)
+        }
+        evals.transposei()
 
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val mutationRate = 0.01f
@@ -164,7 +175,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
 //        val medianParams = population[population.size/2].creature.network.getParameters()
 //        gdCreatureCurrent = population[population.size/2]
-        val newParams = medianParams.zip(update) { base, u -> base + u }
+//        val newParams = medianParams.zip(update) { base, u -> base + u }
+        val newParams = medianParams + update
 
         population.parallelStream().forEach {
             it.fitness = 0f
@@ -179,47 +191,47 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
         }
     }
 
-    private fun esGdAlgo() {
-        if (population[0].creature.network.multithreadable)
-            population.parallelStream().forEach { evaluateAverage(it) }
-        else
-            population.forEach { evaluateAverage(it) }
-        population.sortBy { it.fitness }
-        if (gdCreatureCurrent == null) {
-            gdCreatureCurrent = population[population.size/2]
-        }
-
-        logFitness(gdCreatureCurrent!!.fitness, population)
-        bestLock.withLock {
-            bestCreature?.network?.dispose()
-            bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
-        }
-
-        population.forEachIndexed {index, it ->
-            // reassign fitness to a value proportional to its rank
-            it.fitness = (index.toFloat() / (population.size - 1)) - .5f
-        }
-
-        // build lists for algo function
-        val paramsList = mutableListOf<List<Float>>()
-        population.forEach {
-            paramsList += it.creature.network.getParameters()
-        }
-
-        val evals = mutableListOf<Float>()
-        population.forEach {
-            evals += it.fitness
-        }
-
-        val newParams = esGradientDescent(gdCreatureCurrent!!.creature.network.getParameters(), paramsList, evals, 0.1f)
-        population.forEachIndexed { index, it ->
-            it.fitness = 0f
-            it.creature.network.setParameters(newParams)
-            if (it != gdCreatureCurrent!!) {
-                it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
-            }
-        }
-    }
+//    private fun esGdAlgo() {
+//        if (population[0].creature.network.multithreadable)
+//            population.parallelStream().forEach { evaluateAverage(it) }
+//        else
+//            population.forEach { evaluateAverage(it) }
+//        population.sortBy { it.fitness }
+//        if (gdCreatureCurrent == null) {
+//            gdCreatureCurrent = population[population.size/2]
+//        }
+//
+//        logFitness(gdCreatureCurrent!!.fitness, population)
+//        bestLock.withLock {
+//            bestCreature?.network?.dispose()
+//            bestCreature = gdCreatureCurrent!!.creature.cloneAndReset()
+//        }
+//
+//        population.forEachIndexed {index, it ->
+//            // reassign fitness to a value proportional to its rank
+//            it.fitness = (index.toFloat() / (population.size - 1)) - .5f
+//        }
+//
+//        // build lists for algo function
+//        val paramsList = mutableListOf<List<Float>>()
+//        population.forEach {
+//            paramsList += it.creature.network.getParameters()
+//        }
+//
+//        val evals = mutableListOf<Float>()
+//        population.forEach {
+//            evals += it.fitness
+//        }
+//
+//        val newParams = esGradientDescent(gdCreatureCurrent!!.creature.network.getParameters(), paramsList, evals, 0.1f)
+//        population.forEachIndexed { index, it ->
+//            it.fitness = 0f
+//            it.creature.network.setParameters(newParams)
+//            if (it != gdCreatureCurrent!!) {
+//                it.creature.network.mutateParameters((index.toFloat() / (population.size-1)).pow(2) * .25f)
+//            }
+//        }
+//    }
 
     private fun esPickBestAlgo() {
         if (population[0].creature.network.multithreadable)

@@ -1,6 +1,8 @@
 package com.jonahshader.systems.training
 
+import com.jonahshader.systems.math.plus
 import com.jonahshader.systems.math.times
+import com.jonahshader.systems.math.div
 import org.jetbrains.kotlinx.multik.api.mk
 import org.jetbrains.kotlinx.multik.api.ndarray
 import org.jetbrains.kotlinx.multik.ndarray.data.get
@@ -38,15 +40,20 @@ fun computeGradientsFromParamEvals(paramsList: List<List<Float>>, evals: List<Fl
 
 // dim of params is param_count x pop_size, dim of evals is 1 x pop_size
 fun computeGradientsFromParamEvals(params: INDArray, evals: INDArray) : INDArray {
-    // TODO: use common linear algebra representation. should be easy to extend to multivariables by introducing them as columns
-    val xMeans = params.mean(1) // TODO: verify correctness
-    val yMean = evals.mean(0).getFloat(0) // TODO: verify correctness
 
-//    params.reshape
+    val yVals = evals.transpose()
+    val yMean = yVals.mean(0).getFloat(0)
+    val gradients = Nd4j.zeros(params.rows())
     (0 until params.rows()).forEach {
-        val xVals = params.getColumn(it.toLong())
-        val yVals = evals
+        val xVals = params.getRow(it.toLong()) // TODO: was transposed
+        val xMean = xVals.mean(0) // should be scalar
+
+        val xn = xVals.sub(xMean.getFloat(0))
+        val yn = yVals.sub(yMean)
+        val gradient = xn.mulColumnVector(yn).cumsum(0).getFloat(0) / xn.mulColumnVector(xn).cumsum(0).getFloat(0)
+        gradients.putScalar(it.toLong(), gradient)
     }
+    return gradients
 }
 
 // returns weights update
@@ -72,6 +79,23 @@ fun sgdAdamUpdate(gradients: List<Float>, moment: MutableList<Float>, variance: 
     val vth = vt/(1-b2.pow(timestep+1))
     // compute weight update
     return ((mth * a)/(vth.map{sqrt(it) + e})).toList()
+}
+
+fun sgdAdamUpdate(gradients: INDArray, moment: INDArray, variance: INDArray, timestep: Int,
+                  a: Float = 0.001f, b1: Float = 0.9f, b2: Float = 0.999f, e: Float = 1e-8f) : INDArray {
+    val gt = gradients
+    val mt = moment * b1 + (1f-b1) * gt
+    val vt = variance * b2 + (1f-b2) * gt * gt
+    // store back into moment and variance
+    moment.subi(moment) // TODO: this sucks
+    variance.subi(variance)
+    moment.addi(mt)
+    variance.addi(vt)
+    // compute bias corrected first and second moment estimates
+    val mth: INDArray = mt / (1f - b1.pow(timestep + 1))
+    val vth: INDArray = vt / (1-b2.pow(timestep+1))
+    return ((mth * a)/(Nd4j.math.pow(vth, .5) + e))
+
 }
 
 fun sgdAdaMaxUpdate(gradients: List<Float>,  moment: MutableList<Float>, infNorm: MutableList<Float>, timestep: Int,
