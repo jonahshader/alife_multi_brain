@@ -79,7 +79,7 @@ class NonSpikingClassifier(override var maxIterations: Int, networkBuilder: (Int
             } else {
                 TextRenderer.color.set(1f, 0f, 0f, 1f)
             }
-            TextRenderer.drawText(PIXEL_SIZE * (IMAGE_WIDTH_HEIGHT + 1), -PIXEL_SIZE * 6, "Expected: $maxIndex")
+            TextRenderer.drawText(PIXEL_SIZE * (IMAGE_WIDTH_HEIGHT + 1), -PIXEL_SIZE * 6, "Prediction: $maxIndex")
         }
 
         TextRenderer.end()
