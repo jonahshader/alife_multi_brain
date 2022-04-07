@@ -73,7 +73,7 @@ class DenseCyclicNetwork : Network {
         this.hiddenToOutputWeights = toCopy.hiddenToOutputWeights.dup()
     }
 
-    override val multithreadable = true
+    override val multithreadable = false // TODO
 
     override fun setInput(index: Int, value: Float) {
         inputVector.putScalar(index.toLong(), value)

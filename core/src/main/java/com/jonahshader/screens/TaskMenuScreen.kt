@@ -28,7 +28,7 @@ class TaskMenuScreen : KtxScreen {
 
     init {
         menu.addMenuItem("Food Task") {
-            val sim = EvolutionStrategies(DenseWashboardCyclic.makeBuilder(35), FoodCreature.builder,
+            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(35), FoodCreature.builder,
                 200, 50, 1/20f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
 //            val sim = EvolutionStrategies(DenseWBPeriodCyclic.makeBuilder(20), FoodCreature.builder,
