@@ -35,6 +35,8 @@ class DenseCyclicNetwork : Network {
     private var hiddenToOutputWeights: INDArray
 
     constructor(inputSize: Int, hiddenSize: Int, outputSize: Int, rand: Random = Rand.randx) {
+
+        println("making deep cyclic network with $inputSize, $hiddenSize, $outputSize")
         val sqrt6 = sqrt(6f)
         val inputToHiddenRange = sqrt6 / sqrt(1f + inputSize + hiddenSize)
         val inputToOutputRange = sqrt6 / sqrt(1f + inputSize + outputSize)
@@ -43,20 +45,23 @@ class DenseCyclicNetwork : Network {
 
 
         this.rand = rand
-        this.inputVector = Nd4j.zeros(inputSize)
-        this.outputVector = Nd4j.zeros(outputSize)
-        this.hiddenBuffer = Nd4j.zeros(hiddenSize)
-        this.hiddenOut = Nd4j.zeros(hiddenSize)
+        this.inputVector = Nd4j.zeros(inputSize, 1)
+        this.outputVector = Nd4j.zeros(outputSize, 1)
+        this.hiddenBuffer = Nd4j.zeros(hiddenSize, 1)
+        this.hiddenOut = Nd4j.zeros(hiddenSize, 1)
 
 //        this.hiddenBias = Nd4j.d1array(hiddenSize) { rand.nextGaussian().toFloat() * hiddenToHiddenRange }
 //        this.outputBias = Nd4j.d1array(outputSize) { rand.nextGaussian().toFloat() * hiddenToOutputRange }
-        this.hiddenBias = Nd4j.randn(hiddenSize.toLong()) * hiddenToHiddenRange
-        this.outputBias = Nd4j.randn(outputSize.toLong()) * hiddenToOutputRange
+        this.hiddenBias = Nd4j.randn(hiddenSize.toLong(), 1) * hiddenToHiddenRange
+        this.outputBias = Nd4j.randn(outputSize.toLong(), 1) * hiddenToOutputRange
 
         this.inputToHiddenWeights = Nd4j.randn(hiddenSize.toLong(), inputSize.toLong()) * inputToHiddenRange
         this.hiddenToHiddenWeights = Nd4j.randn(hiddenSize.toLong(), hiddenSize.toLong()) * hiddenToHiddenRange
         this.inputToOutputWeights = Nd4j.randn(outputSize.toLong(), inputSize.toLong()) * inputToOutputRange
         this.hiddenToOutputWeights = Nd4j.randn(outputSize.toLong(), hiddenSize.toLong()) * hiddenToOutputRange
+
+//        println("hiddenBias: ${hiddenBias.shape().toList()}")
+        println("hiddenBuffer: ${hiddenBuffer.shape().toList()}")
     }
 
     constructor(toCopy: DenseCyclicNetwork) {
@@ -84,16 +89,17 @@ class DenseCyclicNetwork : Network {
     }
 
     override fun getInputSize(): Int {
-        return inputVector.rows()
+        return inputVector.size(0).toInt()
     }
 
     override fun getOutputSize(): Int {
-        return outputVector.rows()
+        return outputVector.size(0).toInt()
     }
 
     override fun mutateParameters(amount: Float) {
         // mutate bias and weights
         hiddenBias.plusAssign(Nd4j.randn(hiddenBias.shape()[0], hiddenBias.shape()[1]) * amount)
+        println("hiddenBias mParams: ${hiddenBias.shape().toList()}")
         outputBias.plusAssign(Nd4j.randn(outputBias.shape()[0], outputBias.shape()[1]) * amount)
         inputToHiddenWeights.plusAssign(Nd4j.randn(inputToHiddenWeights.shape()[0], inputToHiddenWeights.shape()[1]) * amount)
         hiddenToHiddenWeights.plusAssign(Nd4j.randn(hiddenToHiddenWeights.shape()[0], hiddenToHiddenWeights.shape()[1]) * amount)
@@ -111,10 +117,11 @@ class DenseCyclicNetwork : Network {
 //    inputToOutputWeights.toList() + hiddenToOutputWeights.toList()
     override fun setParameters(params: INDArray) {
         var index = 0
-        hiddenBias = params.get(interval(index, index + hiddenBias.rows())).dup()
-        index += hiddenBias.rows()
-        outputBias = params.get(interval(index, index + outputBias.rows())).dup()
-        index += outputBias.rows()
+        hiddenBias = params.get(interval(index, index + hiddenBias.size(0).toInt())).dup()
+//        println("hiddenBuffer setParams: ${hiddenBuffer.shape().toList()}")
+        index += hiddenBias.size(0).toInt()
+        outputBias = params.get(interval(index, index + outputBias.size(0).toInt())).dup()
+        index += outputBias.size(0).toInt()
         inputToHiddenWeights = params.get(interval(index, d2Size(inputToHiddenWeights)))
             .reshape(d2Shape(hiddenToHiddenWeights)).dup()
         index += d2Size(inputToHiddenWeights)
@@ -157,8 +164,14 @@ class DenseCyclicNetwork : Network {
     }
 
     override fun update(dt: Float) {
-        hiddenBuffer = (hiddenToHiddenWeights.mul(hiddenOut)) + (inputToHiddenWeights.mul(inputVector)) + hiddenBias
-        outputVector = (hiddenToOutputWeights.mul(hiddenOut)) + (inputToOutputWeights.mul(inputVector)) + outputBias
+//        println("hiddenBuffer update: ${hiddenBuffer.shape().toList()}")
+//        println(hiddenBuffer.shape().map { "$it " })
+//        println(hiddenToHiddenWeights.shape().map { "$it " })
+//        println(hiddenOut.shape().map { "$it " })
+//        println(inputToHiddenWeights.shape().map { "$it " })
+//        println(inputVector.shape().map { "$it " })
+        hiddenBuffer = (hiddenToHiddenWeights.mmul(hiddenOut)) + (inputToHiddenWeights.mmul(inputVector)) + hiddenBias
+        outputVector = (hiddenToOutputWeights.mmul(hiddenOut)) + (inputToOutputWeights.mmul(inputVector)) + outputBias
 
 //        hiddenOut = hiddenBuffer.map { tanh(it) }
 
@@ -181,9 +194,12 @@ class DenseCyclicNetwork : Network {
 //        hiddenBuffer = mk.zeros(hiddenBuffer.size)
 //        hiddenOut = mk.zeros(hiddenOut.size)
 
-        outputVector = Nd4j.zeros(outputVector.rows())
-        hiddenBuffer = Nd4j.zeros(hiddenBuffer.rows())
-        hiddenOut = Nd4j.zeros(hiddenOut.rows())
+        outputVector = Nd4j.zeros(outputVector.size(0), 1)
+        hiddenBuffer = Nd4j.zeros(hiddenBuffer.size(0), 1)
+//        println("hidden buffer rows: ${hiddenBuffer.rows()}")
+//        println("hidden buffer cols: ${hiddenBuffer.columns()}")
+//        println("hidden buffer size(0): ${hiddenBuffer.size(0)}")
+        hiddenOut = Nd4j.zeros(hiddenOut.size(0), 1)
     }
 
     override fun dispose() {

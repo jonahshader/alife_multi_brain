@@ -85,7 +85,7 @@ fun sgdAdamUpdate(gradients: INDArray, moment: INDArray, variance: INDArray, tim
                   a: Float = 0.001f, b1: Float = 0.9f, b2: Float = 0.999f, e: Float = 1e-8f) : INDArray {
     val gt = gradients
     val mt = moment * b1 + (1f-b1) * gt
-    val vt = variance * b2 + (1f-b2) * gt * gt
+    val vt = variance * b2 + (1f-b2) * gt.mul(gt) // TODO: mul or mulColumnVector
     // store back into moment and variance
     moment.subi(moment) // TODO: this sucks
     variance.subi(variance)
