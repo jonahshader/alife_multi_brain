@@ -27,13 +27,16 @@ class TaskMenuScreen : KtxScreen {
     private val menu = Menu(TextRenderer.Font.HEAVY, camera, Vector2(0f, 180f), Vector2(500f, 90f))
 
     init {
+        menu.addMenuItem("Food Task Micro") {
+            val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(15), FoodCreature.builder,
+                10, 2, 1/20f,
+                algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
+            ScreenManager.push(SimViewerScreen(sim, 1))
+        }
         menu.addMenuItem("Food Task") {
             val sim = EvolutionStrategies(DenseCyclicNetwork.makeBuilder(35), FoodCreature.builder,
                 200, 50, 1/20f,
                 algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
-//            val sim = EvolutionStrategies(DenseWBPeriodCyclic.makeBuilder(20), FoodCreature.builder,
-//                50, 20, 300, 1/20f,
-//                algo = EvolutionStrategies.Algo.EsGDM, printFitness = false, rand = Rand.randx)
             ScreenManager.push(SimViewerScreen(sim, 1))
         }
         menu.addMenuItem("Ball Push Task") { ScreenManager.push(SimViewerScreen(

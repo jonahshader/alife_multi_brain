@@ -59,8 +59,8 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
         pUpdate = List(population[0].creature.network.getParameters().rows()) { 0f }
 //        moment1 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
 //        moment2 = MutableList(population[0].creature.network.getParameters().rows()) { 0f }
-        moment1 = Nd4j.zeros(population[0].creature.network.getParameters().rows())
-        moment2 = Nd4j.zeros(population[0].creature.network.getParameters().rows())
+        moment1 = Nd4j.zeros(population[0].creature.network.getParameters().size(0))
+        moment2 = Nd4j.zeros(population[0].creature.network.getParameters().size(0))
     }
 
     private fun runAlgo() {
@@ -118,6 +118,7 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
     //TODO: pull out optimizer from algo
     //TODO: log average fitness of population instead of current or best
     private fun esGdMovementAlgo() {
+        println("starting evaluation")
         if (population[0].creature.network.multithreadable)
             population.parallelStream().forEach { evaluateAverage(it) }
         else
@@ -151,27 +152,33 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
 //            paramsList += it.creature.network.getParameters()
 //        }
         // build list for algo function
-        val paramsList = population.map { it.creature.network.getParameters() }.reduce { acc, indArray -> Nd4j.hstack(acc, indArray) }
+        val paramsList = population.map {
+            val params = it.creature.network.getParameters()
+            params.reshape(params.size(0), 1)
+        }.reduce { acc, indArray -> Nd4j.hstack(acc, indArray) }
+//        val paramsList2 = population.map { it.creature.network.getParameters().as }
+//        Nd4j.stack
 
 //        val evals = mutableListOf<Float>()
 //        population.forEach {
 //            evals += it.fitness
 //        }
         //population.map { it.fitness }.toFloatArray()
+        // TODO: is this right?
         val evals = Nd4j.zeros(population.size)
         population.forEachIndexed { index, eval ->
             evals.putScalar(index.toLong(), eval.fitness)
         }
-        evals.transposei()
-
+        println("before computing grads")
         val grads = computeGradientsFromParamEvals(paramsList, evals)
         val mutationRate = 0.01f
 //        val update = gradientDescentUpdateMomentum(grads, pUpdate, 0.01f * mutationRate, 0.92f)
 //        pUpdate = update
+        println("before adam update")
         val update = sgdAdamUpdate(grads, moment1, moment2, currentIteration,a = mutationRate * 1f)
 //        val update = sgdAdaMaxUpdate(grads, moment1, moment2, currentIteration, a = mutationRate * 1f)
-        println(moment1)
-        println(moment2)
+//        println(moment1)
+//        println(moment2)
         val medianParams = gdCreatureCurrent!!.creature.network.getParameters()
 //        val medianParams = population[population.size/2].creature.network.getParameters()
 //        gdCreatureCurrent = population[population.size/2]
@@ -274,9 +281,12 @@ class EvolutionStrategies(networkBuilder: NetworkBuilder, creatureBuilder: TaskB
     private fun evaluateAverage(eval: Eval) {
         var totalFitness = 0f
         for (i in 0 until samples) {
+            println("restarting and randomizing")
             eval.creature.restartAndRandomize()
-            while (!eval.creature.done())
+            while (!eval.creature.done()) {
+//                println("updating")
                 eval.creature.update(dt)
+            }
             totalFitness += eval.creature.getFitness()
         }
 

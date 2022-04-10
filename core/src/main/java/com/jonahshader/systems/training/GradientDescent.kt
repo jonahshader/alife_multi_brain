@@ -41,7 +41,7 @@ fun computeGradientsFromParamEvals(paramsList: List<List<Float>>, evals: List<Fl
 // dim of params is param_count x pop_size, dim of evals is 1 x pop_size
 fun computeGradientsFromParamEvals(params: INDArray, evals: INDArray) : INDArray {
 
-    val yVals = evals.transpose()
+    val yVals = evals
     val yMean = yVals.mean(0).getFloat(0)
     val gradients = Nd4j.zeros(params.rows())
     (0 until params.rows()).forEach {
@@ -50,6 +50,10 @@ fun computeGradientsFromParamEvals(params: INDArray, evals: INDArray) : INDArray
 
         val xn = xVals.sub(xMean.getFloat(0))
         val yn = yVals.sub(yMean)
+        println("xn shape: ${xn.shape().toList()}")
+        println("yn shape: ${yn.shape().toList()}")
+        println("params shape: ${params.shape().toList()}")
+        println("params rows: ${params.rows()}")
         val gradient = xn.mulColumnVector(yn).cumsum(0).getFloat(0) / xn.mulColumnVector(xn).cumsum(0).getFloat(0)
         gradients.putScalar(it.toLong(), gradient)
     }
@@ -83,10 +87,25 @@ fun sgdAdamUpdate(gradients: List<Float>, moment: MutableList<Float>, variance: 
 
 fun sgdAdamUpdate(gradients: INDArray, moment: INDArray, variance: INDArray, timestep: Int,
                   a: Float = 0.001f, b1: Float = 0.9f, b2: Float = 0.999f, e: Float = 1e-8f) : INDArray {
+//    val gt = gradients
+//    val mt = moment * b1 + (1f-b1) * gt
+//    val vt = variance * b2 + (1f-b2) * gt.mul(gt) // TODO: mul or mulColumnVector
+//    // store back into moment and variance
+//    moment.subi(moment) // TODO: this sucks
+//    variance.subi(variance)
+//    moment.addi(mt)
+//    variance.addi(vt)
+//    // compute bias corrected first and second moment estimates
+//    val mth: INDArray = mt / (1f - b1.pow(timestep + 1))
+//    val vth: INDArray = vt / (1-b2.pow(timestep+1))
+//    return ((mth * a)/(Nd4j.math.pow(vth, .5) + e))
+
     val gt = gradients
-    val mt = moment * b1 + (1f-b1) * gt
-    val vt = variance * b2 + (1f-b2) * gt.mul(gt) // TODO: mul or mulColumnVector
+    val mt = moment.mul(b1).add(gt.mul(1f-b1))
+    val vt = variance.mul(b2) + gt.mul(gt).mul(1f-b2) // TODO: mul or mulColumnVector
     // store back into moment and variance
+    println("moment shape: ${moment.shape().toList()}")
+    println("mt shape: ${mt.shape().toList()}")
     moment.subi(moment) // TODO: this sucks
     variance.subi(variance)
     moment.addi(mt)
