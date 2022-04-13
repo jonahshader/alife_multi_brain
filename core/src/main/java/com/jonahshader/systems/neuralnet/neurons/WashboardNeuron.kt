@@ -31,6 +31,19 @@ class WashboardNeuron(
     private var angularVel = 0.0f
 
     var pNeuron: WashboardNeuron? = null
+    var pWeight = 0.0
+
+    var k1pos = 0.0
+    var k1vel = 0.0
+
+    var k2pos = 0.0
+    var k2vel = 0.0
+
+    var k3pos = 0.0
+    var k3vel = 0.0
+
+    var k4pos = 0.0
+    var k4vel = 0.0
 
 
     enum class IntegrationMode {
@@ -54,7 +67,7 @@ class WashboardNeuron(
         }
     }
 
-    private fun accel(inputCurrent: Float, theta: Double, angularVel: Double) = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2*theta)) * w_ex
+    private fun accel(inputCurrent: Double, theta: Double, angularVel: Double) = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2*theta)) * w_ex
 
 //    private fun testFp(dt: Float) {
 //        val inputCurrent = inputSum + bias
@@ -75,7 +88,7 @@ class WashboardNeuron(
 //        val inputCurrent = inputSum
 
         // compute angular acceleration
-        angularAccelD = accel(inputCurrent, thetaD, angularVelD)
+        angularAccelD = accel(inputCurrent.toDouble(), thetaD, angularVelD)
 
         // integrate angular acceleration
         angularVelD += angularAccelD * dt
@@ -106,38 +119,37 @@ class WashboardNeuron(
     // https://scicomp.stackexchange.com/questions/26766/4th-order-runge-kutta-method-for-driven-damped-pendulum
     // https://stackoverflow.com/questions/52985027/runge-kutta-4-and-pendulum-simulation-in-python
     private fun updateDpRK4(dt: Float) {
-        val inputCurrent = inputSum + bias
+        val inputCurrent = (inputSum + bias).toDouble()
 
         if (pNeuron == null) {
-            val k1pos = dt * angularVelD
-            val k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
+            k1pos = dt * angularVelD
+            k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
 
-            val k2pos = dt * (angularVelD + .5 * k1vel)
-            val k2vel = dt * accel(inputCurrent, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
+            k2pos = dt * (angularVelD + .5 * k1vel)
+            k2vel = dt * accel(inputCurrent, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
 
-            val k3pos = dt * (angularVelD + .5 * k2vel)
-            val k3vel = dt * accel(inputCurrent, thetaD + .5 * k2pos, angularVelD + .5 * k2vel)
+            k3pos = dt * (angularVelD + .5 * k2vel)
+            k3vel = dt * accel(inputCurrent, thetaD + .5 * k2pos, angularVelD + .5 * k2vel)
 
-            val k4pos = dt * (angularVelD + k3vel)
-            val k4vel = dt * accel(inputCurrent, thetaD + k3pos, angularVelD + k3vel)
+            k4pos = dt * (angularVelD + k3vel)
+            k4vel = dt * accel(inputCurrent, thetaD + k3pos, angularVelD + k3vel)
 
             thetaD += (k1pos + 2 * k2pos + 2 * k3pos + k4pos) / 6.0
             angularVelD += (k1vel + 2 * k2vel + 2 * k3vel + k4vel) / 6.0
         } else {
-            val k1pos = dt * angularVelD
-            val k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
-            // TODO: how to do this without recursively computing previous neurons
-            val k1pcurr = dt * pNeuron!!.accel(pNeuron!!.inputSum + pNeuron!!.bias, pNeuron!!.thetaD, pNeuron!!.angularVelD) * B * FEMTO
+            // TODO: i think this is correct, but it appears to perform worse than when inputCurrent is treated like a constant
+            val pn = pNeuron!!
+            k1pos = dt * angularVelD
+            k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
 
+            k2pos = dt * (angularVelD + .5 * k1vel)
+            k2vel = dt * accel(inputCurrent + pn.k1vel * B * FEMTO * pWeight, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
 
-            val k2pos = dt * (angularVelD + .5 * k1vel)
-            val k2vel = dt * accel(inputCurrent, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
+            k3pos = dt * (angularVelD + .5 * k2vel)
+            k3vel = dt * accel(inputCurrent + .5 * pn.k2vel * B * FEMTO * pWeight, thetaD + .5 * k2pos, angularVelD + .5 * k2vel)
 
-            val k3pos = dt * (angularVelD + .5 * k2vel)
-            val k3vel = dt * accel(inputCurrent, thetaD + .5 * k2pos, angularVelD + .5 * k2vel)
-
-            val k4pos = dt * (angularVelD + k3vel)
-            val k4vel = dt * accel(inputCurrent, thetaD + k3pos, angularVelD + k3vel)
+            k4pos = dt * (angularVelD + k3vel)
+            k4vel = dt * accel(inputCurrent + pn.k3vel * B * FEMTO * pWeight, thetaD + k3pos, angularVelD + k3vel)
 
             thetaD += (k1pos + 2 * k2pos + 2 * k3pos + k4pos) / 6.0
             angularVelD += (k1vel + 2 * k2vel + 2 * k3vel + k4vel) / 6.0

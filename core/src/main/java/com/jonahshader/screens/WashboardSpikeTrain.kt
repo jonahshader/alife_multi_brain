@@ -73,6 +73,10 @@ class WashboardSpikeTrain : KtxScreen {
 
         for (i in 0 until NEURON_COUNT) {
             neurons += WashboardNeuron(a)
+            if (i > 0) {
+                neurons[i].pNeuron = neurons[i-1]
+                neurons[i].pWeight = weight.toDouble()
+            }
 //            neurons.last().bias = (198 * 10e-6).toFloat()
             neurons.last().bias = bias
 //            neurons.last().bias = 0f
