@@ -32,6 +32,7 @@ class WashboardNeuron(
 
     var pNeuron: WashboardNeuron? = null
     var pWeight = 0.0
+    var pOutputBuffer = 0.0
 
     var k1pos = 0.0
     var k1vel = 0.0
@@ -49,7 +50,8 @@ class WashboardNeuron(
     enum class IntegrationMode {
         EULER,
         TRAP_EULER,
-        RK4
+        RK4,
+        RK4_OLD,
     }
     var integrationMode = IntegrationMode.EULER
 
@@ -64,6 +66,8 @@ class WashboardNeuron(
             IntegrationMode.EULER -> updateDp(dt)
             IntegrationMode.TRAP_EULER -> updateDpTrap(dt)
             IntegrationMode.RK4 -> updateDpRK4(dt)
+            IntegrationMode.RK4_OLD -> updateDpRK4Old(dt)
+
         }
     }
 
@@ -119,9 +123,11 @@ class WashboardNeuron(
     // https://scicomp.stackexchange.com/questions/26766/4th-order-runge-kutta-method-for-driven-damped-pendulum
     // https://stackoverflow.com/questions/52985027/runge-kutta-4-and-pendulum-simulation-in-python
     private fun updateDpRK4(dt: Float) {
-        val inputCurrent = (inputSum + bias).toDouble()
+        pOutputBuffer = outputBuffer.toDouble()
+
 
         if (pNeuron == null) {
+            val inputCurrent = (inputSum + bias).toDouble()
             k1pos = dt * angularVelD
             k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
 
@@ -139,6 +145,7 @@ class WashboardNeuron(
         } else {
             // TODO: i think this is correct, but it appears to perform worse than when inputCurrent is treated like a constant
             val pn = pNeuron!!
+            val inputCurrent = (pn.pOutputBuffer * pWeight + bias).toDouble()
             k1pos = dt * angularVelD
             k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
 
@@ -155,6 +162,26 @@ class WashboardNeuron(
             angularVelD += (k1vel + 2 * k2vel + 2 * k3vel + k4vel) / 6.0
         }
 
+
+        outputBuffer = (angularVelD * B * FEMTO).toFloat()
+    }
+
+    private fun updateDpRK4Old(dt: Float) {
+        val inputCurrent = (inputSum + bias).toDouble()
+        k1pos = dt * angularVelD
+        k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
+
+        k2pos = dt * (angularVelD + .5 * k1vel)
+        k2vel = dt * accel(inputCurrent, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
+
+        k3pos = dt * (angularVelD + .5 * k2vel)
+        k3vel = dt * accel(inputCurrent, thetaD + .5 * k2pos, angularVelD + .5 * k2vel)
+
+        k4pos = dt * (angularVelD + k3vel)
+        k4vel = dt * accel(inputCurrent, thetaD + k3pos, angularVelD + k3vel)
+
+        thetaD += (k1pos + 2 * k2pos + 2 * k3pos + k4pos) / 6.0
+        angularVelD += (k1vel + 2 * k2vel + 2 * k3vel + k4vel) / 6.0
 
         outputBuffer = (angularVelD * B * FEMTO).toFloat()
     }

@@ -130,6 +130,10 @@ class WashboardSpikeTrain : KtxScreen {
             integrationMode = WashboardNeuron.IntegrationMode.RK4
             generate()
         }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.O)) {
+            integrationMode = WashboardNeuron.IntegrationMode.RK4_OLD
+            generate()
+        }
 
         window.update(delta)
         window.render(MultiBrain.batch)
