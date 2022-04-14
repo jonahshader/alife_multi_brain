@@ -53,7 +53,7 @@ class WashboardNeuron(
         RK4,
         RK4_OLD,
     }
-    var integrationMode = IntegrationMode.EULER
+    var integrationMode = IntegrationMode.RK4
 
     init {
         neuronName = NeuronName.Washboard
@@ -71,7 +71,8 @@ class WashboardNeuron(
         }
     }
 
-    private fun accel(inputCurrent: Double, theta: Double, angularVel: Double) = (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2*theta)) * w_ex
+    private fun accel(inputCurrent: Double, theta: Double, angularVel: Double) =
+        (lSigma * inputCurrent - a*angularVel - (w_e/2)*sin(2*theta)) * w_ex
 
 //    private fun testFp(dt: Float) {
 //        val inputCurrent = inputSum + bias
@@ -143,14 +144,13 @@ class WashboardNeuron(
             thetaD += (k1pos + 2 * k2pos + 2 * k3pos + k4pos) / 6.0
             angularVelD += (k1vel + 2 * k2vel + 2 * k3vel + k4vel) / 6.0
         } else {
-            // TODO: i think this is correct, but it appears to perform worse than when inputCurrent is treated like a constant
             val pn = pNeuron!!
             val inputCurrent = (pn.pOutputBuffer * pWeight + bias).toDouble()
             k1pos = dt * angularVelD
             k1vel = dt * accel(inputCurrent, thetaD, angularVelD)
 
             k2pos = dt * (angularVelD + .5 * k1vel)
-            k2vel = dt * accel(inputCurrent + pn.k1vel * B * FEMTO * pWeight, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
+            k2vel = dt * accel(inputCurrent + .5 * pn.k1vel * B * FEMTO * pWeight, thetaD + .5 * k1pos, angularVelD + .5 * k1vel)
 
             k3pos = dt * (angularVelD + .5 * k2vel)
             k3vel = dt * accel(inputCurrent + .5 * pn.k2vel * B * FEMTO * pWeight, thetaD + .5 * k2pos, angularVelD + .5 * k2vel)
