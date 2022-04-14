@@ -45,7 +45,7 @@ object Assets : Disposable {
     private const val SPRITES = "graphics/spritesheets/sprites.atlas"
 
     // Shaders
-    private const val DFF_SHADER = "graphics/shaders/dff";
+    private const val DFF_SHADER = "graphics/shaders/dff"
     lateinit var dffShader: ShaderProgram
         private set
 

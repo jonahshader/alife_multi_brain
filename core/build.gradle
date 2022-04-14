@@ -2,18 +2,18 @@
 eclipse.project.name = appName + '-core'
 
 def static getOsString() {
-	String vendor = System.getProperty("java.vendor");
+	String vendor = System.getProperty("java.vendor")
 	if ("The Android Project" == vendor) {
-		return "android";
+		return "android"
 	} else {
-		String osName = System.getProperty("os.name");
-		osName = osName.toLowerCase(Locale.ENGLISH);
+		String osName = System.getProperty("os.name")
+		osName = osName.toLowerCase(Locale.ENGLISH)
 		if (osName.startsWith("windows")) {
-			return "windows";
+			return "windows"
 		} else if (osName.startsWith("mac os")) {
-			return "apple";
+			return "apple"
 		} else if (osName.startsWith("linux")) {
-			return "linux";
+			return "linux"
 		} else if (osName.startsWith("sun")) {
 			return "sun"
 		}
@@ -22,30 +22,30 @@ def static getOsString() {
 }
 
 def static getArchString() {
-	String osArch = System.getProperty("os.arch");
-	osArch = osArch.toLowerCase(Locale.ENGLISH);
+	String osArch = System.getProperty("os.arch")
+	osArch = osArch.toLowerCase(Locale.ENGLISH)
 	if ("i386" == osArch || "x86" == osArch || "i686" == osArch) {
-		return "x86";
+		return "x86"
 	} else if (osArch.startsWith("amd64") || osArch.startsWith("x86_64")) {
-		return "x86_64";
+		return "x86_64"
 	} else if (osArch.startsWith("arm64")) {
-		return "arm64";
+		return "arm64"
 	} else if (osArch.startsWith("arm")) {
-		return "arm";
+		return "arm"
 	} else if ("ppc" == osArch || "powerpc" == osArch) {
-		return "ppc";
+		return "ppc"
 	} else if (osArch.startsWith("ppc")) {
-		return "ppc_64";
+		return "ppc_64"
 	} else if (osArch.startsWith("sparc")) {
-		return "sparc";
+		return "sparc"
 	} else if (osArch.startsWith("mips64")) {
-		return "mips64";
+		return "mips64"
 	} else if (osArch.startsWith("mips")) {
-		return "mips";
+		return "mips"
 	} else if (osArch.contains("risc")) {
-		return "risc";
+		return "risc"
 	}
-	return "unknown";
+	return "unknown"
 }
 
 dependencies {

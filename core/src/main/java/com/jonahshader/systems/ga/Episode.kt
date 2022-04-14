@@ -1,4 +1,3 @@
 package com.jonahshader.systems.ga
 
-class Episode {
-}
+class Episode

@@ -1,4 +1,3 @@
 package com.jonahshader.systems.creatureparts
 
-class VisionArray {
-}
+class VisionArray
