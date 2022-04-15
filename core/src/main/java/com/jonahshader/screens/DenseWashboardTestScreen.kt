@@ -5,20 +5,24 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.neuralnet.Network
-import com.jonahshader.systems.neuralnet.washboard.DenseWashboardCyclic
+import com.jonahshader.systems.neuralnet.layers.DumbLayer
+import com.jonahshader.systems.neuralnet.layers.LayeredNetwork
+import com.jonahshader.systems.neuralnet.layers.WashboardLayer
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
 import com.jonahshader.systems.ui.Slider
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
+import org.jetbrains.kotlinx.multik.api.mk
+import org.jetbrains.kotlinx.multik.api.ndarray
+import org.jetbrains.kotlinx.multik.ndarray.data.get
 
 class DenseWashboardTestScreen : KtxScreen {
     private val window = ScreenWindow(Vector2(1280f, 720f))
     private val voltagePlot = Plot("Time (unit)", "Output Voltage", "Washboard Voltage", Vector2(), Vector2(1280f, PLOT_HEIGHT))
     private val phasePlot = Plot("Time (unit)", "Phase Degrees", "Washboard Phase", Vector2(0f, PLOT_HEIGHT), Vector2(1280f, PLOT_HEIGHT))
     private val currentPlot = Plot("Time (unit)", "Current", "Washboard Current", Vector2(0f, PLOT_HEIGHT * 2), Vector2(1280f, PLOT_HEIGHT))
-    private val network = DenseWashboardCyclic(1, 50, OUTPUT_COUNT)
+    private val network: LayeredNetwork
 
     //    private var bias = 198 * 10e-6f
     private var bias = 0.0024722111f // 198e-6f
@@ -37,6 +41,10 @@ class DenseWashboardTestScreen : KtxScreen {
     }
 
     init {
+        network = LayeredNetwork()
+        network += WashboardLayer(1, OUTPUT_COUNT)
+        network += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+//        network = DenseWashboardCyclic(1, 50, OUTPUT_COUNT)
         window += voltagePlot
         window += phasePlot
         window += currentPlot
@@ -63,7 +71,7 @@ class DenseWashboardTestScreen : KtxScreen {
 
     private fun generate() {
         network.reset()
-        network.setGlobalBias(bias)
+//        network.setGlobalBias(bias)
         voltagePlot.clearData()
         phasePlot.clearData()
         currentPlot.clearData()
@@ -77,11 +85,10 @@ class DenseWashboardTestScreen : KtxScreen {
 //            if (i > 12) inputCurrent = 0f
 
             currentPlot.addDatum("Input Current", Vector2(i.toFloat(), inputCurrent))
-            network.setInput(0, inputCurrent)
-            network.update(0f)
+            val output = network.update(mk.ndarray(mk[inputCurrent]), dt)
 
             for (j in 0 until OUTPUT_COUNT) {
-                voltagePlot.addDatum("Voltage $j", Vector2(i.toFloat(), network.getOutput(j)))
+                voltagePlot.addDatum("Voltage $j", Vector2(i.toFloat(), output[j]))
             }
 //            neurons.forEachIndexed { index, it ->
 //                voltagePlot.addDatum("Voltage $index", Vector2(i.toFloat(), it.out))
