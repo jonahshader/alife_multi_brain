@@ -26,12 +26,14 @@ class DenseWashboardTestScreen : KtxScreen {
 
     //    private var bias = 198 * 10e-6f
     private var bias = 0.0024722111f // 198e-6f
-    private var a = 0.01f
+    private var a = 0.002f
 
-    private var currentPeak = 1f
+    private var currentPeak = 0.01f
     private var currentPeakDuration = 25f
-    private var weight = 24.467f
+    private var weight = 8f
     private var dt = 3.979e-13f
+
+    private val washboardLayers = mutableListOf<WashboardLayer>()
 
 
     companion object {
@@ -43,8 +45,18 @@ class DenseWashboardTestScreen : KtxScreen {
     init {
         network = LayeredNetwork()
 //        network += StandardLayer(1, OUTPUT_COUNT)
-        network += WashboardLayer(1, OUTPUT_COUNT)
-//        network += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(1, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+        washboardLayers.forEach {
+            network += it
+        }
 //        network = DenseWashboardCyclic(1, 50, OUTPUT_COUNT)
         window += voltagePlot
         window += phasePlot
@@ -77,9 +89,16 @@ class DenseWashboardTestScreen : KtxScreen {
         phasePlot.clearData()
         currentPlot.clearData()
 
+        washboardLayers.forEach {
+            it.weightScale = weight
+            it.bias = bias
+        }
+
 
         for (i in 0 until SIM_STEPS) {
-            val p = (i - 50).toFloat() / (currentPeakDuration)
+            val scl = (dt * 2.51319419E12f)
+            val invscl = 1/scl
+            val p = (i - 10 * invscl) / (currentPeakDuration * invscl)
             val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * currentPeak
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
