@@ -5,8 +5,8 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
-import com.jonahshader.systems.neuralnet.layers.DumbLayer
 import com.jonahshader.systems.neuralnet.layers.LayeredNetwork
+import com.jonahshader.systems.neuralnet.layers.StandardLayer
 import com.jonahshader.systems.neuralnet.layers.WashboardLayer
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
@@ -42,8 +42,9 @@ class DenseWashboardTestScreen : KtxScreen {
 
     init {
         network = LayeredNetwork()
+//        network += StandardLayer(1, OUTPUT_COUNT)
         network += WashboardLayer(1, OUTPUT_COUNT)
-        network += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
+//        network += WashboardLayer(OUTPUT_COUNT, OUTPUT_COUNT)
 //        network = DenseWashboardCyclic(1, 50, OUTPUT_COUNT)
         window += voltagePlot
         window += phasePlot
