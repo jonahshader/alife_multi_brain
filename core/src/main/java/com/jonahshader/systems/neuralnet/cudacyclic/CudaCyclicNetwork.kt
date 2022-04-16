@@ -6,6 +6,8 @@ import com.jonahshader.systems.neuralnet.Network
 import com.jonahshader.systems.neuralnet.NetworkBuilder
 import com.jonahshader.systems.neuralnet.densecyclic.DenseCyclicNetwork
 import com.jonahshader.systems.utils.Rand
+import org.jetbrains.kotlinx.multik.ndarray.data.D1
+import org.jetbrains.kotlinx.multik.ndarray.data.NDArray
 import org.jetbrains.kotlinx.multik.ndarray.data.set
 import org.jetbrains.kotlinx.multik.ndarray.operations.toList
 import java.util.*
@@ -108,33 +110,36 @@ class CudaCyclicNetwork : Network {
         uploadWeightsAndBiases()
     }
 
-    override fun getParameters(): List<Float> {
+    override fun getParameters(): NDArray<Float, D1> {
         if (paramsDirty) {
             downloadWeightsAndBiases()
             paramsDirty = false
         }
-        return hiddenBias.toList() + outputBias.toList() +
-                inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
-                inputToOutputWeights.toList() + hiddenToOutputWeights.toList()
+//        return hiddenBias.toList() + outputBias.toList() +
+//                inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
+//                inputToOutputWeights.toList() + hiddenToOutputWeights.toList()
+        TODO("not implemented")
     }
 
-    override fun setParameters(params: List<Float>) {
-        var index = 0
-        for (i in hiddenBias.indices)
-            hiddenBias[i] = params[index++]
-        for (i in outputBias.indices)
-            outputBias[i] = params[index++]
-        for (i in inputToHiddenWeights.indices)
-            inputToHiddenWeights[i] = params[index++]
-        for (i in hiddenToHiddenWeights.indices)
-            hiddenToHiddenWeights[i] = params[index++]
-        for (i in inputToOutputWeights.indices)
-            inputToOutputWeights[i] = params[index++]
-        for (i in hiddenToOutputWeights.indices)
-            hiddenToOutputWeights[i] = params[index++]
+    override fun setParameters(params: NDArray<Float, D1>) {
+
+//        var index = 0
+//        for (i in hiddenBias.indices)
+//            hiddenBias[i] = params[index++]
+//        for (i in outputBias.indices)
+//            outputBias[i] = params[index++]
+//        for (i in inputToHiddenWeights.indices)
+//            inputToHiddenWeights[i] = params[index++]
+//        for (i in hiddenToHiddenWeights.indices)
+//            hiddenToHiddenWeights[i] = params[index++]
+//        for (i in inputToOutputWeights.indices)
+//            inputToOutputWeights[i] = params[index++]
+//        for (i in hiddenToOutputWeights.indices)
+//            hiddenToOutputWeights[i] = params[index++]
 
         uploadWeightsAndBiases()
         paramsDirty = false
+        TODO("not implemented")
     }
 
     override fun update(dt: Float) {

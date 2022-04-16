@@ -129,25 +129,29 @@ open class DenseWashboardCyclic : Network {
             hiddenToOutputWeights.data[i] += rand.nextGaussian().toFloat() * amount
     }
 
-//    override fun getParameters(): List<Float> = hiddenBias.toList() + outputBias.toList() +
-//            inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
-//            hiddenToOutputWeights.toList()
-override fun getParameters(): List<Float> =
-        inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
-        hiddenToOutputWeights.toList()
+//override fun getParameters(): List<Float> =
+//        inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
+//        hiddenToOutputWeights.toList()
 
-    override fun setParameters(params: List<Float>) {
-        var index = 0
-//        for (i in hiddenBias.indices)
-//            hiddenBias.data[i] = params[index++]
-//        for (i in outputBias.indices)
-//            outputBias.data[i] = params[index++]
-        for (i in inputToHiddenWeights.indices)
-            inputToHiddenWeights.data[i] = params[index++]
-        for (i in hiddenToHiddenWeights.indices)
-            hiddenToHiddenWeights.data[i] = params[index++]
-        for (i in hiddenToOutputWeights.indices)
-            hiddenToOutputWeights.data[i] = params[index++]
+    override fun getParameters(): NDArray<Float, D1> {
+        TODO("Not yet implemented")
+    }
+
+//    override fun setParameters(params: List<Float>) {
+//        var index = 0
+////        for (i in hiddenBias.indices)
+////            hiddenBias.data[i] = params[index++]
+////        for (i in outputBias.indices)
+////            outputBias.data[i] = params[index++]
+//        for (i in inputToHiddenWeights.indices)
+//            inputToHiddenWeights.data[i] = params[index++]
+//        for (i in hiddenToHiddenWeights.indices)
+//            hiddenToHiddenWeights.data[i] = params[index++]
+//        for (i in hiddenToOutputWeights.indices)
+//            hiddenToOutputWeights.data[i] = params[index++]
+//    }
+    override fun setParameters(params: NDArray<Float, D1>) {
+        TODO("Not yet implemented")
     }
 
     override fun update(dt: Float) {

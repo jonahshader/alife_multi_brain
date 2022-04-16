@@ -21,13 +21,13 @@ class DenseCyclicNetwork : Network {
     private var outputVector: NDArray<Float, D1>
     private var hiddenBuffer: NDArray<Float, D1>
     private var hiddenOut: NDArray<Float, D1>
-    private val hiddenBias: NDArray<Float, D1>
-    private val outputBias: NDArray<Float, D1>
+    private var hiddenBias: NDArray<Float, D1>
+    private var outputBias: NDArray<Float, D1>
 
-    private val inputToHiddenWeights: NDArray<Float, D2>
-    private val hiddenToHiddenWeights: NDArray<Float, D2>
-    private val inputToOutputWeights: NDArray<Float, D2>
-    private val hiddenToOutputWeights: NDArray<Float, D2>
+    private var inputToHiddenWeights: NDArray<Float, D2>
+    private var hiddenToHiddenWeights: NDArray<Float, D2>
+    private var inputToOutputWeights: NDArray<Float, D2>
+    private var hiddenToOutputWeights: NDArray<Float, D2>
 
     constructor(inputSize: Int, hiddenSize: Int, outputSize: Int, rand: Random = Rand.randx) {
         val sqrt6 = sqrt(6f)
@@ -98,24 +98,29 @@ class DenseCyclicNetwork : Network {
             hiddenToOutputWeights.data[i] += rand.nextGaussian().toFloat() * amount
     }
 
-    override fun getParameters(): List<Float> = hiddenBias.toList() + outputBias.toList() +
-            inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
-            inputToOutputWeights.toList() + hiddenToOutputWeights.toList()
+//    override fun getParameters(): List<Float> = hiddenBias.toList() + outputBias.toList() +
+//            inputToHiddenWeights.toList() + hiddenToHiddenWeights.toList() +
+//            inputToOutputWeights.toList() + hiddenToOutputWeights.toList()
 
-    override fun setParameters(params: List<Float>) {
+    override fun getParameters(): NDArray<Float, D1> =
+        hiddenBias.append(outputBias)
+            .append(inputToHiddenWeights.flatten()).append(hiddenToHiddenWeights.flatten())
+            .append(inputToOutputWeights.flatten()).append(hiddenToOutputWeights.flatten())
+
+    override fun setParameters(params: NDArray<Float, D1>) {
         var index = 0
-        for (i in hiddenBias.indices)
-            hiddenBias.data[i] = params[index++]
-        for (i in outputBias.indices)
-            outputBias.data[i] = params[index++]
-        for (i in inputToHiddenWeights.indices)
-            inputToHiddenWeights.data[i] = params[index++]
-        for (i in hiddenToHiddenWeights.indices)
-            hiddenToHiddenWeights.data[i] = params[index++]
-        for (i in inputToOutputWeights.indices)
-            inputToOutputWeights.data[i] = params[index++]
-        for (i in hiddenToOutputWeights.indices)
-            hiddenToOutputWeights.data[i] = params[index++]
+        hiddenBias = params[0..hiddenBias.size].asDNArray().asD1Array()
+        index += hiddenBias.size
+        outputBias = params[index..index + outputBias.size].asDNArray().asD1Array()
+        index += outputBias.size
+        inputToHiddenWeights = params[index..index + inputToHiddenWeights.size].reshape(inputToHiddenWeights.shape[0], inputToHiddenWeights.shape[1]).asDNArray().asD2Array()
+        index += inputToHiddenWeights.size
+        hiddenToHiddenWeights = params[index..index + hiddenToHiddenWeights.size].reshape(hiddenToHiddenWeights.shape[0], hiddenToHiddenWeights.shape[1]).asDNArray().asD2Array()
+        index += hiddenToHiddenWeights.size
+        inputToOutputWeights = params[index..index + inputToOutputWeights.size].reshape(inputToOutputWeights.shape[0], inputToOutputWeights.shape[1]).asDNArray().asD2Array()
+        index += inputToOutputWeights.size
+        hiddenToOutputWeights = params[index..index + hiddenToOutputWeights.size].reshape(hiddenToOutputWeights.shape[0], hiddenToOutputWeights.shape[1]).asDNArray().asD2Array()
+        index += hiddenToOutputWeights.size
     }
 
     override fun update(dt: Float) {
