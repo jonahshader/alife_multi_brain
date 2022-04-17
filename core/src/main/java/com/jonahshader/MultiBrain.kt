@@ -12,23 +12,28 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 /** [com.badlogic.gdx.ApplicationListener] implementation shared by all platforms.  */
 class MultiBrain : Game() {
     companion object {
+        private var init = false
         lateinit var batch: SpriteBatch
             private set
         lateinit var shapeRenderer: ShapeRenderer
             private set
         lateinit var shapeDrawer: ShapeDrawer
             private set
+
+        fun init() {
+            if (!init) {
+                Assets.startLoading()
+                Assets.finishLoading()
+                batch = SpriteBatch()
+                shapeRenderer = ShapeRenderer()
+                shapeDrawer = ShapeDrawer(batch, Assets.getSprites().findRegion("white_pixel"))
+            }
+        }
     }
 
     override fun create() {
-        Assets.startLoading()
-        Assets.finishLoading()
-        batch = SpriteBatch()
-        shapeRenderer = ShapeRenderer()
-        shapeDrawer = ShapeDrawer(batch, Assets.getSprites().findRegion("white_pixel"))
+        init()
         ScreenManager.game = this
-
-
         ScreenManager.push(MenuScreen())
     }
 }

@@ -29,12 +29,11 @@ class LayeredNetwork : Layer {
         paramCount += layer.getParamCount()
     }
 
-    override fun update(input: NDArray<Float, D1>, dt: Float) : NDArray<Float, D1> {
+    override fun update(input: LayerIO, dt: Float): LayerIO {
         var output = layers[0].update(input, dt)
         (1 until layers.size).forEach {
             output = layers[it].update(output, dt)
         }
-
         return output
     }
 

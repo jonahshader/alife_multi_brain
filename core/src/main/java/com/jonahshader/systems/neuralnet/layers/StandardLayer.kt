@@ -30,9 +30,10 @@ class StandardLayer : Layer {
         biases = c.biases.deepCopy()
     }
 
-    override fun update(input: NDArray<Float, D1>, dt: Float): NDArray<Float, D1> {
-        val output = ((weights dot input) + biases)
-        return (2.0f / (1f + (output * -2.0f).exp())) - 1.0f // tanh activation
+    override fun update(input: LayerIO, dt: Float): LayerIO {
+        val output = ((weights dot input.value) + biases)
+        TODO("propagate k values")
+        return LayerIO((2.0f / (1f + (output * -2.0f).exp())) - 1.0f) // tanh activation
     }
 
     override fun mutateParameters(amount: Float) {

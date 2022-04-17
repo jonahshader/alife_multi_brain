@@ -23,7 +23,7 @@ class WashboardLayer : Layer {
     private val outputSize: Int
     var pLayer: WashboardLayer? = null
     private var weights: NDArray<Float, D2>
-    var bias = 0.002f // .002
+    var bias = 0.0025f // .002
     private var dampening = 0.01f
     private var thetaInit = 0.55f
     private var output: NDArray<Float, D1>
@@ -34,6 +34,8 @@ class WashboardLayer : Layer {
     private var k1vel: NDArray<Float, D1>
     private var k2vel: NDArray<Float, D1>
     private var k3vel: NDArray<Float, D1>
+
+    var euler = false
     constructor(inputSize: Int, outputSize: Int) {
         this.inputSize = inputSize
         this.outputSize = outputSize
@@ -60,65 +62,83 @@ class WashboardLayer : Layer {
         weights = c.weights.deepCopy()
     }
 
-
-
-
-    // TODO: this function is broken somehow.
-//    private fun accel(inputCurrent: NDArray<Float, D1>, theta: NDArray<Float, D1>, angularVel: NDArray<Float, D1>): NDArray<Float, D1> =
-//        (((lSigma.toFloat() * inputCurrent) - (.01f * angularVel) - ((w_e / 2).toFloat() * (2f * theta).sin() * w_ex.toFloat())))
-
     private fun accel(ic: NDArray<Float, D1>, theta: NDArray<Float, D1>, angularVel: NDArray<Float, D1>) : NDArray<Float, D1> =
-        (ic * lSigma.toFloat() - 0.01f*angularVel - (w_e.toFloat()/2) * (theta*2f).sin()) * w_ex.toFloat()
+        (ic * lSigma.toFloat() - dampening*angularVel - (w_e.toFloat()/2) * (theta*2f).sin()) * w_ex.toFloat()
 
-    override fun update(input: NDArray<Float, D1>, dt: Float): NDArray<Float, D1> {
-//        pOutput = output.deepCopy()
+
+    override fun update(input: LayerIO, dt: Float): LayerIO {
         pOutput = output
-
-//        val weightedBiasedInput = (weightScale * (weights dot input)) + bias
+        val scaledWeights = weights * weightScale
+        val weightedBiasedInput = (scaledWeights dot input.value) + bias
 //
-//        angularVel.plusAssign(dt * accel(weightedBiasedInput, theta, angularVel))
-//        theta.plusAssign(dt * angularVel)
+        val k1pos = dt * angularVel
+        k1vel = dt * accel(weightedBiasedInput, theta, angularVel)
 
-        if (pLayer == null) {
-            val weightedBiasedInput = (weightScale * (weights dot input)) + bias
-            val k1pos = dt * angularVel
-            k1vel = dt * accel(weightedBiasedInput, theta, angularVel)
+        val k2pos = dt * (angularVel + .5f * k1vel)
+        k2vel = dt * accel(weightedBiasedInput + (.5f * scaledWeights dot input.k1), theta + .5f * k1pos, angularVel + .5f * k1vel)
 
-            val k2pos = dt * (angularVel + .5f * k1vel)
-            k2vel = dt * accel(weightedBiasedInput, theta + .5f * k1pos, angularVel + .5f * k1vel)
+        val k3pos = dt * (angularVel + .5f * k2vel)
+        k3vel = dt * accel(weightedBiasedInput + (.5f * scaledWeights dot input.k2), theta + .5f * k2pos, angularVel + .5f * k2vel)
 
-            val k3pos = dt * (angularVel + .5f * k2vel)
-            k3vel = dt * accel(weightedBiasedInput, theta + .5f * k2pos, angularVel + .5f * k2vel)
+        val k4pos = dt * (angularVel + k3vel)
+        val k4vel = dt * accel(weightedBiasedInput + (scaledWeights dot input.k3), theta + k3pos, angularVel + k3vel)
 
-            val k4pos = dt * (angularVel + k3vel)
-            val k4vel = dt * accel(weightedBiasedInput, theta + k3pos, angularVel + k3vel)
+        theta.plusAssign((k1pos + 2f * k2pos + 2f * k3pos + k4pos) * (1/6f))
+        angularVel.plusAssign((k1vel + 2f * k2vel + 2f * k3vel + k4vel) * (1/6f))
 
-            theta.plusAssign((k1pos + 2f * k2pos + 2f * k3pos + k4pos) * (1/6f))
-            angularVel.plusAssign((k1vel + 2f * k2vel + 2f * k3vel + k4vel) * (1/6f))
-        } else {
-            val pl = pLayer!!
-            val weightedBiasedInput = (weightScale * weights dot pl.pOutput) + bias
-
-            val k1pos = dt * angularVel
-            k1vel = dt * accel(weightedBiasedInput, theta, angularVel)
-
-            val k2pos = dt * (angularVel + .5f * k1vel)
-            k2vel = dt * accel(weightedBiasedInput + ((.5f * weights dot pl.k1vel) * (B * FEMTO).toFloat()), theta + .5f * k1pos, angularVel + .5f * k1vel)
-
-            val k3pos = dt * (angularVel + .5f * k2vel)
-            k3vel = dt * accel(weightedBiasedInput + ((.5f * weights dot pl.k2vel) * (B * FEMTO).toFloat()), theta + .5f * k2pos, angularVel + .5f * k2vel)
-
-            val k4pos = dt * (angularVel + k3vel)
-            val k4vel = dt * accel(weightedBiasedInput + ((weights dot pl.k3vel) * (B * FEMTO).toFloat()), theta + k3pos, angularVel + k3vel)
-
-            theta.plusAssign((k1pos + 2f * k2pos + 2f * k3pos + k4pos) * (1/6f))
-            angularVel.plusAssign((k1vel + 2f * k2vel + 2f * k3vel + k4vel) * (1/6f))
-        }
-
-        output = angularVel *((B * FEMTO).toFloat())
-        return output
-//        return angularVel
+        val outputScale = ((B * FEMTO).toFloat())
+        output = angularVel * outputScale
+        return LayerIO(output, k1vel * outputScale, k2vel * outputScale, k3vel * outputScale)
     }
+
+//    override fun update(input: NDArray<Float, D1>, dt: Float): NDArray<Float, D1> {
+//        pOutput = output
+//        if (euler) {
+//            val weightedBiasedInput = (weightScale * (weights dot input)) + bias
+//            val accel = accel(weightedBiasedInput, theta, angularVel)
+//            angularVel.plusAssign(accel * dt)
+//            theta.plusAssign(angularVel * dt)
+//        } else {
+//            if (pLayer == null) {
+//                val weightedBiasedInput = (weightScale * (weights dot input)) + bias
+//                val k1pos = dt * angularVel
+//                k1vel = dt * accel(weightedBiasedInput, theta, angularVel)
+//
+//                val k2pos = dt * (angularVel + .5f * k1vel)
+//                k2vel = dt * accel(weightedBiasedInput, theta + .5f * k1pos, angularVel + .5f * k1vel)
+//
+//                val k3pos = dt * (angularVel + .5f * k2vel)
+//                k3vel = dt * accel(weightedBiasedInput, theta + .5f * k2pos, angularVel + .5f * k2vel)
+//
+//                val k4pos = dt * (angularVel + k3vel)
+//                val k4vel = dt * accel(weightedBiasedInput, theta + k3pos, angularVel + k3vel)
+//
+//                theta.plusAssign((k1pos + 2f * k2pos + 2f * k3pos + k4pos) * (1/6f))
+//                angularVel.plusAssign((k1vel + 2f * k2vel + 2f * k3vel + k4vel) * (1/6f))
+//            } else {
+//                val pl = pLayer!!
+//                val weightedBiasedInput = (weightScale * weights dot pl.pOutput) + bias
+//
+//                val k1pos = dt * angularVel
+//                k1vel = dt * accel(weightedBiasedInput, theta, angularVel)
+//
+//                val k2pos = dt * (angularVel + .5f * k1vel)
+//                k2vel = dt * accel(weightedBiasedInput + ((.5f * weights dot pl.k1vel) * (B * FEMTO).toFloat()), theta + .5f * k1pos, angularVel + .5f * k1vel)
+//
+//                val k3pos = dt * (angularVel + .5f * k2vel)
+//                k3vel = dt * accel(weightedBiasedInput + ((.5f * weights dot pl.k2vel) * (B * FEMTO).toFloat()), theta + .5f * k2pos, angularVel + .5f * k2vel)
+//
+//                val k4pos = dt * (angularVel + k3vel)
+//                val k4vel = dt * accel(weightedBiasedInput + ((weights dot pl.k3vel) * (B * FEMTO).toFloat()), theta + k3pos, angularVel + k3vel)
+//
+//                theta.plusAssign((k1pos + 2f * k2pos + 2f * k3pos + k4pos) * (1/6f))
+//                angularVel.plusAssign((k1vel + 2f * k2vel + 2f * k3vel + k4vel) * (1/6f))
+//            }
+//        }
+//
+//        output = angularVel *((B * FEMTO).toFloat())
+//        return output
+//    }
 
 
     override fun mutateParameters(amount: Float) {

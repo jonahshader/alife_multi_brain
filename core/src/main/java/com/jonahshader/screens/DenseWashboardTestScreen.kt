@@ -5,9 +5,11 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Vector2
 import com.jonahshader.MultiBrain
+import com.jonahshader.systems.neuralnet.layers.LayerIO
 import com.jonahshader.systems.neuralnet.layers.LayeredNetwork
 import com.jonahshader.systems.neuralnet.layers.StandardLayer
 import com.jonahshader.systems.neuralnet.layers.WashboardLayer
+import com.jonahshader.systems.neuralnet.neurons.WashboardNeuron
 import com.jonahshader.systems.ui.Plot
 import com.jonahshader.systems.ui.ScreenWindow
 import com.jonahshader.systems.ui.Slider
@@ -82,6 +84,8 @@ class DenseWashboardTestScreen : KtxScreen {
         generate()
     }
 
+    private fun inputCurrentDerivative(p: Float) = (if (p > 0 && p < 1) 4-8*p else 0f) * currentPeak
+
     private fun generate() {
         network.reset()
 //        network.setGlobalBias(bias)
@@ -100,15 +104,20 @@ class DenseWashboardTestScreen : KtxScreen {
             val invscl = 1/scl
             val p = (i - 10 * invscl) / (currentPeakDuration * invscl)
             val inputCurrent = ((p * (1-p)) * 4).coerceAtLeast(0f) * currentPeak
+            val k1 = invscl * inputCurrentDerivative(p + invscl)
+            val k2 = invscl * inputCurrentDerivative(p + invscl * 1.5f)
+            val k3 = k2
+            val k4 = invscl * inputCurrentDerivative(p + invscl * 2f)
+
 //            val inputCurrent = 0f
 //            var inputCurrent = 0.0065f// 0.0065f
 //            if (i > 12) inputCurrent = 0f
 
             currentPlot.addDatum("Input Current", Vector2(i.toFloat(), inputCurrent))
-            val output = network.update(mk.ndarray(mk[inputCurrent]), dt)
+            val output = network.update(LayerIO(mk.ndarray(mk[inputCurrent]), mk.ndarray(mk[k1]), mk.ndarray(mk[k2]), mk.ndarray(mk[k3])), dt)
 
             for (j in 0 until OUTPUT_COUNT) {
-                voltagePlot.addDatum("Voltage $j", Vector2(i.toFloat(), output[j]))
+                voltagePlot.addDatum("Voltage $j", Vector2(i.toFloat(), output.value[j]))
             }
 //            neurons.forEachIndexed { index, it ->
 //                voltagePlot.addDatum("Voltage $index", Vector2(i.toFloat(), it.out))
@@ -121,6 +130,14 @@ class DenseWashboardTestScreen : KtxScreen {
         clearScreen(0f, 0f, 0f)
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { generate() }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            washboardLayers.forEach { it.euler = true }
+            generate()
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            washboardLayers.forEach { it.euler = false }
+            generate()
+        }
 
         window.update(delta)
         window.render(MultiBrain.batch)
